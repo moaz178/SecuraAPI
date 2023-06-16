@@ -1,0 +1,236 @@
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import Header from "../../components/Header/Header";
+import { countries, regions } from "../../static/country";
+import "../SignIn/Login.css";
+
+const Registration = () => {
+  const [region, setRegion] = useState(regions.Select);
+  const [country, setCountry] = useState("");
+  const [isChecked, setCheck] = useState(false);
+  const [isWorkEmail, setWorkEmail] = useState(false);
+  const [inputValues, setInputValue] = useState({
+    fName: "",
+    lName: "",
+    email: "",
+  });
+
+  const [validation, setValidation] = useState({
+    fName: "",
+    lName: "",
+    email: "",
+  });
+
+  //handle submit updates
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setInputValue({ ...inputValues, [name]: value });
+  }
+
+  const checkValidation = () => {
+    let errors = validation;
+
+    //first Name validation
+    if (!inputValues.fName.trim()) {
+      errors.fName = "First name is required !";
+    } else {
+      errors.fName = "";
+    }
+    //last Name validation
+    if (!inputValues.lName.trim()) {
+      errors.lName = "Last name is required !";
+    } else {
+      errors.lName = "";
+    }
+
+    // email validation
+    const emailCond = /^([\w.-]+)@(\[(\d{1,3}\.){3}|(?!hotmail|gmail|yahoo|outlook)(([a-zA-Z\d-]+\.)+))([a-zA-Z]{2,4}|\d{1,3})(\]?)$/;
+    if (!inputValues.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!inputValues.email.match(emailCond)) {
+      setWorkEmail(true);
+      errors.email = "Please enter a valid working email !";
+    } else {
+      errors.email = "";
+    }
+
+    setValidation(errors);
+  };
+
+  useEffect(() => {
+    checkValidation();
+  }, [inputValues]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("errors", validation);
+    if (
+      validation.email !== "" ||
+      validation.fName !== "" ||
+      validation.lName !== ""
+    ) {
+      alert("Please submit valid information");
+    } else alert("Form submitted successfully !!");
+  };
+
+  return (
+    <>
+      <Header />
+
+      <div
+        className="login-container"
+        style={{ display: "flex", justifyContent: "center" }}
+      >
+        <div
+          id="login-box"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <div className="left">
+            <h1>Sign up now to get started !</h1>
+            <form>
+              <div className="col">
+                <input
+                  type="text"
+                  name="email"
+                  placeholder="Work Email"
+                  onChange={(e) => {
+                    handleChange(e);
+                  }}
+                  className="input-field mb-1"
+                  value={inputValues.email}
+                />
+                {validation.email && (
+                  <p className="text-danger fs-13">{validation.email}</p>
+                )}
+              </div>
+              <br />
+
+              {isWorkEmail && (
+                <>
+                  <div style={{ display: "flex" }}>
+                    <div className="col">
+                      <input
+                        type="text"
+                        placeholder="First Name"
+                        className="input-field mr-3 mb-1"
+                        name="fName"
+                        id="fName"
+                        onChange={(e) => handleChange(e)}
+                        value={inputValues.fName}
+                      />
+                      {validation.fName && (
+                        <p className="text-danger fs-13">{validation.fName}</p>
+                      )}
+                    </div>
+
+                    <div className="col">
+                      <input
+                        type="text"
+                        placeholder="Last Name"
+                        id="lName"
+                        name="lName"
+                        className="input-field mb-1"
+                        onChange={(e) => handleChange(e)}
+                        value={inputValues.lName}
+                      />
+                      {validation.lName && (
+                        <p className="text-danger fs-13">{validation.lName}</p>
+                      )}
+                    </div>
+                  </div>
+                  <br />
+
+                  <label htmlFor="">Country</label>
+                  <br />
+                  <select
+                    value={country}
+                    className="select-regions"
+                    onChange={(e) => setCountry(e.target.value)}
+                  >
+                    {countries.map((x, y) => (
+                      <option key={y}>{x}</option>
+                    ))}
+                  </select>
+                  <br />
+                </>
+              )}
+              <label htmlFor="">Region</label>
+              <br />
+
+              <select
+                value={region}
+                className="select-regions"
+                onChange={(e) => setRegion(e.target.value)}
+              >
+                {Object.entries(regions).map((reg) => (
+                  <option value={reg[1]}>{reg[0]}</option>
+                ))}
+              </select>
+
+              <label className="text-warning">
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => setCheck(!isChecked)}
+                />
+                &nbsp; I acknowledge that I have read and agree End User Terms.
+              </label>
+            </form>
+
+            <br />
+
+            <button
+              type="submit"
+              disabled={!isChecked}
+              onClick={handleSubmit}
+              className="btn btn-primary btn-lg btn-block fs-15"
+            >
+              Sign Up
+            </button>
+            <br />
+            <Link to={`/signin`} className="small text-info">
+              Already have an account? Sign In &nbsp;
+              <i className="fa fa-long-arrow-right" aria-hidden="true"></i>
+            </Link>
+          </div>
+        </div>
+
+        <div className="text-light registration-notes">
+          <h5 className="text-warning">
+            See how you can get more from your company's data in three ways
+          </h5>
+          <br />
+          <ul className="fs-14 ">
+            <li>
+              <strong>Fast:</strong> &nbsp; Experience zero-code, zero
+              distruption and seamless ELT and ETL.
+            </li>
+            <br />
+
+            <li>
+              <strong>Free:</strong> &nbsp; Start free and opt for a flexible,
+              pay-as-you-go options as your grow.
+            </li>
+            <br />
+
+            <li>
+              <strong>Proven:</strong> &nbsp; Count on secure, enterprise-grade,
+              self service data-integration.
+            </li>
+          </ul>
+          <br />
+          <p className="fs-15">
+            Find out how far Cloud Data Integration-Free can take you Simply add
+            this Al poweredsolution to your toolkit today—and start turning data
+            into ready-to-use insights in minutes.
+          </p>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default Registration;

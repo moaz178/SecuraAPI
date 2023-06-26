@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../components/Header/Header";
-import { countries, regions } from "../../static/country";
+import countries from "i18n-iso-countries";
+import enLocale from "i18n-iso-countries/langs/en.json";
+import itLocale from "i18n-iso-countries/langs/it.json";
+import { regions } from "../../static/country";
+import axios from "axios"
 import "../SignIn/Login.css";
 
 const Registration = () => {
   const [region, setRegion] = useState(regions.Select);
-  const [country, setCountry] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("");
   const [isChecked, setCheck] = useState(false);
   const [isWorkEmail, setWorkEmail] = useState(false);
   const [inputValues, setInputValue] = useState({
@@ -20,6 +24,23 @@ const Registration = () => {
     lName: "",
     email: "",
   });
+
+  const selectCountryHandler = (value) => setSelectedCountry(value);
+
+  // Have to register the languages you want to use
+  countries.registerLocale(enLocale);
+  countries.registerLocale(itLocale);
+
+  // Returns an object not a list
+  const countryObj = countries.getNames("en", { select: "official" });
+
+  const countryArr = Object.entries(countryObj).map(([key, value]) => {
+    return {
+      label: value,
+      value: key
+    };
+  });
+
 
   //handle submit updates
   function handleChange(event) {
@@ -61,17 +82,43 @@ const Registration = () => {
     checkValidation();
   }, [inputValues]);
 
+ 
+   
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("errors", validation);
+   
+    const {fName, lName, email} = inputValues
+
     if (
       validation.email !== "" ||
       validation.fName !== "" ||
       validation.lName !== ""
     ) {
       alert("Please submit valid information");
-    } else alert("Form submitted successfully !!");
+    
+    } else {
+          axios.post('http://localhost:8086/public/api/v1/register', {
+           userId: "",
+           appId: 1,
+           firstName: fName ,
+           lastName: lName,
+           userName: "",
+           password: "",
+           email: email,
+           status: 1,
+           countryCode: selectedCountry,
+           regionCode: region
+      }
+      )
+      .then(function (response) {
+        console.log("res" , response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });      
+    } 
   };
+
 
   return (
     <>
@@ -146,13 +193,17 @@ const Registration = () => {
                   <label htmlFor="">Country</label>
                   <br />
                   <select
-                    value={country}
                     className="select-regions"
-                    onChange={(e) => setCountry(e.target.value)}
+                    value={selectedCountry}
+                    onChange={(e) => selectCountryHandler(e.target.value)}
                   >
-                    {countries.map((x, y) => (
-                      <option key={y}>{x}</option>
-                    ))}
+                   
+                     {!!countryArr?.length &&
+          countryArr.map(({ label, value }) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
                   </select>
                   <br />
                 </>

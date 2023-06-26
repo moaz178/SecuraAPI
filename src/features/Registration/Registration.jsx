@@ -5,7 +5,8 @@ import countries from "i18n-iso-countries";
 import enLocale from "i18n-iso-countries/langs/en.json";
 import itLocale from "i18n-iso-countries/langs/it.json";
 import { regions } from "../../static/country";
-import axios from "axios"
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
 import "../SignIn/Login.css";
 
 const Registration = () => {
@@ -33,21 +34,20 @@ const Registration = () => {
 
   // Returns an object not a list
   const countryObj = countries.getNames("en", { select: "official" });
-
   const countryArr = Object.entries(countryObj).map(([key, value]) => {
     return {
       label: value,
-      value: key
+      value: key,
     };
   });
 
-
-  //handle submit updates
+  //Handle onchange updates
   function handleChange(event) {
     const { name, value } = event.target;
     setInputValue({ ...inputValues, [name]: value });
   }
 
+  //Handle Validations
   const checkValidation = () => {
     let errors = validation;
 
@@ -65,7 +65,8 @@ const Registration = () => {
     }
 
     // email validation
-    const emailCond = /^([\w.-]+)@(\[(\d{1,3}\.){3}|(?!hotmail|gmail|yahoo|outlook)(([a-zA-Z\d-]+\.)+))([a-zA-Z]{2,4}|\d{1,3})(\]?)$/;
+    const emailCond =
+      /^([\w.-]+)@(\[(\d{1,3}\.){3}|(?!hotmail|gmail|yahoo|outlook)(([a-zA-Z\d-]+\.)+))([a-zA-Z]{2,4}|\d{1,3})(\]?)$/;
     if (!inputValues.email.trim()) {
       errors.email = "Email is required";
     } else if (!inputValues.email.match(emailCond)) {
@@ -82,48 +83,58 @@ const Registration = () => {
     checkValidation();
   }, [inputValues]);
 
- 
-   
+  //Handle Submit Updates
   const handleSubmit = (e) => {
     e.preventDefault();
-   
-    const {fName, lName, email} = inputValues
-
+    const { fName, lName, email } = inputValues;
     if (
       validation.email !== "" ||
       validation.fName !== "" ||
-      validation.lName !== ""
+      validation.lName !== "" ||
+      selectedCountry == null ||
+      region == "Select Region"
     ) {
-      alert("Please submit valid information");
-    
+      toast.error("Please submit valid information");
     } else {
-          axios.post('http://localhost:8086/public/api/v1/register', {
-           userId: "",
-           appId: 1,
-           firstName: fName ,
-           lastName: lName,
-           userName: "",
-           password: "",
-           email: email,
-           status: 1,
-           countryCode: selectedCountry,
-           regionCode: region
-      }
-      )
-      .then(function (response) {
-        console.log("res" , response);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });      
-    } 
-  };
+      const payload = {
+        userId: "",
+        appId: 1,
+        firstName: fName,
+        lastName: lName,
+        userName: "",
+        password: "",
+        email: email,
+        status: 1,
+        countryCode: selectedCountry,
+        regionCode: region,
+      };
+      axios
+        .post("http://localhost:8086/public/api/v1/register", payload)
+        .then(function (response) {
+          console.log("res", response);
+          const { message, code } = response.data;
+          code === "101" && toast.error(message);
+          code === "100" && toast.success(message);
+        })
 
+        .catch(function (error) {
+          console.log(error);
+        });
+    }
+  };
 
   return (
     <>
       <Header />
-
+      <Toaster
+        toastOptions={{
+          style: {
+            fontWeight: "600",
+            fontSize: "12px",
+            padding: "20px 10px",
+          },
+        }}
+      />
       <div
         className="login-container"
         style={{ display: "flex", justifyContent: "center" }}
@@ -138,7 +149,7 @@ const Registration = () => {
           <div className="left">
             <h1>Sign up now to get started !</h1>
             <form>
-              <div className="col">
+              <div className="col p-0">
                 <input
                   type="text"
                   name="email"
@@ -158,7 +169,7 @@ const Registration = () => {
               {isWorkEmail && (
                 <>
                   <div style={{ display: "flex" }}>
-                    <div className="col">
+                    <div className="col p-0">
                       <input
                         type="text"
                         placeholder="First Name"
@@ -173,7 +184,7 @@ const Registration = () => {
                       )}
                     </div>
 
-                    <div className="col">
+                    <div className="col pr-0">
                       <input
                         type="text"
                         placeholder="Last Name"
@@ -197,13 +208,12 @@ const Registration = () => {
                     value={selectedCountry}
                     onChange={(e) => selectCountryHandler(e.target.value)}
                   >
-                   
-                     {!!countryArr?.length &&
-          countryArr.map(({ label, value }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
+                    {!!countryArr?.length &&
+                      countryArr.map(({ label, value }) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
                   </select>
                   <br />
                 </>

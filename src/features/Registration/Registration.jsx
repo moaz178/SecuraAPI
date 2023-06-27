@@ -7,6 +7,7 @@ import itLocale from "i18n-iso-countries/langs/it.json";
 import { regions } from "../../static/country";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import Loader from "../../components/Loader/Loader";
 import "../SignIn/Login.css";
 
 const Registration = () => {
@@ -14,6 +15,7 @@ const Registration = () => {
   const [selectedCountry, setSelectedCountry] = useState("");
   const [isChecked, setCheck] = useState(false);
   const [isWorkEmail, setWorkEmail] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [inputValues, setInputValue] = useState({
     fName: "",
     lName: "",
@@ -90,9 +92,7 @@ const Registration = () => {
     if (
       validation.email !== "" ||
       validation.fName !== "" ||
-      validation.lName !== "" ||
-      selectedCountry == null ||
-      region == "Select Region"
+      validation.lName !== ""
     ) {
       toast.error("Please submit valid information");
     } else {
@@ -108,10 +108,12 @@ const Registration = () => {
         countryCode: selectedCountry,
         regionCode: region,
       };
+      setLoading(true);
       axios
         .post("http://localhost:8086/public/api/v1/register", payload)
         .then(function (response) {
           console.log("res", response);
+          setLoading(false);
           const { message, code } = response.data;
           code === "101" && toast.error(message);
           code === "100" && toast.success(message);
@@ -126,6 +128,7 @@ const Registration = () => {
   return (
     <>
       <Header />
+      <Loader show={loading} />
       <Toaster
         toastOptions={{
           style: {

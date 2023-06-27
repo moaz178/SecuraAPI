@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../components/Header/Header";
+import OTPModal from "../../components/Modal/Modal";
 import "./Login.css";
 
 const Login = () => {
+  const [show, setShow] = useState(false);
+
   return (
     <>
       <Header />
-
+      <OTPModal show={show} setShow={setShow} />
       <div
         className="login-container"
         style={{ display: "flex", justifyContent: "center" }}
@@ -18,19 +21,15 @@ const Login = () => {
 
             <input type="text" name="email" placeholder="E-mail" />
             <input type="password" name="password" placeholder="Password" />
-            <input type="password" name="password" placeholder="New Password" />
-            <input
-              type="password"
-              name="password"
-              placeholder="Confirm Password"
-            />
 
             <Link to={`/create-acount`} className="small text-info">
               Forget Password?
             </Link>
             <br />
 
-            <button className="login-button">Sign In</button>
+            <button className="login-button" onClick={() => setShow(true)}>
+              Sign In
+            </button>
 
             <br />
             <Link to={`/create-acount`} className="small text-warning">

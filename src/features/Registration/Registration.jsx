@@ -115,6 +115,8 @@ const Registration = () => {
           console.log("res", response);
           setLoading(false);
           const { message, code } = response.data;
+          code === "ERR_BAD_REQUEST" &&
+            toast.error("Request failed with status code 401");
           code === "101" && toast.error(message);
           code === "100" && toast.success(message);
         })

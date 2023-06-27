@@ -14,7 +14,7 @@ const AppRoutes = () => {
         <Route path="/signin" element={<Login />}></Route>
         <Route path="/create-acount" element={<Registration />}></Route>
         <Route path="/dashboard" element={<Dashboard />}></Route>
-        <Route path="/dm-ap.secura-API.com/ma/update-password" element={<UpdatePassword/>}></Route>
+        <Route path="/update-password" element={<UpdatePassword/>}></Route>
 
         <Route path="*" element={<NotFound />} />
       </Routes>

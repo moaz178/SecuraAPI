@@ -1,16 +1,127 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../components/Header/Header";
+import axios from "axios";
+import toast, { Toaster } from "react-hot-toast";
+import Loader from "../../components/Loader/Loader";
 import OTPModal from "../../components/Modal/Modal";
+import { useAuth } from "./authContext/authContext";
 import "./Login.css";
 
 const Login = () => {
-  const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showOTPModal, setshowOTPModal] = useState(false);
+  const [passwordType, setPasswordType] = useState("password");
+  const [passwordError, setPasswordErr] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [loginInput, setLoginInput] = useState({
+    email: "",
+    password: "",
+  });
+
+  // User Auth Context
+  const { setUser } = useAuth();
+
+  //Set Password Type
+  const togglePasswordType = () => {
+    if (passwordType === "password") {
+      setPasswordType("text");
+      return;
+    }
+    setPasswordType("password");
+  };
+
+  //Set user input
+  const handlePasswordChange = (evnt) => {
+    const loginInputValue = evnt.target.value.trim();
+    const loginInputFieldName = evnt.target.name;
+    const NewLoginInput = {
+      ...loginInput,
+      [loginInputFieldName]: loginInputValue,
+    };
+    setLoginInput(NewLoginInput);
+  };
+
+  //Validations Check
+  const handleValidation = (evnt) => {
+    const loginInputValue = evnt.target.value.trim();
+    const loginInputFieldName = evnt.target.name;
+    //for password validation
+    if (loginInputFieldName === "password") {
+      let errMsg = "";
+      if (loginInputValue.length === 0) {
+        errMsg = "Password is required";
+      } else {
+        errMsg = "";
+      }
+      setPasswordErr(errMsg);
+    }
+
+    // for email validation
+    if (loginInputFieldName === "email") {
+      if (loginInput.email.length === 0) {
+        setEmailError("email is required");
+      } else {
+        setEmailError("");
+      }
+    }
+  };
+
+  //Handle Submit Updates
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const { email, password } = loginInput;
+    if (emailError !== "" || passwordError !== "") {
+      toast.error("Please submit valid information");
+    } else {
+      const payload = {
+        email: email,
+        password: password,
+      };
+      setLoading(true);
+
+      axios
+        .post("http://localhost:8086/public/api/v1/authenticate", payload)
+        .then(function (res) {
+          setLoading(false);
+          const { message, code, response } = res.data;
+          const token = response.token;
+          if (token) {
+            localStorage.setItem("userInfo", JSON.stringify(response));
+            setUser(response);
+          }
+          if (code === "100") {
+            toast.success(message);
+            setshowOTPModal(true);
+          } else if (code !== "100") {
+            toast.error(message);
+          } else return;
+        })
+
+        .catch(function (error) {
+          toast.error(error.message);
+          setLoading(false);
+          console.log("login catch", error);
+        });
+    }
+  };
 
   return (
     <>
       <Header />
-      <OTPModal show={show} setShow={setShow} />
+
+      <Loader show={loading} />
+      <OTPModal show={showOTPModal} setShow={setshowOTPModal} />
+      <Toaster
+        toastOptions={{
+          style: {
+            fontWeight: "600",
+            fontSize: "12px",
+            padding: "20px 10px",
+          },
+        }}
+      />
       <div
         className="login-container"
         style={{ display: "flex", justifyContent: "center" }}
@@ -19,15 +130,54 @@ const Login = () => {
           <div class="left">
             <h3>Sign in to your Secura API account </h3>
 
-            <input type="text" name="email" placeholder="E-mail" />
-            <input type="password" name="password" placeholder="Password" />
+            <input
+              type="email"
+              value={loginInput.email}
+              onChange={handlePasswordChange}
+              onKeyUp={handleValidation}
+              name="email"
+              placeholder="Email"
+              className="mb-1"
+            />
+            <p className="text-danger fs-13 mb-4">{emailError}</p>
+
+            <div style={{ display: "flex" }}>
+              <input
+                type={passwordType}
+                value={loginInput.password}
+                onChange={handlePasswordChange}
+                onKeyUp={handleValidation}
+                name="password"
+                placeholder="Password"
+                className="mb-1"
+              />
+              {loginInput.password.length > 0 ? (
+                passwordType === "password" ? (
+                  <i
+                    className="fas fa-eye-slash text-secondary mt-3 mr-3"
+                    onClick={togglePasswordType}
+                  ></i>
+                ) : (
+                  <i
+                    className="fas fa-eye text-secondary mt-3 mr-3"
+                    onClick={togglePasswordType}
+                  ></i>
+                )
+              ) : null}
+            </div>
+            <p className="text-danger fs-13 mb-4">{passwordError}</p>
 
             <Link to={`/create-acount`} className="small text-info">
-              Forget Password?
+              Forgot Password?
             </Link>
             <br />
 
-            <button className="login-button" onClick={() => setShow(true)}>
+            <button
+              type="submit"
+              disabled={emailError || passwordError}
+              onClick={handleSubmit}
+              className="btn btn-primary btn-lg btn-block fs-15 mt-4"
+            >
               Sign In
             </button>
 

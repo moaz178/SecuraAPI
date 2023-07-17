@@ -86,7 +86,7 @@ const Registration = () => {
   }, [inputValues]);
 
   //Handle Submit Updates
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const { fName, lName, email } = inputValues;
     if (
@@ -97,7 +97,6 @@ const Registration = () => {
       toast.error("Please submit valid information");
     } else {
       const payload = {
-        userId: "",
         appId: 1,
         firstName: fName,
         lastName: lName,
@@ -109,20 +108,30 @@ const Registration = () => {
         regionCode: region,
       };
       setLoading(true);
-      axios
+
+      await axios
         .post("http://localhost:8086/public/api/v1/register", payload)
-        .then(function (response) {
-          console.log("res", response);
+        .then(function (res) {
+          console.log("res", res);
           setLoading(false);
-          const { message, code } = response.data;
-          code === "ERR_BAD_REQUEST" &&
-            toast.error("Request failed with status code 401");
+          const { message, code, response } = res.data;
           code === "101" && toast.error(message);
-          code === "100" && toast.success(message);
+          if (code === "100") {
+            toast.success(
+              "User registered successfully. Please check your email for further process !"
+            );
+            localStorage.setItem(
+              "userRegisteredInfo",
+              JSON.stringify(response)
+            );
+            // setUserEmail(response.email);
+          }
         })
 
         .catch(function (error) {
-          console.log(error);
+          toast.error(error.message);
+          setLoading(false);
+          console.log("register catch", error);
         });
     }
   };

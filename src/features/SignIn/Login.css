@@ -8,7 +8,7 @@
   position: relative;
   background: url("/public/dist/bg-spotlight.webp") center bottom no-repeat;
   background-size: cover;
-  padding: 150px 0 120px 0;
+  padding: 90px 0 120px 0;
 }
 
 #login-box {
@@ -48,7 +48,7 @@ input[type="password"] {
 
 input[type="text"]:focus,
 input[type="password"]:focus {
-  border-bottom: 2px solid #07a0e7;
+  /* border-bottom: 2px solid #07a0e7; */
   color: #cccaca;
   transition: 0.2s ease;
 }

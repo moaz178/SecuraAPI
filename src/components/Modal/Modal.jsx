@@ -60,7 +60,8 @@ const OTPModal = ({ show, setShow }) => {
         if (code === "100") {
           toast.success(message);
           setLoggedIn(true);
-          navigate("/dashboard");
+          // if payment === 'done'? navigate('/home') : navigate('/payment')
+          navigate("/home");
         } else if (code !== "100") {
           toast.error(message);
         } else setLoggedIn(false);

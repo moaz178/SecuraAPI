@@ -22,15 +22,13 @@
   padding: 40px;
 }
 
-h1 {
+.signup-heading {
   margin: 0 0 20px 0;
   font-weight: 300;
   font-size: 28px;
 }
 
-.login-container input[type="text"],
-input[type="email"],
-input[type="password"] {
+.login-container .signup-feilds {
   display: block;
   box-sizing: border-box;
   margin-bottom: 20px;
@@ -46,8 +44,7 @@ input[type="password"] {
   color: #c2c0c0;
 }
 
-input[type="text"]:focus,
-input[type="password"]:focus {
+.signup-feilds :focus {
   /* border-bottom: 2px solid #07a0e7; */
   color: #cccaca;
   transition: 0.2s ease;

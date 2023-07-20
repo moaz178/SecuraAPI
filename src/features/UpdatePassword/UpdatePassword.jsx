@@ -178,7 +178,7 @@ const UpdatePassword = () => {
                 onKeyUp={handleValidation}
                 name="oldPassword"
                 placeholder="Temporary Password"
-                className="mb-1"
+                className="signup-feilds mb-1"
               />
               {passwordInput.oldPassword.length > 0 ? (
                 passwordType === "password" ? (
@@ -204,7 +204,7 @@ const UpdatePassword = () => {
                 onKeyUp={handleValidation}
                 name="password"
                 placeholder="New Password"
-                className="mb-1"
+                className="signup-feilds mb-1"
               />
               {passwordInput.password.length > 0 ? (
                 passwordType === "password" ? (
@@ -229,7 +229,7 @@ const UpdatePassword = () => {
                 onKeyUp={handleValidation}
                 name="confirmPassword"
                 placeholder="Confirm Password"
-                className="mb-1"
+                className="signup-feilds mb-1"
               />
               {passwordInput.confirmPassword.length > 0 ? (
                 passwordType === "password" ? (

@@ -132,12 +132,12 @@ const Login = () => {
 
             <input
               type="email"
+              className="signup-feilds mb-1"
               value={loginInput.email}
               onChange={handlePasswordChange}
               onKeyUp={handleValidation}
               name="email"
               placeholder="Email"
-              className="mb-1"
             />
             <p className="text-danger fs-13 mb-4">{emailError}</p>
 
@@ -149,7 +149,7 @@ const Login = () => {
                 onKeyUp={handleValidation}
                 name="password"
                 placeholder="Password"
-                className="mb-1"
+                className="signup-feilds mb-1"
               />
               {loginInput.password.length > 0 ? (
                 passwordType === "password" ? (

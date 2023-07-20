@@ -118,12 +118,13 @@ const Registration = () => {
           code === "101" && toast.error(message);
           if (code === "100") {
             toast.success(
-              "User registered successfully. Please check your email for further process !"
+              "User registered successfully. Please check your email! We have sent you a link to update your password."
             );
             localStorage.setItem(
               "userRegisteredInfo",
               JSON.stringify(response)
             );
+
             // setUserEmail(response.email);
           }
         })
@@ -161,7 +162,7 @@ const Registration = () => {
           }}
         >
           <div className="left">
-            <h1>Sign up now to get started !</h1>
+            <h1 className="signup-heading">Sign up now to get started !</h1>
             <form>
               <div className="col p-0">
                 <input
@@ -171,7 +172,7 @@ const Registration = () => {
                   onChange={(e) => {
                     handleChange(e);
                   }}
-                  className="input-field mb-1"
+                  className="signup-feilds input-field mb-1"
                   value={inputValues.email}
                 />
                 {validation.email && (
@@ -187,7 +188,7 @@ const Registration = () => {
                       <input
                         type="text"
                         placeholder="First Name"
-                        className="input-field mr-3 mb-1"
+                        className=" signup-feilds input-field mr-3 mb-1"
                         name="fName"
                         id="fName"
                         onChange={(e) => handleChange(e)}
@@ -204,7 +205,7 @@ const Registration = () => {
                         placeholder="Last Name"
                         id="lName"
                         name="lName"
-                        className="input-field mb-1"
+                        className="signup-feilds input-field mb-1"
                         onChange={(e) => handleChange(e)}
                         value={inputValues.lName}
                       />

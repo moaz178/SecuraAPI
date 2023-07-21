@@ -129,7 +129,6 @@ const UpdatePassword = () => {
           payload
         )
         .then(function (res) {
-          console.log("res", res);
           setLoading(false);
           const { message, code } = res.data;
           if (code === "100") {

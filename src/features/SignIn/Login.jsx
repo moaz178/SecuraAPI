@@ -85,6 +85,7 @@ const Login = () => {
         .post("http://localhost:8086/public/api/v1/authenticate", payload)
         .then(function (res) {
           setLoading(false);
+          console.log("loginRes", res);
           const { message, code, response } = res.data;
           const token = response.token;
           if (token) {

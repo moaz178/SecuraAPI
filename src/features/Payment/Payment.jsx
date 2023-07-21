@@ -14,7 +14,7 @@ const Payment = () => {
   });
 
   useEffect(() => {
-    if (cardInfo.cardNo.length === 16 || cardInfo.cardNo.length === 15) {
+    if (cardInfo.cardNo.length <= 16 || cardInfo.cardNo.length <= 15) {
       getCardType();
     }
   }, [cardInfo.cardNo]);
@@ -43,7 +43,7 @@ const Payment = () => {
         const { code, response } = res.data;
         if (response !== "UNKNOWN") {
           setCardType(response);
-        } else toast.error("Card No. is not valid");
+        } else setCardType("");
       })
 
       .catch(function (error) {
@@ -200,7 +200,7 @@ const Payment = () => {
                             ? "https://www.freepnglogos.com/uploads/visa-inc-png-18.png"
                             : cardType === "AMERICAN_EXPRESS"
                             ? "https://i.ibb.co/JFM3RsD/American-Express-Color.png"
-                            : "https://i.ibb.co/805D28D/png-clipart-envelop-folder-credit-card-debit-card-cooperative-bank-computer-icons-credit-card-black.png"
+                            : "https://i.ibb.co/10r0RNW/png-transparent-swipe-card-icon-credit-card-bank-card-debit-card-money-card-card-material-blue-text.png"
                         }
                         alt=""
                       />

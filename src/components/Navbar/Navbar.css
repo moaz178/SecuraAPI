@@ -1,4 +1,21 @@
-.navbar-nav .nav-item:hover {
+/* .navbar-nav .nav-item:hover {
     background-color: rgba(180, 190, 203, 0.4);
+  } */
+  .btn.btn-outline {
+    background: 0 0
   }
+  
+  .btn-outline.btn-primary {
+    border-color: #2196F3;
+    color: #2196F3;
+    font-size: 13px;
+  }
+  
+  .btn-outline.btn-primary:focus,
+  .btn-outline.btn-primary:hover {
+    color: #FFFFFF;
+    border-color:#2196F3;
+    background-color: #2196F3;
+  }
+
   

@@ -4,8 +4,8 @@ import { useAuth } from "../../features/SignIn/authContext/authContext";
 import { useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 const Sidebar = () => {
-  const { user } = useAuth();
-  const { firstName, lastName } = user.userBO;
+  // const { user } = useAuth();
+  // const { firstName, lastName } = user.userBO;
   const navigate = useNavigate();
 
   return (
@@ -26,59 +26,68 @@ const Sidebar = () => {
                 alt=""
               /> */}
               {/* )} */}
-              <i className="fa fa-user mr-3"></i>
+              {/* <i className="fa fa-user mr-3"></i>
 
-              <label style={{ cursor: "pointer", fontSize: "17px" }}>
-                {firstName + " " + lastName}
-              </label>
+              <label style={{ cursor: "pointer", fontSize: "14px" }}>
+                {firstName}'s Organization
+              </label> */}
             </div>
             <li className="active">
               <a href="#" onClick={() => navigate("./dashboard")}>
-                <span className="fa-stack fa-lg pull-left mr-2">
-                  <i className="fa fa-dashboard fa-stack-1x "></i>
+                <span className="fa-stack fa-lg pull-left mr-3">
+                  <i className="fa fa-rocket fa-stack-1x "></i>
+                </span>{" "}
+                Get Started
+              </a>
+            </li>
+            <li className="active">
+              <a href="#" onClick={() => navigate("./dashboard")}>
+                <span className="fa-stack fa-lg pull-left mr-3">
+                  <i className="fa fa-pie-chart fa-stack-1x "></i>
                 </span>{" "}
                 Dashboard
               </a>
             </li>
             <li>
-              <a href="#">
-                <span className="fa-stack fa-lg pull-left mr-2">
-                  <i className="fa fa-flag fa-stack-1x "></i>
+              <a href="#" onClick={() => navigate("./scans")}>
+                <span className="fa-stack fa-lg pull-left mr-3">
+                  <i className="fa fa-spinner fa-stack-1x "></i>
                 </span>
-                Shortcut
-              </a>
-            </li>
-            <li>
-              <a href="#">
-                <span className="fa-stack fa-lg pull-left mr-2">
-                  <i className="fa fa-cloud-download fa-stack-1x "></i>
-                </span>
-                Overview
+                Scans
               </a>
             </li>
             <li>
               <a href="#">
                 {" "}
-                <span className="fa-stack fa-lg pull-left mr-2">
-                  <i className="fa fa-cart-plus fa-stack-1x "></i>
+                <span className="fa-stack fa-lg pull-left mr-3">
+                  <i className="fa fa-exclamation-triangle fa-stack-1x "></i>
                 </span>
-                Events
+                Issues
+              </a>
+            </li>
+
+            <li>
+              <a href="#">
+                <span className="fa-stack fa-lg pull-left mr-3">
+                  <i className="fa  fa-bar-chart fa-stack-1x "></i>
+                </span>
+                Reports
               </a>
             </li>
             <li>
               <a href="#">
-                <span className="fa-stack fa-lg pull-left mr-2">
-                  <i className="fa fa-wrench fa-stack-1x "></i>
+                <span className="fa-stack fa-lg pull-left mr-3">
+                  <i className="fa  fa-desktop fa-stack-1x "></i>
                 </span>
-                Services
+                Networks
               </a>
             </li>
             <li>
               <a href="#">
-                <span className="fa-stack fa-lg pull-left mr-2">
-                  <i className="fa fa-server fa-stack-1x "></i>
+                <span className="fa-stack fa-lg pull-left mr-3">
+                  <i className="fa fa-cog fa-stack-1x "></i>
                 </span>
-                Contact
+                Settings
               </a>
             </li>
           </ul>

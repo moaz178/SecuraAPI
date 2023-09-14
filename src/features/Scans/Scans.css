@@ -1,0 +1,37 @@
+.scan-parent-container{
+    display: flex;
+    justify-content: center;
+}
+.scan-container {
+    border-radius: 10px;
+    /* box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.1); */
+    width: 900px;
+    background-color: #ffffff;
+    padding: 40px 30px 60px 30px;   
+  }
+
+  .scan-upload-container{
+    border-radius: 10px;
+    background-color: #ffffff;
+    padding: 20px 10px 60px 10px; 
+    margin: 0px 20px 40px 20px;
+    border: 2px dashed #a5a4a4ff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+  }
+
+.scan-details{
+    display: flex;
+    justify-content: center;
+}
+
+.hr-line {
+    width: 50%;
+    position: relative;
+    margin: 25px 15px 15px 0px;
+    border-bottom: 3px solid #acb0b0;
+    margin-bottom: 17%;
+}

@@ -89,8 +89,8 @@ const Login = () => {
           const { message, code, response } = res.data;
           const token = response.token;
           if (token) {
-            localStorage.setItem("userInfo", JSON.stringify(response));
             setUser(response);
+            window.localStorage.setItem("userInfo", JSON.stringify(response));
           }
           if (code === "100") {
             toast.success(message);

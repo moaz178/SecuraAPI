@@ -6,7 +6,8 @@
     grid-template-areas:
       "side-menu navbar"
       "side-menu content";
-      height: 100%;      
+      height: 100%;   
+      overflow: hidden;   
   }
   
   /* .side-menu { grid-area: side-menu; background-color: #000103;padding: 0px;margin: 0px;} */

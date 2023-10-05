@@ -5,6 +5,7 @@ import ReactLoading from "react-loading";
 import toast, { Toaster } from "react-hot-toast";
 import Loader from "../../components/Loader/Loader";
 import SkeletonLoader from "../../components/SkeletonLoader/SkeletonLoader";
+import { Alert } from "react-bootstrap";
 import "./Scans.css";
 const Scans = () => {
   const [show, setShow] = useState(false);
@@ -84,6 +85,18 @@ const Scans = () => {
   };
   console.log("vulnerabilities", scanResults);
 
+  const getAlertVariant = (risk) => {
+    switch (risk) {
+      case "High":
+        return "danger";
+      case "Medium":
+        return "warning";
+      case "Low":
+        return "info";
+      default:
+        return "success";
+    }
+  };
   return (
     <>
       <Loader show={loading} />
@@ -96,6 +109,7 @@ const Scans = () => {
           },
         }}
       />
+
       <div className="scan-parent-container">
         <div class="scan-container">
           <form>
@@ -187,33 +201,33 @@ const Scans = () => {
                   <div class="text-center">
                     <i class="fa-solid fa-shield-halved fs-50 text-info mb-2"></i>
                     <p className="fs-11">Completed</p>
-                    <div class="progressText mt-2" id="analyse">
+                    <div class="progressText pt-2 w-max-content" id="analyse">
                       API Specification
                     </div>
                   </div>
                   <div class="hr-line hr-line-active"></div>
-                  <div>
+                  <div class="text-center">
                     <i class="fa-solid fa-gear  fs-50 text-info mb-2"></i>
                     <p className="fs-11">Completed</p>
-                    <div class="progressText1 pt-2" id="generate">
+                    <div class="progressText1 pt-2 w-max-content" id="generate">
                       Applying Policy
                     </div>
                   </div>
                   <div class="hr-line hr-line-active"></div>
-                  <div>
+                  <div class="text-center">
                     <i
                       class={`fa-solid fa-bullseye text-secondary fs-50 mb-2 ${
                         scanResults === null ? "blinker-active" : "text-info"
                       }`}
                     ></i>
                     <p
-                      className={`fs-11 w-max-content  ${
+                      className={`fs-11 ${
                         scanResults === null && " blinker-active"
                       }`}
                     >
                       {scanResults === null ? "In Progress" : "Completed"}
                     </p>
-                    <div class="progressText2 pt-2 " id="running">
+                    <div class="progressText2 pt-2 w-max-content " id="running">
                       Active Scan
                     </div>
                   </div>
@@ -224,7 +238,7 @@ const Scans = () => {
                         : "hr-line"
                     }
                   ></div>
-                  <div>
+                  <div class="text-center">
                     <i
                       class={`fa-solid fa-chart-column text-secondary fs-50  mb-2 ${
                         scanResults === null ? "text-secondary" : "text-info"
@@ -233,7 +247,10 @@ const Scans = () => {
                     <p className="fs-11">
                       {scanResults === null ? "In Progress" : "Completed"}
                     </p>
-                    <div class="progressText3 pt-2 " id="preparing">
+                    <div
+                      class="progressText3 pt-2 w-max-content"
+                      id="preparing"
+                    >
                       Reports Results
                     </div>
                   </div>
@@ -258,104 +275,38 @@ const Scans = () => {
 
                 {scanResults !== null ? (
                   <>
-                    <div
-                      className="alert alert-danger fs-13 scan-vulnerabilities"
-                      role="alert"
-                    >
-                      <strong className="fs-14">
-                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>
-                        SSL Certificate Issue
-                      </strong>
-                      <br />
-                      <strong>Risk : High</strong>
-                      <br />
-                      <strong>Description</strong> : High Security Risk ,
-                      SHA-256 or higher hash algorithm SSL Certificate Required
-                      <br />
-                      <strong>Solution</strong>: Install Certificate with the
-                      SHA-256 or higher hash algorithm. Modern browsers do not
-                      trust certificates that use SHA-1(Hackable).
-                    </div>
-                    <div
-                      className="alert alert-info fs-13 scan-vulnerabilities"
-                      role="alert"
-                    >
-                      <strong className="fs-14">
-                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>
-                        Authentication Request Identified(POST) :
-                      </strong>
-                      <br />
-                      <strong>Risk : Informational</strong>
-                      <br />
-                      <strong>Description</strong> : The given request has been
-                      identified as an authentication request. The 'Other Info'
-                      field contains a set of key=value lines which identify any
-                      relevant fields. If the request is in a context which has
-                      an Authentication Method set to "Auto-Detect" then this
-                      rule will change the authentication to match the request
-                      identified.
-                      <br />
-                      <strong>Solution</strong>: This is an informational alert
-                      rather than a vulnerability and so there is nothing to
-                      fix.
-                    </div>
-                    <div
-                      className="alert alert-warning fs-13 scan-vulnerabilities"
-                      role="alert"
-                    >
-                      <strong className="fs-14">
-                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>
-                        Content Security Policy (CSP) Header Not Set(POST) :
-                      </strong>
-                      <br />
-                      <strong>Risk : Medium</strong>
-                      <br />
-                      <strong>Description</strong> : Content Security Policy
-                      (CSP) is an added layer of security that helps to detect
-                      and mitigate certain types of attacks, including Cross
-                      Site Scripting (XSS) and data injection attacks. These
-                      attacks are used for everything from data theft to site
-                      defacement or distribution of malware. CSP provides a set
-                      of standard HTTP headers that allow website owners to
-                      declare approved sources of content that browsers should
-                      be allowed to load on that page — covered types are
-                      JavaScript, CSS, HTML frames, fonts, images and embeddable
-                      objects such as Java applets, ActiveX, audio and video
-                      files.
-                      <br />
-                      <strong>Solution</strong>: Ensure that your web server,
-                      application server, load balancer, etc. is configured to
-                      set the Content-Security-Policy header.
-                    </div>
-                    <div
-                      className="alert alert-success fs-13 scan-vulnerabilities"
-                      role="alert"
-                    >
-                      <strong className="fs-14">
-                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>
-                        X-Content-Type-Options Header Missing(GET) :{" "}
-                      </strong>
-                      <br />
-                      <strong>Risk : Low</strong>
-                      <br />
-                      <strong>Description</strong> : The Anti-MIME-Sniffing
-                      header X-Content-Type-Options was not set to 'nosniff'.
-                      This allows older versions of Internet Explorer and Chrome
-                      to perform MIME-sniffing on the response body, potentially
-                      causing the response body to be interpreted and displayed
-                      as a content type other than the declared content type.
-                      Current (early 2014) and legacy versions of Firefox will
-                      use the declared content type (if one is set), rather than
-                      performing MIME-sniffing.
-                      <br />
-                      <strong>Solution</strong>: Ensure that the application/web
-                      server sets the Content-Type header appropriately, and
-                      that it sets the X-Content-Type-Options header to
-                      'nosniff' for all web pages. If possible, ensure that the
-                      end user uses a standards-compliant and modern web browser
-                      that does not perform MIME-sniffing at all, or that can be
-                      directed by the web application/web server to not perform
-                      MIME-sniffing.
+                    <strong className="fs-20">Reports :</strong>
+
+                    <div className="mt-3 fs-13">
+                      {Object.keys(scanResults.vulnerability).map((key) => (
+                        <div key={key}>
+                          {Object.keys(scanResults.vulnerability[key]).map(
+                            (subKey) => (
+                              <div key={subKey}>
+                                <Alert
+                                  variant={getAlertVariant(
+                                    scanResults.vulnerability[key][subKey].Risk
+                                  )}
+                                >
+                                  <strong>{subKey}</strong>
+                                  <ul>
+                                    {Object.entries(
+                                      scanResults.vulnerability[key][subKey]
+                                    ).map(([property, value]) => (
+                                      <li
+                                        key={property}
+                                        style={{ wordWrap: "break-word" }}
+                                      >
+                                        <strong>{property}:</strong> {value}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </Alert>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </>
                 ) : (

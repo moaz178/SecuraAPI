@@ -245,3 +245,14 @@ h6 {
 .fs-50{
   font-size: 50px;
 }
+
+.width-75{
+  width: 75%;
+}
+.width-100{
+  width: 100%;
+}
+
+.w-max-content{
+  width: max-content;
+}

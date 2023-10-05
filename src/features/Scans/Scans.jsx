@@ -151,81 +151,111 @@ const Scans = () => {
               Run a Scan
             </button>
             <br />
-            {/* <div class="progress">
-            <div
-              class="progress-bar progress-bar-success progress-bar-striped"
-              role="progressbar"
-              aria-valuenow="40"
-              aria-valuemin="0"
-              aria-valuemax="100"
-              style={{ width: "40%" }}
-            >
-              <span class="sr-only">40% Complete (success)</span>
-            </div>
-          </div> */}
 
             {scanningStart ? (
               <>
-                {/* <p>
-                Got a scan in progress? Grab a coffee and check back soon to see
-                the results.{" "}
-              </p> */}
-                {/* <div className="scan-details">
-                  <ReactLoading
-                    type={"bars"}
-                    color={"rgb(17 150 171)"}
-                    height={60}
-                    width={60}
-                  />
-                </div> */}
-                <div>
+                {scanResults === null ? (
+                  <div className="scan-details">
+                    <ReactLoading
+                      type={"spin"}
+                      color={"rgb(17 150 171)"}
+                      height={60}
+                      width={60}
+                    />
+                  </div>
+                ) : null}
+
+                {/* <div>
                   <div class="ocrloader">
                     <img
                       src="../../../../dist/2.png"
                       alt="scan img"
                       className="scan-icon"
                     />
-                    <p>Scanning</p>
+                    <p>Detecting Vulnerabilities</p>
                     <em></em>
                     <span></span>
                   </div>
-                </div>
-                <br />
+                </div> */}
                 <br />
                 <p className="text-secondary text-center pb-1">
-                  Please wait, this may take up less than a minute !
-                  {/* <i className="fa-solid fa-mug-hot mt-1 text-center"></i> ! */}
+                  Got a scan in progress? If so grab a coffee and check back
+                  soon to see the results. &nbsp;
+                  <i className="fa-solid fa-mug-hot mt-1 text-center"></i> !
                 </p>
                 <div class="d-flex flex-row mt-4" id="progressIcons">
                   <div class="text-center">
-                    <i class="fa-solid fa-shield-halved fs-50 hr-line-text-active"></i>
+                    <i class="fa-solid fa-shield-halved fs-50 text-info mb-2"></i>
+                    <p className="fs-11">Completed</p>
                     <div class="progressText mt-2" id="analyse">
-                      Analyzing API Specification
+                      API Specification
                     </div>
                   </div>
                   <div class="hr-line hr-line-active"></div>
                   <div>
-                    <i class="fa-solid fa-gear text-secondary fs-50"></i>
+                    <i class="fa-solid fa-gear  fs-50 text-info mb-2"></i>
+                    <p className="fs-11">Completed</p>
                     <div class="progressText1 pt-2" id="generate">
-                      Generating Tests Scenarios
+                      Applying Policy
                     </div>
                   </div>
-                  <div class="hr-line"></div>
+                  <div class="hr-line hr-line-active"></div>
                   <div>
-                    <i class="fa-solid fa-bullseye text-secondary fs-50"></i>
+                    <i
+                      class={`fa-solid fa-bullseye text-secondary fs-50 mb-2 ${
+                        scanResults === null ? "blinker-active" : "text-info"
+                      }`}
+                    ></i>
+                    <p
+                      className={`fs-11 w-max-content  ${
+                        scanResults === null && " blinker-active"
+                      }`}
+                    >
+                      {scanResults === null ? "In Progress" : "Completed"}
+                    </p>
                     <div class="progressText2 pt-2 " id="running">
-                      Running Security Tests
+                      Active Scan
                     </div>
                   </div>
-                  <div class="hr-line"></div>
+                  <div
+                    class={
+                      scanResults !== null
+                        ? "hr-line  hr-line-active"
+                        : "hr-line"
+                    }
+                  ></div>
                   <div>
-                    <i class="fa-solid fa-chart-column text-secondary fs-50"></i>
+                    <i
+                      class={`fa-solid fa-chart-column text-secondary fs-50  mb-2 ${
+                        scanResults === null ? "text-secondary" : "text-info"
+                      }`}
+                    ></i>
+                    <p className="fs-11">
+                      {scanResults === null ? "In Progress" : "Completed"}
+                    </p>
                     <div class="progressText3 pt-2 " id="preparing">
-                      Preparing Results Report
+                      Reports Results
                     </div>
                   </div>
                 </div>
+
+                <div class="progress progress-striped active">
+                  <div
+                    role="progressbar progress-striped"
+                    className={`progress-bar ${
+                      scanResults == null ? "width-75" : "width-100"
+                    }`}
+                  >
+                    <span>
+                      Scan Progress: {scanResults == null ? "75%" : "100%"}
+                    </span>
+                  </div>
+                </div>
+
                 <br />
+
+                <br />
+
                 {scanResults !== null ? (
                   <>
                     <div

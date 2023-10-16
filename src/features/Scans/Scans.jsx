@@ -5,14 +5,23 @@ import ReactLoading from "react-loading";
 import toast, { Toaster } from "react-hot-toast";
 import Loader from "../../components/Loader/Loader";
 import SkeletonLoader from "../../components/SkeletonLoader/SkeletonLoader";
-import { Alert } from "react-bootstrap";
 import "./Scans.css";
 const Scans = () => {
   const [show, setShow] = useState(false);
   const [file, setFile] = useState("");
   const [scanningStart, setScanningStart] = useState(false);
   const [scanResults, setScanResutls] = useState(null);
+  const [progressMsg, setProgressMsg] = useState("");
+  const [progress, setProgress] = useState("");
   const [loading, setLoading] = useState(false);
+  const [openCollapses, setOpenCollapses] = useState({});
+
+  const handleCollapseToggle = (key, subKey) => {
+    setOpenCollapses((prev) => ({
+      ...prev,
+      [`${key}-${subKey}`]: !prev[`${key}-${subKey}`],
+    }));
+  };
 
   const handleUpload = (e) => {
     e.preventDefault();
@@ -28,7 +37,8 @@ const Scans = () => {
     setShow(false);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     uploadFile();
   };
 
@@ -66,7 +76,7 @@ const Scans = () => {
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
       secura_targetHost: targetHost,
     };
-
+    getLiveScanProgress(referenceId);
     axios
       .post(`http://192.168.18.20:8082/SecuraCore/ScanAPI`, scanParams)
       .then(function (res) {
@@ -83,20 +93,41 @@ const Scans = () => {
         console.log("scanning error", error);
       });
   };
+
+  // REAL TIME SCAN PROGRESS VIA WEB SOCKETS
+  const getLiveScanProgress = (referenceId) => {
+    const ws = new WebSocket("ws://192.168.18.20:8082/SecuraCore/LiveStatus");
+    ws.onopen = function () {
+      console.log("connection established successfully");
+      console.log("refID", referenceId);
+      ws.send(referenceId);
+    };
+
+    ws.onmessage = (e) => {
+      const recievedMessage = e.data;
+      console.log("recieved messages", recievedMessage);
+      setProgressMsg(recievedMessage);
+
+      const percentageMatch = recievedMessage.match(/Progress\s*:\s*(\d+)\s*%/);
+
+      if (percentageMatch && percentageMatch[1]) {
+        const extractedPercentage = parseInt(percentageMatch[1], 10);
+        console.log("extractedPercentage: ", extractedPercentage);
+        setProgress(extractedPercentage);
+      }
+
+      return false;
+    };
+
+    ws.onerror = (error) => {
+      console.log(error);
+    };
+    ws.onclose = function (e) {
+      console.log("Socket is closed.", e.reason);
+    };
+  };
   console.log("vulnerabilities", scanResults);
 
-  const getAlertVariant = (risk) => {
-    switch (risk) {
-      case "High":
-        return "danger";
-      case "Medium":
-        return "warning";
-      case "Low":
-        return "info";
-      default:
-        return "success";
-    }
-  };
   return (
     <>
       <Loader show={loading} />
@@ -122,7 +153,10 @@ const Scans = () => {
                       <i class="fa fa-question-circle questionMark"></i>
                       <button
                         className="btn btn-link"
-                        onClick={() => setShow(!show)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShow(!show);
+                        }}
                       >
                         Or Upload a Spec
                       </button>
@@ -179,18 +213,6 @@ const Scans = () => {
                   </div>
                 ) : null}
 
-                {/* <div>
-                  <div class="ocrloader">
-                    <img
-                      src="../../../../dist/2.png"
-                      alt="scan img"
-                      className="scan-icon"
-                    />
-                    <p>Detecting Vulnerabilities</p>
-                    <em></em>
-                    <span></span>
-                  </div>
-                </div> */}
                 <br />
                 <p className="text-secondary text-center pb-1">
                   Got a scan in progress? If so grab a coffee and check back
@@ -259,20 +281,23 @@ const Scans = () => {
                 <div class="progress progress-striped active">
                   <div
                     role="progressbar progress-striped"
-                    className={`progress-bar ${
-                      scanResults == null ? "width-75" : "width-100"
-                    }`}
+                    className={`progress-bar `}
+                    style={{ width: `${progress}%` }}
                   >
-                    <span>
-                      Scan Progress: {scanResults == null ? "75%" : "100%"}
-                    </span>
+                    <span> Scan Progresss - {progress}% Completed</span>
                   </div>
                 </div>
-
                 <br />
-
+                {progressMsg && (
+                  <div
+                    className="alert alert-success fs-13 text-center"
+                    role="alert"
+                  >
+                    {progressMsg}
+                  </div>
+                )}
                 <br />
-
+                <br />
                 {scanResults !== null ? (
                   <>
                     <strong className="fs-20">Reports :</strong>
@@ -283,25 +308,78 @@ const Scans = () => {
                           {Object.keys(scanResults.vulnerability[key]).map(
                             (subKey) => (
                               <div key={subKey}>
-                                <Alert
-                                  variant={getAlertVariant(
-                                    scanResults.vulnerability[key][subKey].Risk
-                                  )}
-                                >
-                                  <strong>{subKey}</strong>
-                                  <ul>
-                                    {Object.entries(
-                                      scanResults.vulnerability[key][subKey]
-                                    ).map(([property, value]) => (
-                                      <li
-                                        key={property}
-                                        style={{ wordWrap: "break-word" }}
-                                      >
-                                        <strong>{property}:</strong> {value}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </Alert>
+                                <div className="card-body p-2">
+                                  <div className="flex flex-column faq-section">
+                                    <div className="row">
+                                      <div className="col-md-12">
+                                        <div id="accordion">
+                                          <div className="card">
+                                            <div
+                                              className="card-header"
+                                              id={`heading-${key}-${subKey}`}
+                                            >
+                                              <h6 className="mb-0">
+                                                <a
+                                                  role="button"
+                                                  onClick={() =>
+                                                    handleCollapseToggle(
+                                                      key,
+                                                      subKey
+                                                    )
+                                                  }
+                                                  data-toggle={`collapse-${key}-${subKey}`}
+                                                  href={`#collapse-${key}-${subKey}`}
+                                                  aria-expanded={
+                                                    openCollapses[
+                                                      `${key}-${subKey}`
+                                                    ]
+                                                  }
+                                                  aria-controls={`collapse-${key}-${subKey}`}
+                                                >
+                                                  <strong>{subKey}</strong>
+                                                </a>
+                                              </h6>
+                                            </div>
+                                            <div
+                                              id={`collapse-${key}-${subKey}`}
+                                              className={`collapse ${
+                                                openCollapses[
+                                                  `${key}-${subKey}`
+                                                ]
+                                                  ? "show"
+                                                  : ""
+                                              }`}
+                                              data-parent="#accordion"
+                                              aria-labelledby={`heading-${key}-${subKey}`}
+                                            >
+                                              <div className="card-body">
+                                                <ul>
+                                                  {Object.entries(
+                                                    scanResults.vulnerability[
+                                                      key
+                                                    ][subKey]
+                                                  ).map(([property, value]) => (
+                                                    <li
+                                                      key={property}
+                                                      style={{
+                                                        wordWrap: "break-word",
+                                                      }}
+                                                    >
+                                                      <strong>
+                                                        {property}:
+                                                      </strong>{" "}
+                                                      {value}
+                                                    </li>
+                                                  ))}
+                                                </ul>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
                             )
                           )}

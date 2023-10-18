@@ -107,32 +107,6 @@ const Scans = () => {
   // REAL TIME SCAN PROGRESS VIA WEB SOCKETS
   const getLiveScanProgress = (referenceId) => {
     const ws = new WebSocket("ws://192.168.18.20:8082/SecuraCore/LiveStatus");
-    // ws.onopen = function () {
-    //   console.log("connection established successfully");
-    //   ws.send(referenceId);
-    // };
-
-    // ws.onmessage = (e) => {
-    //   const recievedMessage = e.data;
-    //   console.log("recieved messages", recievedMessage);
-    //   setProgressMsg(recievedMessage);
-
-    //   const percentageMatch = recievedMessage.match(/Progress\s*:\s*(\d+)\s*%/);
-
-    //   if (percentageMatch && percentageMatch[1]) {
-    //     const extractedPercentage = parseInt(percentageMatch[1], 10);
-    //     console.log("extractedPercentage: ", extractedPercentage);
-    //     setProgress(extractedPercentage);
-    //   }
-    //   return false;
-    // };
-
-    // ws.onerror = (error) => {
-    //   console.log(error);
-    // };
-    // ws.onclose = function (e) {
-    //   console.log("Socket is closed.", e.reason);
-    // };
 
     ws.onerror = (error) => {
       console.log(error);
@@ -159,7 +133,6 @@ const Scans = () => {
       setTimeout(getLiveScanProgress, 1000);
     };
   };
-  // console.log("vulnerabilities", scanResults);
 
   return (
     <>

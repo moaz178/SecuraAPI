@@ -10,6 +10,7 @@ const Scans = () => {
   const [show, setShow] = useState(false);
   const [file, setFile] = useState("");
   const [scanningStart, setScanningStart] = useState(false);
+  // const [refrenceID, setRefrenceID] = useState("");
   const [scanResults, setScanResutls] = useState(null);
   const [progressMsg, setProgressMsg] = useState("");
   const [progress, setProgress] = useState("");
@@ -59,6 +60,7 @@ const Scans = () => {
         if (error !== null) toast.error(error);
         else {
           setScanningStart(true);
+          // setRefrenceID(referenceId);
           scanAPI(referenceId, targetHost);
         }
       })
@@ -99,7 +101,6 @@ const Scans = () => {
     const ws = new WebSocket("ws://192.168.18.20:8082/SecuraCore/LiveStatus");
     ws.onopen = function () {
       console.log("connection established successfully");
-      console.log("refID", referenceId);
       ws.send(referenceId);
     };
 
@@ -115,7 +116,6 @@ const Scans = () => {
         console.log("extractedPercentage: ", extractedPercentage);
         setProgress(extractedPercentage);
       }
-
       return false;
     };
 
@@ -126,7 +126,7 @@ const Scans = () => {
       console.log("Socket is closed.", e.reason);
     };
   };
-  console.log("vulnerabilities", scanResults);
+  // console.log("vulnerabilities", scanResults);
 
   return (
     <>
@@ -284,7 +284,7 @@ const Scans = () => {
                     className={`progress-bar `}
                     style={{ width: `${progress}%` }}
                   >
-                    <span> Scan Progresss - {progress}% Completed</span>
+                    <span> {progress}% Completed</span>
                   </div>
                 </div>
                 <br />

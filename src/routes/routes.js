@@ -7,13 +7,13 @@ import Registration from "../features/Registration/Registration";
 import Dashboard from "../features/Dashboard/Dashboard";
 import Layout from "../features/Layout/Layout";
 import UpdatePassword from "../features/UpdatePassword/UpdatePassword";
-import { useAuth } from '../features/SignIn/authContext/authContext'
+import { useAuth } from "../features/SignIn/authContext/authContext";
 import Payment from "../features/Payment/Payment";
 import PricingPlan from "../features/PricingPlans/PricingPlans";
 import Scans from "../features/Scans/Scans";
 
 const AppRoutes = () => {
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn } = useAuth();
 
   return (
     <BrowserRouter>
@@ -26,20 +26,14 @@ const AppRoutes = () => {
           path="/home"
           element={isLoggedIn ? <Layout /> : <Login />}
         > */}
-        <Route
-          exact
-          path="/home"
-          element={<Layout /> }
-        >
-          <Route index  element={<Dashboard />} />
+        <Route exact path="/home" element={<Layout />}>
+          <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="scans" element={<Scans/>} />
-          <Route path="plans" element={<PricingPlan/>} />
-
+          <Route path="scans" element={<Scans />} />
+          <Route path="plans" element={<PricingPlan />} />
         </Route>
 
-     
-        <Route path="/update-password" element={<UpdatePassword/>}></Route>
+        <Route path="/update-password" element={<UpdatePassword />}></Route>
 
         <Route path="*" element={<NotFound />} />
       </Routes>

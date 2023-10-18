@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import axios from "axios";
 import ReactLoading from "react-loading";
@@ -10,12 +10,20 @@ const Scans = () => {
   const [show, setShow] = useState(false);
   const [file, setFile] = useState("");
   const [scanningStart, setScanningStart] = useState(false);
-  // const [refrenceID, setRefrenceID] = useState("");
+  const [refrenceID, setRefrenceID] = useState("");
   const [scanResults, setScanResutls] = useState(null);
   const [progressMsg, setProgressMsg] = useState("");
   const [progress, setProgress] = useState("");
   const [loading, setLoading] = useState(false);
   const [openCollapses, setOpenCollapses] = useState({});
+
+  // useEffect(() => {
+  //   caches.keys().then((names) => {
+  //     names.forEach((name) => {
+  //       caches.delete(name);
+  //     });
+  //   });
+  // }, [refrenceID]);
 
   const handleCollapseToggle = (key, subKey) => {
     setOpenCollapses((prev) => ({
@@ -99,11 +107,40 @@ const Scans = () => {
   // REAL TIME SCAN PROGRESS VIA WEB SOCKETS
   const getLiveScanProgress = (referenceId) => {
     const ws = new WebSocket("ws://192.168.18.20:8082/SecuraCore/LiveStatus");
+    // ws.onopen = function () {
+    //   console.log("connection established successfully");
+    //   ws.send(referenceId);
+    // };
+
+    // ws.onmessage = (e) => {
+    //   const recievedMessage = e.data;
+    //   console.log("recieved messages", recievedMessage);
+    //   setProgressMsg(recievedMessage);
+
+    //   const percentageMatch = recievedMessage.match(/Progress\s*:\s*(\d+)\s*%/);
+
+    //   if (percentageMatch && percentageMatch[1]) {
+    //     const extractedPercentage = parseInt(percentageMatch[1], 10);
+    //     console.log("extractedPercentage: ", extractedPercentage);
+    //     setProgress(extractedPercentage);
+    //   }
+    //   return false;
+    // };
+
+    // ws.onerror = (error) => {
+    //   console.log(error);
+    // };
+    // ws.onclose = function (e) {
+    //   console.log("Socket is closed.", e.reason);
+    // };
+
+    ws.onerror = (error) => {
+      console.log(error);
+    };
     ws.onopen = function () {
       console.log("connection established successfully");
       ws.send(referenceId);
     };
-
     ws.onmessage = (e) => {
       const recievedMessage = e.data;
       console.log("recieved messages", recievedMessage);
@@ -118,12 +155,8 @@ const Scans = () => {
       }
       return false;
     };
-
-    ws.onerror = (error) => {
-      console.log(error);
-    };
-    ws.onclose = function (e) {
-      console.log("Socket is closed.", e.reason);
+    ws.onclose = function () {
+      setTimeout(getLiveScanProgress, 1000);
     };
   };
   // console.log("vulnerabilities", scanResults);
@@ -198,6 +231,7 @@ const Scans = () => {
             >
               Run a Scan
             </button>
+
             <br />
 
             {scanningStart ? (
@@ -278,23 +312,26 @@ const Scans = () => {
                   </div>
                 </div>
 
-                <div class="progress progress-striped active">
-                  <div
-                    role="progressbar progress-striped"
-                    className={`progress-bar `}
-                    style={{ width: `${progress}%` }}
-                  >
-                    <span> {progress}% Completed</span>
-                  </div>
-                </div>
-                <br />
                 {progressMsg && (
-                  <div
-                    className="alert alert-success fs-13 text-center"
-                    role="alert"
-                  >
-                    {progressMsg}
-                  </div>
+                  <>
+                    {/* <div class="progress progress-striped active">
+                      <div
+                        role="progressbar progress-striped"
+                        className={`progress-bar `}
+                        style={{ width: `${progress}%` }}
+                      >
+                        <span> {progress}% Completed</span>
+                      </div>
+                    </div> */}
+
+                    <br />
+                    <div
+                      className="alert alert-success fs-13 text-center"
+                      role="alert"
+                    >
+                      {progressMsg}
+                    </div>
+                  </>
                 )}
                 <br />
                 <br />

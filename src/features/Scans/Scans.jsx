@@ -18,12 +18,13 @@ const Scans = () => {
   const [openCollapses, setOpenCollapses] = useState({});
 
   // useEffect(() => {
+
   //   caches.keys().then((names) => {
   //     names.forEach((name) => {
   //       caches.delete(name);
   //     });
   //   });
-  // }, [refrenceID]);
+  // }, []);
 
   const handleCollapseToggle = (key, subKey) => {
     setOpenCollapses((prev) => ({
@@ -68,7 +69,7 @@ const Scans = () => {
         if (error !== null) toast.error(error);
         else {
           setScanningStart(true);
-          // setRefrenceID(referenceId);
+          setRefrenceID(referenceId);
           scanAPI(referenceId, targetHost);
         }
       })
@@ -130,7 +131,23 @@ const Scans = () => {
       return false;
     };
     ws.onclose = function () {
-      setTimeout(getLiveScanProgress, 1000);
+      // setTimeout(getLiveScanProgress, 1000);
+      ws.onmessage = (e) => {
+        const recievedMessage = e.data;
+        console.log("recieved messages", recievedMessage);
+        setProgressMsg(recievedMessage);
+
+        const percentageMatch = recievedMessage.match(
+          /Progress\s*:\s*(\d+)\s*%/
+        );
+
+        if (percentageMatch && percentageMatch[1]) {
+          const extractedPercentage = parseInt(percentageMatch[1], 10);
+          console.log("extractedPercentage: ", extractedPercentage);
+          setProgress(extractedPercentage);
+        }
+        return false;
+      };
     };
   };
 
@@ -310,8 +327,159 @@ const Scans = () => {
                 <br />
                 {scanResults !== null ? (
                   <>
-                    <strong className="fs-20">Reports :</strong>
+                    <strong className="fs-20">Summary:</strong>
+                    <br />
+                    <br />
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div>
+                        <strong className="fs-15 text-primary">
+                          Scan Information
+                        </strong>
+                        <div style={{ display: "flex" }}>
+                          <div>
+                            <p className="fs-14 text-secondary mt-2">
+                              Scan Started :
+                            </p>
+                            <p className="fs-14 text-secondary">Scan Ended :</p>
+                            <p className="fs-14 text-secondary">
+                              Scan Duration :
+                            </p>
+                            <p className="fs-14 text-secondary">
+                              Scan Status :
+                            </p>
+                          </div>
+                          <div className="ml-4">
+                            <p className="fs-14 text-secondary mt-2">
+                              <strong className="fs-14 text-secondary">
+                                Thu Oct 19 09:00 2023 UTC
+                              </strong>
+                            </p>
+                            <p className="fs-14 text-secondary">
+                              <strong className="fs-14 text-secondary">
+                                Thu Oct 19 09:06 2023 UTC
+                              </strong>
+                            </p>
+                            <p className="fs-14 text-secondary">
+                              <strong className="fs-14 text-secondary">
+                                5 min 02 sec
+                              </strong>
+                            </p>
+                            <p className="fs-14 text-secondary">
+                              <span class="badge badge-success">Finished</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <strong className="fs-15 text-primary">Findings</strong>
 
+                        <div
+                          style={{
+                            display: "flex",
+                          }}
+                        >
+                          <div>
+                            <p className="fs-14 text-secondary mt-2">High :</p>
+                            <p className="fs-14 text-secondary mt-3">
+                              Medium :
+                            </p>
+                            <p className="fs-14 text-secondary mt-3">Low:</p>
+                            <p className="fs-14 text-secondary mt-3">
+                              Informational :
+                            </p>
+                          </div>
+                          <div className="ml-4">
+                            <div
+                              className="py-1 bg-danger text-light mt-1 "
+                              style={{ width: "225px" }}
+                            >
+                              <strong className="fs-15 pl-3">34</strong>
+                            </div>
+                            <div
+                              className="py-1 bg-warning text-light mt-1 "
+                              style={{ width: "125px" }}
+                            >
+                              <strong className="fs-15 pl-3">08</strong>
+                            </div>
+                            <div
+                              className="py-1 bg-primary text-light mt-1 "
+                              style={{ width: "180px" }}
+                            >
+                              <strong className="fs-15 pl-3">16</strong>
+                            </div>
+                            <div
+                              className="py-1 bg-success text-light mt-1"
+                              style={{ width: "225px" }}
+                            >
+                              <strong className="fs-15 pl-3">27</strong>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <hr className="grey-hr" />
+                    <br />
+
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <div style={{ width: "160px" }}>
+                        <div className="py-3 bg-danger text-light text-center width-75">
+                          <strong className="fs-50">34</strong>
+                        </div>
+                        <div className="py-1 bg-danger text-light mt-1 text-center width-75">
+                          <strong className="fs-15 ">High</strong>
+                        </div>
+                      </div>
+                      <div style={{ width: "160px" }}>
+                        <div className="py-3 bg-warning text-light text-center width-75">
+                          <strong className="fs-50">08</strong>
+                        </div>
+                        <div className="px-1 py-1 bg-warning text-light mt-1 text-center width-75">
+                          <strong className="fs-15 ">Medium</strong>
+                        </div>
+                      </div>
+                      <div style={{ width: "160px" }}>
+                        <div className="py-3 bg-primary text-light text-center width-75">
+                          <strong className="fs-50">16</strong>
+                        </div>
+                        <div className="px-1 py-1 bg-primary text-light mt-1 text-center width-75">
+                          <strong className="fs-15 ">Low</strong>
+                        </div>
+                      </div>
+
+                      <div style={{ width: "410px" }}>
+                        <div className="text-secondary">
+                          <p>
+                            Any <strong className="text-danger">High</strong>{" "}
+                            and <strong className="text-warning">Medium</strong>{" "}
+                            risk vulnerabilities should be investigated and
+                            confirmed so that remedation can take place.
+                            <strong className="text-primary"> Low</strong> risk
+                            items should not be ignored as they can be chained
+                            with other vulnerabilities to enable further
+                            attacks.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <strong className="fs-20 text-primary">
+                      {" "}
+                      Vulnerabilities Summary:
+                    </strong>
                     <div className="mt-3 fs-13">
                       {Object.keys(scanResults.vulnerability).map((key) => (
                         <div key={key}>
@@ -330,6 +498,7 @@ const Scans = () => {
                                             >
                                               <h6 className="mb-0">
                                                 <a
+                                                  className="text-secondary"
                                                   role="button"
                                                   onClick={() =>
                                                     handleCollapseToggle(
@@ -363,25 +532,34 @@ const Scans = () => {
                                               aria-labelledby={`heading-${key}-${subKey}`}
                                             >
                                               <div className="card-body">
-                                                <ul>
-                                                  {Object.entries(
-                                                    scanResults.vulnerability[
-                                                      key
-                                                    ][subKey]
-                                                  ).map(([property, value]) => (
-                                                    <li
-                                                      key={property}
-                                                      style={{
-                                                        wordWrap: "break-word",
-                                                      }}
-                                                    >
-                                                      <strong>
-                                                        {property}:
-                                                      </strong>{" "}
-                                                      {value}
-                                                    </li>
-                                                  ))}
-                                                </ul>
+                                                <table className="table">
+                                                  <tbody>
+                                                    {Object.entries(
+                                                      scanResults.vulnerability[
+                                                        key
+                                                      ][subKey]
+                                                    ).map(
+                                                      (
+                                                        [property, value],
+                                                        index
+                                                      ) => (
+                                                        <tr
+                                                          key={property}
+                                                          className={
+                                                            index % 2 === 0
+                                                              ? "table-offwhite"
+                                                              : "table-white"
+                                                          }
+                                                        >
+                                                          <th scope="row">
+                                                            {property}
+                                                          </th>
+                                                          <td>{value}</td>
+                                                        </tr>
+                                                      )
+                                                    )}
+                                                  </tbody>
+                                                </table>
                                               </div>
                                             </div>
                                           </div>

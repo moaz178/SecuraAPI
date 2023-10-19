@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
 import NotFound from "../components/NotFound/NotFound";
 import Login from "../features/SignIn/Login";
 import Landing from "../features/Landing/Landing";

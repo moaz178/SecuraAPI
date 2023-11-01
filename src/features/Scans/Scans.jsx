@@ -204,7 +204,7 @@ const Scans = () => {
                     <Collapse in={openRows.includes(`${rowId}-${key}`)}>
                       <div>
                         <Table bordered>
-                          <tbody>
+                          <tbody className="fs-13">
                             {Object.entries(value).map(([key, value]) => (
                               <tr key={key}>
                                 <td>{key}</td>

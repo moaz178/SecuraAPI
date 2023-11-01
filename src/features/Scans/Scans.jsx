@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal } from "react-bootstrap";
+import { Container, Table, Collapse, Modal, Form } from "react-bootstrap";
 import axios from "axios";
 import ReactLoading from "react-loading";
 import toast, { Toaster } from "react-hot-toast";
@@ -15,23 +15,24 @@ const Scans = () => {
   const [progressMsg, setProgressMsg] = useState("");
   const [progress, setProgress] = useState("");
   const [loading, setLoading] = useState(false);
-  const [openCollapses, setOpenCollapses] = useState({});
+  const [isCollapseTableOpen, setIsCollapseTableOpen] = useState(false);
+  const [openRows, setOpenRows] = useState([]);
+
+  const toggleCollapseTable = (rowId) => {
+    setOpenRows((prevOpenRows) =>
+      prevOpenRows.includes(rowId)
+        ? prevOpenRows.filter((id) => id !== rowId)
+        : [...prevOpenRows, rowId]
+    );
+  };
 
   // useEffect(() => {
-
   //   caches.keys().then((names) => {
   //     names.forEach((name) => {
   //       caches.delete(name);
   //     });
   //   });
   // }, []);
-
-  const handleCollapseToggle = (key, subKey) => {
-    setOpenCollapses((prev) => ({
-      ...prev,
-      [`${key}-${subKey}`]: !prev[`${key}-${subKey}`],
-    }));
-  };
 
   const handleUpload = (e) => {
     e.preventDefault();
@@ -71,6 +72,7 @@ const Scans = () => {
           setScanningStart(true);
           setRefrenceID(referenceId);
           scanAPI(referenceId, targetHost);
+          getLiveScanProgress(referenceId);
         }
       })
       .catch(function (error) {
@@ -87,7 +89,7 @@ const Scans = () => {
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
       secura_targetHost: targetHost,
     };
-    getLiveScanProgress(referenceId);
+
     axios
       .post(`http://192.168.18.20:8082/SecuraCore/ScanAPI`, scanParams)
       .then(function (res) {
@@ -99,7 +101,7 @@ const Scans = () => {
         }
       })
       .catch(function (error) {
-        toast.error(error.message);
+        toast.error(error);
         setLoading(false);
         console.log("scanning error", error);
       });
@@ -108,8 +110,8 @@ const Scans = () => {
   // REAL TIME SCAN PROGRESS VIA WEB SOCKETS
   const getLiveScanProgress = (referenceId) => {
     const ws = new WebSocket("ws://192.168.18.20:8082/SecuraCore/LiveStatus");
-
     ws.onerror = (error) => {
+      toast.error(error);
       console.log(error);
     };
     ws.onopen = function () {
@@ -151,6 +153,74 @@ const Scans = () => {
     };
   };
 
+  console.log("results", scanResults);
+
+  const getBadgeColor = (risk) => {
+    switch (risk) {
+      case "1":
+        return "badge-danger";
+      case "2":
+        return "badge-warning";
+      case "3":
+        return "badge-info";
+      case "4":
+        return "badge-success";
+      default:
+        return "badge-secondary";
+    }
+  };
+
+  // const renderValue = (value) => {
+  //   if (typeof value === "object") {
+  //     return JSON.stringify(value);
+  //   }
+  //   return value;
+  // };
+
+  const renderNestedTable = (subDetails, rowId) => (
+    <Collapse in={openRows.includes(rowId)}>
+      <div>
+        <Table>
+          <tbody>
+            {Object.entries(subDetails).map(([key, value]) => (
+              <React.Fragment key={key}>
+                <tr>
+                  <td>
+                    <div
+                      className="clickable"
+                      onClick={() => toggleCollapseTable(`${rowId}-${key}`)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {key}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td colSpan="3" style={{ padding: "0px" }}>
+                    <Collapse in={openRows.includes(`${rowId}-${key}`)}>
+                      <div>
+                        <Table bordered>
+                          <tbody>
+                            {Object.entries(value).map(([key, value]) => (
+                              <tr key={key}>
+                                <td>{key}</td>
+                                <td>{value}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </Table>
+                      </div>
+                    </Collapse>
+                  </td>
+                </tr>
+              </React.Fragment>
+            ))}
+          </tbody>
+        </Table>
+      </div>
+    </Collapse>
+  );
+
   return (
     <>
       <Loader show={loading} />
@@ -185,17 +255,43 @@ const Scans = () => {
                       </button>
                     </label>
                   </div>
-                  <input
-                    type="text"
-                    name="name"
-                    class="form-control fs-14 mt-2"
-                    placeholder={
-                      file.name
-                        ? file.name
-                        : "Enter OpenAPI Specification URL / File"
-                    }
-                  />
                 </div>
+                <div class="col d-flex justify-content-end">
+                  <div>
+                    <Container className="mt-2">
+                      <Form>
+                        <Form.Check
+                          type="switch"
+                          id="custom-switch"
+                          label=""
+                          // checked={isChecked}
+                          // onChange={handleSwitchChange}
+                        />
+                      </Form>
+                    </Container>
+                    {/* <button
+                      className="btn btn-link"
+                      onClick={(e) => {
+                        setFile("");
+                        setScanResutls(null);
+                        setScanningStart(false);
+                      }}
+                    >
+                      Reset
+                    </button> */}
+                  </div>
+                </div>
+
+                <input
+                  type="text"
+                  name="name"
+                  className="form-control fs-14 mt-2 mx-2"
+                  placeholder={
+                    file.name
+                      ? file.name
+                      : "Enter OpenAPI Specification URL / File"
+                  }
+                />
 
                 {/* <div class="col">
                 <div>
@@ -223,6 +319,101 @@ const Scans = () => {
             </button>
 
             <br />
+            <div className="d-flex flex-row mt-4" id="progressIcons">
+              <div className="text-center">
+                <i
+                  className={`      
+                  fa-solid fa-shield-halved text-secondary fs-50 mb-2      
+                  ${
+                    file === "" ? "blinker-active " : "blinker-deactive"
+                  }         
+                  ${file === "" ? "text-secondary" : "text-info"}`}
+                ></i>
+                <p
+                  className={`fs-11 ${
+                    file === "" ? "blinker-active" : "blinker-deactive"
+                  }`}
+                >
+                  {file === "" ? (
+                    <div className="text-secondary">In Progress</div>
+                  ) : (
+                    <div className="text-info">Completed</div>
+                  )}
+                </p>
+                <div class="progressText pt-2 w-max-content" id="analyse">
+                  API Specification
+                </div>
+              </div>
+              <div className="hr-line hr-line-active"></div>
+              <div className="text-center">
+                <i
+                  className={`      
+                  fa-solid fa-gear text-secondary fs-50 mb-2              
+                  ${file === "" ? "text-secondary" : "text-info"}`}
+                ></i>
+                <p className="fs-11">
+                  {file === "" ? (
+                    <div className="text-secondary">In Progress</div>
+                  ) : (
+                    <div className="text-info">Completed</div>
+                  )}
+                </p>
+                <div class="progressText1 pt-2 w-max-content" id="generate">
+                  Applying Policy
+                </div>
+              </div>
+              <div className="hr-line hr-line-active"></div>
+              <div className="text-center">
+                <i
+                  className={`      
+                  fa-solid fa-bullseye text-secondary fs-50 mb-2      
+                  ${
+                    scanningStart === true && scanResults === null
+                      ? "blinker-active "
+                      : "blinker-deactive"
+                  }         
+                  ${scanResults === null ? "text-secondary" : "text-info"}`}
+                ></i>
+                <p
+                  className={`fs-11 ${
+                    scanningStart === true && scanResults === null
+                      ? "blinker-active"
+                      : "blinker-deactive"
+                  }`}
+                >
+                  {scanResults === null ? (
+                    <div className="text-secondary">In Progress</div>
+                  ) : (
+                    <div className="text-info">Completed</div>
+                  )}
+                </p>
+                <div class="progressText2 pt-2 w-max-content " id="running">
+                  Active Scan
+                </div>
+              </div>
+              <div
+                class={
+                  scanResults !== null ? "hr-line  hr-line-active" : "hr-line"
+                }
+              ></div>
+              <div class="text-center">
+                <i
+                  class={`fa-solid fa-chart-column text-secondary fs-50  mb-2 ${
+                    scanResults === null ? "text-secondary" : "text-info"
+                  }`}
+                ></i>
+                <p className="fs-11">
+                  {scanResults === null ? (
+                    <div className="text-secondary">In Progress</div>
+                  ) : (
+                    <div className="text-info">Completed</div>
+                  )}
+                </p>
+                <div class="progressText3 pt-2 w-max-content" id="preparing">
+                  Reports Results
+                </div>
+              </div>
+            </div>
 
             {scanningStart ? (
               <>
@@ -243,68 +434,12 @@ const Scans = () => {
                   soon to see the results. &nbsp;
                   <i className="fa-solid fa-mug-hot mt-1 text-center"></i> !
                 </p>
-                <div class="d-flex flex-row mt-4" id="progressIcons">
-                  <div class="text-center">
-                    <i class="fa-solid fa-shield-halved fs-50 text-info mb-2"></i>
-                    <p className="fs-11">Completed</p>
-                    <div class="progressText pt-2 w-max-content" id="analyse">
-                      API Specification
-                    </div>
-                  </div>
-                  <div class="hr-line hr-line-active"></div>
-                  <div class="text-center">
-                    <i class="fa-solid fa-gear  fs-50 text-info mb-2"></i>
-                    <p className="fs-11">Completed</p>
-                    <div class="progressText1 pt-2 w-max-content" id="generate">
-                      Applying Policy
-                    </div>
-                  </div>
-                  <div class="hr-line hr-line-active"></div>
-                  <div class="text-center">
-                    <i
-                      class={`fa-solid fa-bullseye text-secondary fs-50 mb-2 ${
-                        scanResults === null ? "blinker-active" : "text-info"
-                      }`}
-                    ></i>
-                    <p
-                      className={`fs-11 ${
-                        scanResults === null && " blinker-active"
-                      }`}
-                    >
-                      {scanResults === null ? "In Progress" : "Completed"}
-                    </p>
-                    <div class="progressText2 pt-2 w-max-content " id="running">
-                      Active Scan
-                    </div>
-                  </div>
-                  <div
-                    class={
-                      scanResults !== null
-                        ? "hr-line  hr-line-active"
-                        : "hr-line"
-                    }
-                  ></div>
-                  <div class="text-center">
-                    <i
-                      class={`fa-solid fa-chart-column text-secondary fs-50  mb-2 ${
-                        scanResults === null ? "text-secondary" : "text-info"
-                      }`}
-                    ></i>
-                    <p className="fs-11">
-                      {scanResults === null ? "In Progress" : "Completed"}
-                    </p>
-                    <div
-                      class="progressText3 pt-2 w-max-content"
-                      id="preparing"
-                    >
-                      Reports Results
-                    </div>
-                  </div>
-                </div>
 
                 {progressMsg && (
                   <>
-                    {/* <div class="progress progress-striped active">
+                    <br />
+                    <br />
+                    <div class="progress progress-striped active">
                       <div
                         role="progressbar progress-striped"
                         className={`progress-bar `}
@@ -312,7 +447,7 @@ const Scans = () => {
                       >
                         <span> {progress}% Completed</span>
                       </div>
-                    </div> */}
+                    </div>
 
                     <br />
                     <div
@@ -330,17 +465,12 @@ const Scans = () => {
                     <strong className="fs-20">Summary:</strong>
                     <br />
                     <br />
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                      }}
-                    >
+                    <div className="d-flex justify-content-between">
                       <div>
                         <strong className="fs-15 text-primary">
                           Scan Information
                         </strong>
-                        <div style={{ display: "flex" }}>
+                        <div className="d-flex">
                           <div>
                             <p className="fs-14 text-secondary mt-2">
                               Scan Started :
@@ -356,17 +486,23 @@ const Scans = () => {
                           <div className="ml-4">
                             <p className="fs-14 text-secondary mt-2">
                               <strong className="fs-14 text-secondary">
-                                Thu Oct 19 09:00 2023 UTC
+                                {scanResults.status
+                                  ? scanResults.status.startTime
+                                  : "N/A"}
                               </strong>
                             </p>
                             <p className="fs-14 text-secondary">
                               <strong className="fs-14 text-secondary">
-                                Thu Oct 19 09:06 2023 UTC
+                                {scanResults.status
+                                  ? scanResults.status.endTime
+                                  : "N/A"}
                               </strong>
                             </p>
                             <p className="fs-14 text-secondary">
                               <strong className="fs-14 text-secondary">
-                                5 min 02 sec
+                                {scanResults.status
+                                  ? scanResults.status.Duration
+                                  : "N/A"}
                               </strong>
                             </p>
                             <p className="fs-14 text-secondary">
@@ -378,11 +514,7 @@ const Scans = () => {
                       <div>
                         <strong className="fs-15 text-primary">Findings</strong>
 
-                        <div
-                          style={{
-                            display: "flex",
-                          }}
-                        >
+                        <div className="d-flex justify-content-between">
                           <div>
                             <p className="fs-14 text-secondary mt-2">High :</p>
                             <p className="fs-14 text-secondary mt-3">
@@ -396,27 +528,68 @@ const Scans = () => {
                           <div className="ml-4">
                             <div
                               className="py-1 bg-danger text-light mt-1 "
-                              style={{ width: "225px" }}
+                              style={{
+                                width: `${
+                                  scanResults.summary.High
+                                    ? scanResults.summary.High + 40
+                                    : 40
+                                }px`,
+                              }}
                             >
-                              <strong className="fs-15 pl-3">34</strong>
+                              <strong className="fs-15 pl-3">
+                                {scanResults.summary.High
+                                  ? scanResults.summary.High
+                                  : 0}
+                              </strong>
                             </div>
                             <div
                               className="py-1 bg-warning text-light mt-1 "
-                              style={{ width: "125px" }}
+                              style={{
+                                width: `${
+                                  scanResults.summary.Medium
+                                    ? scanResults.summary.Medium + 40
+                                    : 40
+                                }px`,
+                              }}
                             >
-                              <strong className="fs-15 pl-3">08</strong>
+                              <strong className="fs-15 pl-3">
+                                {scanResults.summary.Medium
+                                  ? scanResults.summary.Medium
+                                  : 0}
+                              </strong>
                             </div>
                             <div
                               className="py-1 bg-primary text-light mt-1 "
-                              style={{ width: "180px" }}
+                              style={{
+                                width: `${
+                                  scanResults.summary.Low
+                                    ? scanResults.summary.Low + 40
+                                    : 40
+                                }px`,
+                              }}
                             >
-                              <strong className="fs-15 pl-3">16</strong>
+                              <strong className="fs-15 pl-3">
+                                {scanResults.summary.Low
+                                  ? scanResults.summary.Low
+                                  : 0}
+                              </strong>
                             </div>
                             <div
-                              className="py-1 bg-success text-light mt-1"
-                              style={{ width: "225px" }}
+                              className="py-1 text-light mt-1"
+                              style={{
+                                width: `${
+                                  scanResults.summary.Informational
+                                    ? scanResults.summary.Informational + 40
+                                    : 40
+                                }px`,
+                                background: "rgb(128 199 145)",
+                              }}
                             >
-                              <strong className="fs-15 pl-3">27</strong>
+                              <strong className="fs-15 pl-3">
+                                {scanResults.summary.Informational
+                                  ? scanResults.summary.Informational
+                                  : 0}
+                              </strong>
                             </div>
                           </div>
                         </div>
@@ -434,7 +607,12 @@ const Scans = () => {
                     >
                       <div style={{ width: "160px" }}>
                         <div className="py-3 bg-danger text-light text-center width-75">
-                          <strong className="fs-50">34</strong>
+                          <strong className="fs-50">
+                            {" "}
+                            {scanResults.summary.High
+                              ? scanResults.summary.High
+                              : 0}
+                          </strong>
                         </div>
                         <div className="py-1 bg-danger text-light mt-1 text-center width-75">
                           <strong className="fs-15 ">High</strong>
@@ -442,7 +620,11 @@ const Scans = () => {
                       </div>
                       <div style={{ width: "160px" }}>
                         <div className="py-3 bg-warning text-light text-center width-75">
-                          <strong className="fs-50">08</strong>
+                          <strong className="fs-50">
+                            {scanResults.summary.Medium
+                              ? scanResults.summary.Medium
+                              : 0}
+                          </strong>
                         </div>
                         <div className="px-1 py-1 bg-warning text-light mt-1 text-center width-75">
                           <strong className="fs-15 ">Medium</strong>
@@ -450,10 +632,27 @@ const Scans = () => {
                       </div>
                       <div style={{ width: "160px" }}>
                         <div className="py-3 bg-primary text-light text-center width-75">
-                          <strong className="fs-50">16</strong>
+                          <strong className="fs-50">
+                            {scanResults.summary.Low
+                              ? scanResults.summary.Low
+                              : 0}
+                          </strong>
                         </div>
                         <div className="px-1 py-1 bg-primary text-light mt-1 text-center width-75">
                           <strong className="fs-15 ">Low</strong>
+                        </div>
+                      </div>
+
+                      <div style={{ width: "200px" }}>
+                        <div className="py-3 bg-success text-light text-center width-75">
+                          <strong className="fs-50">
+                            {scanResults.summary.Informational
+                              ? scanResults.summary.Informational
+                              : 0}
+                          </strong>
+                        </div>
+                        <div className="px-1 py-1 bg-success text-light mt-1 text-center width-75">
+                          <strong className="fs-15 ">Informational</strong>
                         </div>
                       </div>
 
@@ -475,12 +674,78 @@ const Scans = () => {
                     <br />
                     <br />
                     <br />
-                    <br />
                     <strong className="fs-20 text-primary">
                       {" "}
                       Vulnerabilities Summary:
                     </strong>
-                    <div className="mt-3 fs-13">
+
+                    <Container className="mt-5">
+                      <Table>
+                        <thead style={{ background: "#f5f5f5" }}>
+                          <tr>
+                            <th scope="col">Severity</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Count</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {Object.entries(scanResults.vulnerability).map(
+                            ([severity, details]) => (
+                              <React.Fragment key={severity}>
+                                {Object.entries(details).map(
+                                  ([description, subDetails]) => (
+                                    <React.Fragment key={description}>
+                                      <tr
+                                        className="clickable"
+                                        onClick={() =>
+                                          toggleCollapseTable(
+                                            `${severity}-${description}`
+                                          )
+                                        }
+                                        style={{ cursor: "pointer" }}
+                                      >
+                                        <td>
+                                          <span
+                                            className={`badge ${getBadgeColor(
+                                              severity
+                                            )} px-3 py-1`}
+                                          >
+                                            {severity === "1"
+                                              ? "High"
+                                              : severity === "2"
+                                              ? "Medium"
+                                              : severity === "3"
+                                              ? "Low"
+                                              : "Informational"}
+                                          </span>
+                                        </td>
+                                        <td>{description}</td>
+                                        <td>
+                                          {Object.keys(subDetails).length}
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td
+                                          colSpan="3"
+                                          style={{ padding: "0px" }}
+                                        >
+                                          {renderNestedTable(
+                                            subDetails,
+                                            `${severity}-${description}`
+                                          )}
+                                        </td>
+                                      </tr>
+                                    </React.Fragment>
+                                  )
+                                )}
+                              </React.Fragment>
+                            )
+                          )}
+                        </tbody>
+                      </Table>
+                    </Container>
+
+                    {/* <div className="mt-3 fs-13">
                       {Object.keys(scanResults.vulnerability).map((key) => (
                         <div key={key}>
                           {Object.keys(scanResults.vulnerability[key]).map(
@@ -573,7 +838,7 @@ const Scans = () => {
                           )}
                         </div>
                       ))}
-                    </div>
+                    </div> */}
                   </>
                 ) : (
                   <SkeletonLoader />

@@ -150,6 +150,9 @@
 .blinker-active {
   animation: blinker 1s linear infinite;
 }
+.blinker-deactive {
+  display: block;
+}
 
 @keyframes blinker {
   50% {

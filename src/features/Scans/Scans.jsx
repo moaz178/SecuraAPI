@@ -180,18 +180,22 @@ const Scans = () => {
   const renderNestedTable = (subDetails, rowId) => (
     <Collapse in={openRows.includes(rowId)}>
       <div>
-        <Table>
+        <Table className="m-0">
           <tbody>
             {Object.entries(subDetails).map(([key, value]) => (
               <React.Fragment key={key}>
                 <tr>
                   <td>
                     <div
-                      className="clickable"
+                      className="clickable fs-14 text-secondary"
                       onClick={() => toggleCollapseTable(`${rowId}-${key}`)}
                       style={{ cursor: "pointer" }}
                     >
-                      {key}
+                      <strong>
+                        <i class="fa-solid fa-angle-down ml-4 mr-5"></i>
+                      </strong>
+                      &nbsp;
+                      <strong> {key}</strong>
                     </div>
                   </td>
                 </tr>

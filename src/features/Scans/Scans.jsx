@@ -72,7 +72,6 @@ const Scans = () => {
           setScanningStart(true);
           setRefrenceID(referenceId);
           scanAPI(referenceId, targetHost);
-          getLiveScanProgress(referenceId);
         }
       })
       .catch(function (error) {
@@ -107,40 +106,6 @@ const Scans = () => {
       });
   };
 
-  // REAL TIME SCAN PROGRESS VIA WEB SOCKETS
-  const getLiveScanProgress = (referenceId) => {
-    const ws = new WebSocket("ws://192.168.18.20:8082/SecuraCore/LiveStatus");
-    ws.onerror = (error) => {
-      toast.error(error);
-      console.log(error);
-    };
-    ws.onopen = function () {
-      console.log("connection established successfully");
-      if (referenceId) ws.send(referenceId);
-    };
-
-    ws.onmessage = (e) => {
-      const recievedMessage = e.data;
-      console.log("recieved messages", recievedMessage);
-      setProgressMsg(recievedMessage);
-
-      const percentageMatch = recievedMessage.match(/Progress\s*:\s*(\d+)\s*%/);
-
-      if (percentageMatch && percentageMatch[1]) {
-        const extractedPercentage = parseInt(percentageMatch[1], 10);
-        console.log("extractedPercentage: ", extractedPercentage);
-        setProgress(extractedPercentage);
-      }
-      return false;
-    };
-    ws.onclose = function () {
-      // setTimeout(getLiveScanProgress, 1000);
-      console.log("connection closed");
-    };
-  };
-
-  console.log("results", scanResults);
-
   const getBadgeColor = (risk) => {
     switch (risk) {
       case "1":
@@ -155,13 +120,6 @@ const Scans = () => {
         return "badge-secondary";
     }
   };
-
-  // const renderValue = (value) => {
-  //   if (typeof value === "object") {
-  //     return JSON.stringify(value);
-  //   }
-  //   return value;
-  // };
 
   const renderNestedTable = (subDetails, rowId) => (
     <Collapse in={openRows.includes(rowId)}>
@@ -210,6 +168,8 @@ const Scans = () => {
       </div>
     </Collapse>
   );
+
+  console.log("results", scanResults);
 
   return (
     <>
@@ -424,8 +384,15 @@ const Scans = () => {
                   soon to see the results. &nbsp;
                   <i className="fa-solid fa-mug-hot mt-1 text-center"></i> !
                 </p>
+                <br />
+                <iframe
+                  src={`http://192.168.18.20:8081/Portal/Progress?reference_id=${refrenceID}`}
+                  width="100%"
+                  height="54px"
+                ></iframe>
+                <br />
 
-                {progressMsg && (
+                {/* {progressMsg && (
                   <>
                     <br />
                     <br />
@@ -447,7 +414,7 @@ const Scans = () => {
                       {progressMsg}
                     </div>
                   </>
-                )}
+                )} */}
                 <br />
                 <br />
                 {scanResults !== null ? (
@@ -734,101 +701,6 @@ const Scans = () => {
                         </tbody>
                       </Table>
                     </Container>
-
-                    {/* <div className="mt-3 fs-13">
-                      {Object.keys(scanResults.vulnerability).map((key) => (
-                        <div key={key}>
-                          {Object.keys(scanResults.vulnerability[key]).map(
-                            (subKey) => (
-                              <div key={subKey}>
-                                <div className="card-body p-2">
-                                  <div className="flex flex-column faq-section">
-                                    <div className="row">
-                                      <div className="col-md-12">
-                                        <div id="accordion">
-                                          <div className="card">
-                                            <div
-                                              className="card-header"
-                                              id={`heading-${key}-${subKey}`}
-                                            >
-                                              <h6 className="mb-0">
-                                                <a
-                                                  className="text-secondary"
-                                                  role="button"
-                                                  onClick={() =>
-                                                    handleCollapseToggle(
-                                                      key,
-                                                      subKey
-                                                    )
-                                                  }
-                                                  data-toggle={`collapse-${key}-${subKey}`}
-                                                  href={`#collapse-${key}-${subKey}`}
-                                                  aria-expanded={
-                                                    openCollapses[
-                                                      `${key}-${subKey}`
-                                                    ]
-                                                  }
-                                                  aria-controls={`collapse-${key}-${subKey}`}
-                                                >
-                                                  <strong>{subKey}</strong>
-                                                </a>
-                                              </h6>
-                                            </div>
-                                            <div
-                                              id={`collapse-${key}-${subKey}`}
-                                              className={`collapse ${
-                                                openCollapses[
-                                                  `${key}-${subKey}`
-                                                ]
-                                                  ? "show"
-                                                  : ""
-                                              }`}
-                                              data-parent="#accordion"
-                                              aria-labelledby={`heading-${key}-${subKey}`}
-                                            >
-                                              <div className="card-body">
-                                                <table className="table">
-                                                  <tbody>
-                                                    {Object.entries(
-                                                      scanResults.vulnerability[
-                                                        key
-                                                      ][subKey]
-                                                    ).map(
-                                                      (
-                                                        [property, value],
-                                                        index
-                                                      ) => (
-                                                        <tr
-                                                          key={property}
-                                                          className={
-                                                            index % 2 === 0
-                                                              ? "table-offwhite"
-                                                              : "table-white"
-                                                          }
-                                                        >
-                                                          <th scope="row">
-                                                            {property}
-                                                          </th>
-                                                          <td>{value}</td>
-                                                        </tr>
-                                                      )
-                                                    )}
-                                                  </tbody>
-                                                </table>
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      ))}
-                    </div> */}
                   </>
                 ) : (
                   <SkeletonLoader />

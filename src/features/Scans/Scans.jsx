@@ -116,8 +116,9 @@ const Scans = () => {
     };
     ws.onopen = function () {
       console.log("connection established successfully");
-      ws.send(referenceId);
+      if (referenceId) ws.send(referenceId);
     };
+
     ws.onmessage = (e) => {
       const recievedMessage = e.data;
       console.log("recieved messages", recievedMessage);
@@ -134,22 +135,7 @@ const Scans = () => {
     };
     ws.onclose = function () {
       // setTimeout(getLiveScanProgress, 1000);
-      ws.onmessage = (e) => {
-        const recievedMessage = e.data;
-        console.log("recieved messages", recievedMessage);
-        setProgressMsg(recievedMessage);
-
-        const percentageMatch = recievedMessage.match(
-          /Progress\s*:\s*(\d+)\s*%/
-        );
-
-        if (percentageMatch && percentageMatch[1]) {
-          const extractedPercentage = parseInt(percentageMatch[1], 10);
-          console.log("extractedPercentage: ", extractedPercentage);
-          setProgress(extractedPercentage);
-        }
-        return false;
-      };
+      console.log("connection closed");
     };
   };
 

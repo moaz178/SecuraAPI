@@ -30,7 +30,7 @@ const Navbar = () => {
               }}
             >
               {/* {firstName}'s Organization */}
-              Aiman's Organization
+              Aiman's Workspace
             </label>
           </a>
           <button

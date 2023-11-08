@@ -12,10 +12,7 @@ const Scans = () => {
   const [scanningStart, setScanningStart] = useState(false);
   const [refrenceID, setRefrenceID] = useState("");
   const [scanResults, setScanResutls] = useState(null);
-  const [progressMsg, setProgressMsg] = useState("");
-  const [progress, setProgress] = useState("");
   const [loading, setLoading] = useState(false);
-  const [isCollapseTableOpen, setIsCollapseTableOpen] = useState(false);
   const [openRows, setOpenRows] = useState([]);
 
   const toggleCollapseTable = (rowId) => {
@@ -25,14 +22,6 @@ const Scans = () => {
         : [...prevOpenRows, rowId]
     );
   };
-
-  // useEffect(() => {
-  //   caches.keys().then((names) => {
-  //     names.forEach((name) => {
-  //       caches.delete(name);
-  //     });
-  //   });
-  // }, []);
 
   const handleUpload = (e) => {
     e.preventDefault();
@@ -106,6 +95,7 @@ const Scans = () => {
       });
   };
 
+  //Get Badge based on Risk
   const getBadgeColor = (risk) => {
     switch (risk) {
       case "1":
@@ -121,15 +111,16 @@ const Scans = () => {
     }
   };
 
+  //Nested tables
   const renderNestedTable = (subDetails, rowId) => (
     <Collapse in={openRows.includes(rowId)}>
       <div>
-        <Table className="m-0">
+        <Table className="m-0" style={{ tableLayout: "fixed" }}>
           <tbody>
             {Object.entries(subDetails).map(([key, value]) => (
               <React.Fragment key={key}>
                 <tr>
-                  <td>
+                  <td style={{ wordWrap: "break-word", width: "100%" }}>
                     <div
                       className="clickable fs-14 text-secondary"
                       onClick={() => toggleCollapseTable(`${rowId}-${key}`)}
@@ -147,12 +138,18 @@ const Scans = () => {
                   <td colSpan="3" style={{ padding: "0px" }}>
                     <Collapse in={openRows.includes(`${rowId}-${key}`)}>
                       <div>
-                        <Table bordered>
+                        <Table bordered style={{ tableLayout: "fixed" }}>
                           <tbody className="fs-13">
                             {Object.entries(value).map(([key, value]) => (
                               <tr key={key}>
                                 <td>{key}</td>
-                                <td>{value}</td>
+                                <td
+                                  style={{
+                                    wordWrap: "break-word",
+                                  }}
+                                >
+                                  {value}
+                                </td>
                               </tr>
                             ))}
                           </tbody>
@@ -387,6 +384,7 @@ const Scans = () => {
                 <br />
                 <iframe
                   src={`http://192.168.18.20:8081/Portal/Progress?reference_id=${refrenceID}`}
+                  title="scan progress"
                   width="100%"
                   height="54px"
                 ></iframe>
@@ -637,12 +635,16 @@ const Scans = () => {
                     </strong>
 
                     <Container className="mt-5">
-                      <Table>
+                      <Table style={{ tableLayout: "fixed" }}>
                         <thead style={{ background: "#f5f5f5" }}>
                           <tr>
                             <th scope="col">Severity</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Count</th>
+                            <th scope="col" style={{ width: "500px" }}>
+                              Description
+                            </th>
+                            <th scope="col" style={{ width: "100px" }}>
+                              Count
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
@@ -676,7 +678,18 @@ const Scans = () => {
                                               : "Informational"}
                                           </span>
                                         </td>
-                                        <td>{description}</td>
+                                        <td>
+                                          <strong>
+                                            <i
+                                              className={
+                                                openRows.length > 0
+                                                  ? "fa-solid fa-angle-down  mr-3"
+                                                  : "fa-solid fa-angle-right  mr-3"
+                                              }
+                                            ></i>
+                                          </strong>
+                                          {description}
+                                        </td>
                                         <td>
                                           {Object.keys(subDetails).length}
                                         </td>

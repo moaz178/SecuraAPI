@@ -5,15 +5,22 @@ import ReactLoading from "react-loading";
 import toast, { Toaster } from "react-hot-toast";
 import Loader from "../../components/Loader/Loader";
 import SkeletonLoader from "../../components/SkeletonLoader/SkeletonLoader";
+import { useScanContext } from "../../contexts/scanContext/scanContext";
 import "./Scans.css";
+
 const Scans = () => {
   const [show, setShow] = useState(false);
   const [file, setFile] = useState("");
   const [scanningStart, setScanningStart] = useState(false);
   const [refrenceID, setRefrenceID] = useState("");
+  const [targettedHost, setTargettedHost] = useState("");
+  const [sslEnabled, setSslEnabled] = useState(false);
   const [scanResults, setScanResutls] = useState(null);
   const [loading, setLoading] = useState(false);
   const [openRows, setOpenRows] = useState([]);
+
+  //Scan context
+  const { setScanDetails } = useScanContext();
 
   const toggleCollapseTable = (rowId) => {
     setOpenRows((prevOpenRows) =>
@@ -34,12 +41,12 @@ const Scans = () => {
     };
 
     reader.readAsDataURL(file);
-    setShow(false);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    uploadFile();
+    setScanningStart(true);
+    scanAPI(refrenceID, targettedHost);
   };
 
   //UPLOAD FILE API CALL
@@ -47,20 +54,24 @@ const Scans = () => {
     const form = new FormData();
     form.append("secura_apiFile", file);
     form.append("secura_key", "6m1fcduh0lm3h757ofun4194jn");
-    form.append("secura_sslEnabled", false);
+    form.append("secura_sslEnabled", sslEnabled);
     setLoading(true);
     axios
       .post(`http://192.168.18.20:8082/SecuraCore/Upload`, form, {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then(function (res) {
+        setShow(false);
         setLoading(false);
+
         const { error, referenceId, targetHost } = res.data;
-        if (error !== null) toast.error(error);
-        else {
-          setScanningStart(true);
+        if (error !== null) {
+          toast.error(error);
+          setFile("");
+        } else {
           setRefrenceID(referenceId);
-          scanAPI(referenceId, targetHost);
+          setTargettedHost(targetHost);
+          setScanDetails(res.data);
         }
       })
       .catch(function (error) {
@@ -166,8 +177,6 @@ const Scans = () => {
     </Collapse>
   );
 
-  console.log("results", scanResults);
-
   return (
     <>
       <Loader show={loading} />
@@ -212,7 +221,7 @@ const Scans = () => {
                           id="custom-switch"
                           label=""
                           // checked={isChecked}
-                          // onChange={handleSwitchChange}
+                          onChange={() => setSslEnabled(!sslEnabled)}
                         />
                       </Form>
                     </Container>
@@ -752,6 +761,17 @@ const Scans = () => {
                 type="file"
                 onChange={handleUpload}
               ></input>
+              <br />
+              <br />
+              <button
+                type="submit"
+                className="btn btn-lg btn-info btn-block mb-2"
+                onClick={uploadFile}
+                disabled={!file}
+                style={{ width: "300px" }}
+              >
+                Upload
+              </button>
             </div>
           </Modal.Body>
         </Modal>

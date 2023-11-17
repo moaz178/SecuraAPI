@@ -10,17 +10,23 @@ import "./Scans.css";
 
 const Scans = () => {
   const [show, setShow] = useState(false);
-  const [file, setFile] = useState("");
+  // const [file, setFile] = useState("");
   const [scanningStart, setScanningStart] = useState(false);
-  const [refrenceID, setRefrenceID] = useState("");
-  const [targettedHost, setTargettedHost] = useState("");
+  // const [refrenceID, setRefrenceID] = useState("");
+  // const [targettedHost, setTargettedHost] = useState("");
   const [sslEnabled, setSslEnabled] = useState(false);
   const [scanResults, setScanResutls] = useState(null);
   const [loading, setLoading] = useState(false);
   const [openRows, setOpenRows] = useState([]);
 
   //Scan context
-  const { setScanDetails } = useScanContext();
+  const {
+    setScanDetails,
+    submittedScriptRes,
+    file,
+    setFile,
+    scanDetails,
+  } = useScanContext();
 
   const toggleCollapseTable = (rowId) => {
     setOpenRows((prevOpenRows) =>
@@ -46,7 +52,7 @@ const Scans = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setScanningStart(true);
-    scanAPI(refrenceID, targettedHost);
+    scanAPI();
   };
 
   //UPLOAD FILE API CALL
@@ -69,8 +75,8 @@ const Scans = () => {
           toast.error(error);
           setFile("");
         } else {
-          setRefrenceID(referenceId);
-          setTargettedHost(targetHost);
+          // setRefrenceID(referenceId);
+          // setTargettedHost(targetHost);
           setScanDetails(res.data);
         }
       })
@@ -82,13 +88,21 @@ const Scans = () => {
   };
 
   //SCAN API CALL
-  const scanAPI = (referenceId, targetHost) => {
+  const scanAPI = () => {
     const scanParams = {
-      secura_referenceId: referenceId,
+      secura_referenceId: scanDetails.referenceId,
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
-      secura_targetHost: targetHost,
+      secura_targetHost: scanDetails.targetHost,
+      ...(submittedScriptRes.scanId && {
+        secura_scanId: submittedScriptRes.scanId,
+      }),
+      ...(submittedScriptRes.userId && {
+        secura_userId: submittedScriptRes.userId,
+      }),
+      ...(submittedScriptRes.auth && { secura_auth: submittedScriptRes.auth }),
     };
 
+    console.log("scanparms", scanParams);
     axios
       .post(`http://192.168.18.20:8082/SecuraCore/ScanAPI`, scanParams)
       .then(function (res) {
@@ -300,7 +314,11 @@ const Scans = () => {
                   API Specification
                 </div>
               </div>
-              <div className="hr-line hr-line-active"></div>
+              <div
+                className={`${
+                  file === "" ? "hr-line" : "hr-line hr-line-active"
+                }`}
+              ></div>
               <div className="text-center">
                 <i
                   className={`      
@@ -318,7 +336,11 @@ const Scans = () => {
                   Applying Policy
                 </div>
               </div>
-              <div className="hr-line hr-line-active"></div>
+              <div
+                className={`${
+                  file === "" ? "hr-line" : "hr-line hr-line-active"
+                }`}
+              ></div>
               <div className="text-center">
                 <i
                   className={`      
@@ -392,10 +414,10 @@ const Scans = () => {
                 </p>
                 <br />
                 <iframe
-                  src={`http://192.168.18.20:8081/Portal/Progress?reference_id=${refrenceID}`}
+                  src={`http://192.168.18.20:8081/Portal/Progress?reference_id=${scanDetails.referenceId}`}
                   title="scan progress"
                   width="100%"
-                  height="54px"
+                  height="64px"
                 ></iframe>
                 <br />
 

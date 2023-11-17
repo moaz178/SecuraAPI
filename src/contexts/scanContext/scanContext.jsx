@@ -5,6 +5,8 @@ const ScanContext = createContext({
   setScanDetails: () => {},
   submittedScriptRes: null,
   setSubmittedScriptRes: () => {},
+  file: "",
+  setFile: () => null,
 });
 
 export const useScanContext = () => useContext(ScanContext);
@@ -12,6 +14,7 @@ export const useScanContext = () => useContext(ScanContext);
 const ScanProvider = ({ children }) => {
   const [scanDetails, setScanDetails] = useState({});
   const [submittedScriptRes, setSubmittedScriptRes] = useState({});
+  const [file, setFile] = useState("");
 
   return (
     <ScanContext.Provider
@@ -20,6 +23,8 @@ const ScanProvider = ({ children }) => {
         setScanDetails,
         submittedScriptRes,
         setSubmittedScriptRes,
+        file,
+        setFile,
       }}
     >
       {children}

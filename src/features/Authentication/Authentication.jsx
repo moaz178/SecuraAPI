@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
-import { Container, Form } from "react-bootstrap";
+import { Form } from "react-bootstrap";
 import Loader from "../../components/Loader/Loader";
 import Editor from "@monaco-editor/react";
 import { useScanContext } from "../../contexts/scanContext/scanContext";
@@ -12,7 +12,7 @@ const Authentication = () => {
   const [selectOptions, setSelectOptions] = useState({});
   const [selectedItem, setSelectedItem] = useState("");
   const [script, setScript] = useState(
-    "//You will get your script here by selecting any item ! \n\nvar message = 'Hello World!'\n//Please Upload the Specs first to get the script \nconsole.log(message);"
+    "//You will get your script here by selecting any item ! \n\nvar message = 'Secura Scan!'\n//Please Upload the Specs first to get the script \nconsole.log(message);"
   );
 
   //Scan context
@@ -80,7 +80,6 @@ const Authentication = () => {
       secura_script: btoa(script),
       secura_scanId: scanDetails.scanId,
     };
-    console.log("submitted params", submitParams);
     axios
       .post(`http://192.168.18.20:8082/SecuraCore/AuthScriptLoad`, submitParams)
       .then(function (res) {
@@ -89,7 +88,6 @@ const Authentication = () => {
         } else if (res.data.script == null) {
           toast.error("Something went wrong");
         } else {
-          console.log("submittes Script Response: ", res.data.script);
           setSubmittedScriptRes(res.data.script);
           toast.success(res.data.script.status);
         }
@@ -116,8 +114,8 @@ const Authentication = () => {
       <div className="auth-parent-container">
         <div className="auth-container">
           <div>
-            <div className="form-group">
-              <div className="form-row">
+            <div>
+              <div>
                 <div className="col">
                   <div>
                     <strong className="fs-30">Add Autentication</strong>
@@ -144,9 +142,10 @@ const Authentication = () => {
                   </Form>
                   <br />
                   <div>
+                    <br />
                     <div>
                       <label className="fs-14">
-                        <strong>Grant Type :</strong>
+                        <strong>Login URL :</strong>
                       </label>
                     </div>
                     <input
@@ -160,21 +159,7 @@ const Authentication = () => {
                     <br />
                     <div>
                       <label className="fs-14">
-                        <strong>Token URL :</strong>
-                      </label>
-                    </div>
-                    <input
-                      type="email"
-                      name="email"
-                      className="form-control fs-14"
-                      // placeholder="Enter email"
-                      required
-                      disabled
-                    />
-                    <br />
-                    <div>
-                      <label className="fs-14">
-                        <strong>Callback URL :</strong>
+                        <strong>Request Body :</strong>
                       </label>
                     </div>
                     <input

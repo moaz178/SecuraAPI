@@ -102,7 +102,7 @@ const Scans = () => {
       ...(submittedScriptRes.auth && { secura_auth: submittedScriptRes.auth }),
     };
 
-    console.log("scanparms", scanParams);
+    // console.log("scanparms", scanParams);
     axios
       .post(`http://192.168.18.20:8082/SecuraCore/ScanAPI`, scanParams)
       .then(function (res) {

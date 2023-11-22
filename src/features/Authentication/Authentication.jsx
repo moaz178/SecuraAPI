@@ -3,20 +3,31 @@ import toast, { Toaster } from "react-hot-toast";
 import axios from "axios";
 import { Form } from "react-bootstrap";
 import Loader from "../../components/Loader/Loader";
-import Editor from "@monaco-editor/react";
 import { useScanContext } from "../../contexts/scanContext/scanContext";
+import CodeMirror from "@uiw/react-codemirror";
+import { andromeda } from "@uiw/codemirror-theme-andromeda";
+import { javascript } from "@codemirror/lang-javascript";
 import "./Authentication.css";
 
 const Authentication = () => {
   const [loading, setLoading] = useState(false);
-  const [selectOptions, setSelectOptions] = useState({});
-  const [selectedItem, setSelectedItem] = useState("");
-  const [script, setScript] = useState(
-    "//You will get your script here by selecting any item ! \n\nvar message = 'Secura Scan!'\n//Please Upload the Specs first to get the script \nconsole.log(message);"
-  );
+  // const [selectOptions, setSelectOptions] = useState({});
+  // const [selectedItem, setSelectedItem] = useState("");
+  // const [script, setScript] = useState(
+  //   "//You will get your script here by selecting any item ! \n\nvar message = 'Secura Scan!'\n//Please Upload the Specs first to get the script \nconsole.log(message);"
+  // );
 
   //Scan context
-  const { scanDetails, setSubmittedScriptRes } = useScanContext();
+  const {
+    scanDetails,
+    setSubmittedScriptRes,
+    script,
+    setScript,
+    selectOptions,
+    setSelectOptions,
+    selectedItem,
+    setSelectedItem,
+  } = useScanContext();
 
   useEffect(() => {
     if (Object.keys(scanDetails).length > 0) {
@@ -80,9 +91,12 @@ const Authentication = () => {
       secura_script: btoa(script),
       secura_scanId: scanDetails.scanId,
     };
+    console.log("submitted params :", submitParams);
+    setLoading(true);
     axios
       .post(`http://192.168.18.20:8082/SecuraCore/AuthScriptLoad`, submitParams)
       .then(function (res) {
+        setLoading(false);
         if (res.data.script.Error) {
           toast.error(res.data.script.Error);
         } else if (res.data.script == null) {
@@ -189,19 +203,14 @@ const Authentication = () => {
             <br />
           </div>
         </div>
-        <Editor
-          className="mt-5"
+        <CodeMirror
+          value={script}
           height="463px"
           width="700px"
-          language="javascript"
-          theme="vs-dark"
-          value={script}
-          options={{
-            inlineSuggest: true,
-            fontSize: "16px",
-            formatOnType: true,
-            autoClosingBrackets: true,
-            minimap: { scale: 10 },
+          theme={andromeda}
+          extensions={[javascript({ jsx: true })]}
+          onChange={(value, viewUpdate) => {
+            setScript(value);
           }}
         />
       </div>

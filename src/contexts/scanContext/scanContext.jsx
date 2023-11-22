@@ -7,6 +7,12 @@ const ScanContext = createContext({
   setSubmittedScriptRes: () => {},
   file: "",
   setFile: () => null,
+  script: "",
+  setScript: () => {},
+  selectOptions: {},
+  setSelectOptions: () => {},
+  selectedItem: "",
+  setSelectedItem: () => null,
 });
 
 export const useScanContext = () => useContext(ScanContext);
@@ -15,6 +21,11 @@ const ScanProvider = ({ children }) => {
   const [scanDetails, setScanDetails] = useState({});
   const [submittedScriptRes, setSubmittedScriptRes] = useState({});
   const [file, setFile] = useState("");
+  const [selectOptions, setSelectOptions] = useState({});
+  const [selectedItem, setSelectedItem] = useState("");
+  const [script, setScript] = useState(
+    "//You will get your script here by selecting any item ! \n\nvar message = 'Secura Scan!'\n//Please Upload the Specs first to get the script \nconsole.log(message);"
+  );
 
   return (
     <ScanContext.Provider
@@ -25,6 +36,12 @@ const ScanProvider = ({ children }) => {
         setSubmittedScriptRes,
         file,
         setFile,
+        script,
+        setScript,
+        selectOptions,
+        setSelectOptions,
+        selectedItem,
+        setSelectedItem,
       }}
     >
       {children}

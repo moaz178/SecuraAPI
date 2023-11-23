@@ -11,6 +11,8 @@ import "./Authentication.css";
 
 const Authentication = () => {
   const [loading, setLoading] = useState(false);
+  const [inputFields, setInputFeilds] = useState({});
+  const [inputValues, setInputValues] = useState({});
   // const [selectOptions, setSelectOptions] = useState({});
   // const [selectedItem, setSelectedItem] = useState("");
   // const [script, setScript] = useState(
@@ -72,6 +74,7 @@ const Authentication = () => {
         } else if (res.data.script == null) {
           toast.error("Something went wrong");
         } else {
+          setInputFeilds(res.data.script);
           const encodedScript = Object.values(res.data.script)[0];
           const decodedScript = atob(encodedScript);
           setScript(decodedScript);
@@ -84,13 +87,27 @@ const Authentication = () => {
       });
   };
 
+  const handleInputChange = (propertyName, value) => {
+    setInputValues((prevInputValues) => ({
+      ...prevInputValues,
+      [propertyName]: value,
+    }));
+  };
+
   const submitScrip = () => {
+    //Exception for requestBody to be encoded
+    const requestBodyValue = inputValues.secura_requestBody;
+    const encodedRequestBody = requestBodyValue ? btoa(requestBodyValue) : "";
+
     const submitParams = {
       secura_scriptId: selectedItem,
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
       secura_script: btoa(script),
       secura_scanId: scanDetails.scanId,
+      ...inputValues,
+      secura_requestBody: encodedRequestBody,
     };
+
     console.log("submitted params :", submitParams);
     setLoading(true);
     axios
@@ -107,10 +124,15 @@ const Authentication = () => {
         }
       })
       .catch(function (error) {
-        toast.error(error);
+        toast.error(error.message);
         console.log("submit script error", error);
       });
   };
+
+  //Checks if all fileds are filled
+  const isSubmitDisabled = Object.values(inputValues).some(
+    (value) => value === "" || value === undefined || value === null
+  );
 
   return (
     <>
@@ -158,32 +180,32 @@ const Authentication = () => {
                   <div>
                     <br />
                     <div>
-                      <label className="fs-14">
-                        <strong>Login URL :</strong>
-                      </label>
+                      {Object.entries(inputFields).map(
+                        ([propertyName, fieldType]) =>
+                          (fieldType === "textBox" ||
+                            fieldType === "textArea") && (
+                            <div key={propertyName}>
+                              <label className="fs-14" htmlFor={propertyName}>
+                                <strong>{propertyName} :</strong>
+                              </label>
+                              <input
+                                type={
+                                  fieldType === "textBox" ? "text" : "textarea"
+                                }
+                                id={propertyName}
+                                name={propertyName}
+                                className="form-control fs-14 mb-4"
+                                onChange={(e) =>
+                                  handleInputChange(
+                                    propertyName,
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </div>
+                          )
+                      )}
                     </div>
-                    <input
-                      type="email"
-                      name="email"
-                      className="form-control fs-14"
-                      // placeholder="Enter email"
-                      required
-                      disabled
-                    />
-                    <br />
-                    <div>
-                      <label className="fs-14">
-                        <strong>Request Body :</strong>
-                      </label>
-                    </div>
-                    <input
-                      type="email"
-                      name="email"
-                      className="form-control fs-14"
-                      // placeholder="Enter email"
-                      required
-                      disabled
-                    />
                   </div>
                 </div>
                 <br />
@@ -195,7 +217,7 @@ const Authentication = () => {
               type="submit"
               className="btn btn-lg btn-info btn-block mb-2"
               onClick={submitScrip}
-              disabled={selectedItem === ""}
+              disabled={selectedItem === "" || isSubmitDisabled}
             >
               Save
             </button>
@@ -205,7 +227,7 @@ const Authentication = () => {
         </div>
         <CodeMirror
           value={script}
-          height="463px"
+          height={Object.keys(inputFields).length > 3 ? "1030px " : "463px"}
           width="700px"
           theme={andromeda}
           extensions={[javascript({ jsx: true })]}

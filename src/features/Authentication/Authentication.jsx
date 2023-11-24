@@ -13,6 +13,7 @@ const Authentication = () => {
   const [loading, setLoading] = useState(false);
   const [inputFields, setInputFeilds] = useState({});
   const [inputValues, setInputValues] = useState({});
+
   // const [selectOptions, setSelectOptions] = useState({});
   // const [selectedItem, setSelectedItem] = useState("");
   // const [script, setScript] = useState(
@@ -29,6 +30,7 @@ const Authentication = () => {
     setSelectOptions,
     selectedItem,
     setSelectedItem,
+    setAuthStatus,
   } = useScanContext();
 
   useEffect(() => {
@@ -116,23 +118,31 @@ const Authentication = () => {
         setLoading(false);
         if (res.data.script.Error) {
           toast.error(res.data.script.Error);
+          setAuthStatus("Not Added");
         } else if (res.data.script == null) {
           toast.error("Something went wrong");
+          setAuthStatus("Not Added");
         } else {
           setSubmittedScriptRes(res.data.script);
           toast.success(res.data.script.status);
+          setAuthStatus("Added");
         }
       })
       .catch(function (error) {
         toast.error(error.message);
         console.log("submit script error", error);
+        setAuthStatus("Not Added");
       });
   };
 
   //Checks if all fileds are filled
-  const isSubmitDisabled = Object.values(inputValues).some(
-    (value) => value === "" || value === undefined || value === null
-  );
+  const isAllFieldsFilled = () => {
+    return Object.entries(inputFields).every(
+      ([propertyName, fieldType]) =>
+        !(fieldType === "textBox" || fieldType === "textArea") ||
+        !!inputValues[propertyName]
+    );
+  };
 
   return (
     <>
@@ -217,7 +227,7 @@ const Authentication = () => {
               type="submit"
               className="btn btn-lg btn-info btn-block mb-2"
               onClick={submitScrip}
-              disabled={selectedItem === "" || isSubmitDisabled}
+              disabled={selectedItem === "" || !isAllFieldsFilled()}
             >
               Save
             </button>

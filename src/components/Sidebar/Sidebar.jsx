@@ -49,19 +49,19 @@ const Sidebar = () => {
               </a>
             </li>
             <li>
-              <a href="#" onClick={() => navigate("./authentication")}>
-                <span className="fa-stack fa-lg pull-left mr-3">
-                  <i class="fa-solid fa-fingerprint fa-stack-1x"></i>
-                </span>{" "}
-                Authentication
-              </a>
-            </li>
-            <li>
               <a href="#" onClick={() => navigate("./scans")}>
                 <span className="fa-stack fa-lg pull-left mr-3">
                   <i className="fa fa-spinner fa-stack-1x "></i>
                 </span>
                 Scans
+              </a>
+            </li>
+            <li>
+              <a href="#" onClick={() => navigate("./authentication")}>
+                <span className="fa-stack fa-lg pull-left mr-3">
+                  <i class="fa-solid fa-fingerprint fa-stack-1x"></i>
+                </span>{" "}
+                Authentication
               </a>
             </li>
             <li>

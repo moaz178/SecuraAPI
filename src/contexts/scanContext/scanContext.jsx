@@ -1,6 +1,14 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 const ScanContext = createContext({
+  specStatus: "Not Initiated",
+  setSpecStatus: () => null,
+  scanStatus: "Not Initiated",
+  setScanStatus: () => null,
+  scanningStart: false,
+  setScanningStart: () => null,
+  scanResults: null,
+  setScanResutls: () => {},
   scanDetails: {},
   setScanDetails: () => {},
   submittedScriptRes: null,
@@ -13,16 +21,23 @@ const ScanContext = createContext({
   setSelectOptions: () => {},
   selectedItem: "",
   setSelectedItem: () => null,
+  authStatus: "Not Added",
+  setAuthStatus: () => null,
 });
 
 export const useScanContext = () => useContext(ScanContext);
 
 const ScanProvider = ({ children }) => {
-  const [scanDetails, setScanDetails] = useState({});
-  const [submittedScriptRes, setSubmittedScriptRes] = useState({});
   const [file, setFile] = useState("");
+  const [scanningStart, setScanningStart] = useState(false);
+  const [specStatus, setSpecStatus] = useState("Not Initiated");
+  const [scanStatus, setScanStatus] = useState("Not Initiated");
+  const [scanDetails, setScanDetails] = useState({});
+  const [scanResults, setScanResutls] = useState(null);
+  const [submittedScriptRes, setSubmittedScriptRes] = useState({});
   const [selectOptions, setSelectOptions] = useState({});
   const [selectedItem, setSelectedItem] = useState("");
+  const [authStatus, setAuthStatus] = useState("Not Added");
   const [script, setScript] = useState(
     "//You will get your script here by selecting any item ! \n\nvar message = 'Secura Scan!'\n//Please Upload the Specs first to get the script \nconsole.log(message);"
   );
@@ -30,6 +45,14 @@ const ScanProvider = ({ children }) => {
   return (
     <ScanContext.Provider
       value={{
+        scanningStart,
+        setScanningStart,
+        specStatus,
+        setSpecStatus,
+        scanStatus,
+        setScanStatus,
+        scanResults,
+        setScanResutls,
         scanDetails,
         setScanDetails,
         submittedScriptRes,
@@ -42,6 +65,8 @@ const ScanProvider = ({ children }) => {
         setSelectOptions,
         selectedItem,
         setSelectedItem,
+        authStatus,
+        setAuthStatus,
       }}
     >
       {children}

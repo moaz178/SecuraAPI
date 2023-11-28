@@ -7,13 +7,15 @@ import { useScanContext } from "../../contexts/scanContext/scanContext";
 import CodeMirror from "@uiw/react-codemirror";
 import { andromeda } from "@uiw/codemirror-theme-andromeda";
 import { javascript } from "@codemirror/lang-javascript";
+import { useNavigate } from "react-router-dom";
+import { capitalizeFirstLetter } from "../../utils/helper";
 import "./Authentication.css";
 
 const Authentication = () => {
   const [loading, setLoading] = useState(false);
   const [inputFields, setInputFeilds] = useState({});
   const [inputValues, setInputValues] = useState({});
-
+  const navigate = useNavigate();
   // const [selectOptions, setSelectOptions] = useState({});
   // const [selectedItem, setSelectedItem] = useState("");
   // const [script, setScript] = useState(
@@ -126,6 +128,7 @@ const Authentication = () => {
           setSubmittedScriptRes(res.data.script);
           toast.success(res.data.script.status);
           setAuthStatus("Added");
+          navigate("/home/scans");
         }
       })
       .catch(function (error) {
@@ -158,93 +161,81 @@ const Authentication = () => {
       />
 
       <div className="auth-parent-container">
-        <div className="auth-container">
+        <div className="col">
           <div>
-            <div>
-              <div>
-                <div className="col">
-                  <div>
-                    <strong className="fs-30">Add Autentication</strong>
-                  </div>
-                  <br />
-
-                  <Form style={{ width: "350px" }}>
-                    <Form.Group controlId="exampleForm.SelectCustom">
-                      <Form.Select
-                        value={selectedItem}
-                        onChange={(e) => setSelectedItem(e.target.value)}
-                      >
-                        <option value="">Select</option>
-                        {selectOptions &&
-                          Object.entries(selectOptions).map(
-                            ([value, label]) => (
-                              <option key={value} value={value}>
-                                {label}
-                              </option>
-                            )
-                          )}
-                      </Form.Select>
-                    </Form.Group>
-                  </Form>
-                  <br />
-                  <div>
-                    <br />
-                    <div>
-                      {Object.entries(inputFields).map(
-                        ([propertyName, fieldType]) =>
-                          (fieldType === "textBox" ||
-                            fieldType === "textArea") && (
-                            <div key={propertyName}>
-                              <label className="fs-14" htmlFor={propertyName}>
-                                <strong>{propertyName} :</strong>
-                              </label>
-                              <input
-                                type={
-                                  fieldType === "textBox" ? "text" : "textarea"
-                                }
-                                id={propertyName}
-                                name={propertyName}
-                                className="form-control fs-14 mb-4"
-                                onChange={(e) =>
-                                  handleInputChange(
-                                    propertyName,
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </div>
-                          )
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <br />
-                <br />
-              </div>
-            </div>
-            <br />
-            <button
-              type="submit"
-              className="btn btn-lg btn-info btn-block mb-2"
-              onClick={submitScrip}
-              disabled={selectedItem === "" || !isAllFieldsFilled()}
-            >
-              Save
-            </button>
-
-            <br />
+            <strong className="fs-30">Add Autentication</strong>
           </div>
+          <br />
+
+          <Form style={{ width: "350px" }}>
+            <Form.Group controlId="exampleForm.SelectCustom">
+              <Form.Select
+                value={selectedItem}
+                onChange={(e) => setSelectedItem(e.target.value)}
+              >
+                <option value="">Select</option>
+                {selectOptions &&
+                  Object.entries(selectOptions).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+              </Form.Select>
+            </Form.Group>
+          </Form>
+          <br />
+          <div>
+            <br />
+            <div>
+              {Object.entries(inputFields).map(
+                ([propertyName, fieldType]) =>
+                  (fieldType === "textBox" || fieldType === "textArea") && (
+                    <div key={propertyName}>
+                      <label className="fs-14" htmlFor={propertyName}>
+                        <strong>
+                          {capitalizeFirstLetter(
+                            propertyName.replace(/^secura_/, "")
+                          )}{" "}
+                          :
+                        </strong>
+                      </label>
+                      <input
+                        type={fieldType === "textBox" ? "text" : "textarea"}
+                        id={propertyName}
+                        name={propertyName}
+                        className="form-control fs-14 mb-4"
+                        onChange={(e) =>
+                          handleInputChange(propertyName, e.target.value)
+                        }
+                      />
+                    </div>
+                  )
+              )}
+            </div>
+          </div>
+          <br />
+          <button
+            type="submit"
+            className="btn btn-lg btn-info btn-block mb-2"
+            onClick={submitScrip}
+            disabled={selectedItem === "" || !isAllFieldsFilled()}
+          >
+            Save
+          </button>
         </div>
-        <CodeMirror
-          value={script}
-          height={Object.keys(inputFields).length > 3 ? "1030px " : "463px"}
-          width="700px"
-          theme={andromeda}
-          extensions={[javascript({ jsx: true })]}
-          onChange={(value, viewUpdate) => {
-            setScript(value);
-          }}
-        />
+        <br />
+        <div className="col">
+          <CodeMirror
+            value={script}
+            height={Object.keys(inputFields).length > 3 ? "1030px " : "463px"}
+            className="editor-widths"
+            theme={andromeda}
+            extensions={[javascript({ jsx: true })]}
+            onChange={(value, viewUpdate) => {
+              setScript(value);
+            }}
+          />
+        </div>
       </div>
     </>
   );

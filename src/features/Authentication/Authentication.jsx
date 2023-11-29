@@ -121,6 +121,7 @@ const Authentication = () => {
         if (res.data.script.Error) {
           toast.error(res.data.script.Error);
           setAuthStatus("Not Added");
+          setLoading(false);
         } else if (res.data.script == null) {
           toast.error("Something went wrong");
           setAuthStatus("Not Added");
@@ -132,9 +133,10 @@ const Authentication = () => {
         }
       })
       .catch(function (error) {
-        toast.error(error.message);
+        toast.error("Invalid Script!");
         console.log("submit script error", error);
         setAuthStatus("Not Added");
+        setLoading(false);
       });
   };
 
@@ -163,7 +165,7 @@ const Authentication = () => {
       <div className="auth-parent-container">
         <div className="col">
           <div>
-            <strong className="fs-30">Add Autentication</strong>
+            <strong className="fs-30">Add Authentication</strong>
           </div>
           <br />
 

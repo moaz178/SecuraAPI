@@ -141,13 +141,13 @@ const Authentication = () => {
   };
 
   //Checks if all fileds are filled
-  const isAllFieldsFilled = () => {
-    return Object.entries(inputFields).every(
-      ([propertyName, fieldType]) =>
-        !(fieldType === "textBox" || fieldType === "textArea") ||
-        !!inputValues[propertyName]
-    );
-  };
+  // const isAllFieldsFilled = () => {
+  //   return Object.entries(inputFields).every(
+  //     ([propertyName, fieldType]) =>
+  //       !(fieldType === "textBox" || fieldType === "textArea") ||
+  //       !!inputValues[propertyName]
+  //   );
+  // };
 
   return (
     <>
@@ -220,7 +220,7 @@ const Authentication = () => {
             type="submit"
             className="btn btn-lg btn-info btn-block mb-2"
             onClick={submitScrip}
-            disabled={selectedItem === "" || !isAllFieldsFilled()}
+            disabled={selectedItem === ""}
           >
             Save
           </button>

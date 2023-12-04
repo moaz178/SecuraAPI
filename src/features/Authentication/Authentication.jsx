@@ -108,6 +108,7 @@ const Authentication = () => {
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
       secura_script: btoa(script),
       secura_scanId: scanDetails.scanId,
+      secura_targetHost: scanDetails.targetHost,
       ...inputValues,
       secura_requestBody: encodedRequestBody,
     };
@@ -148,6 +149,8 @@ const Authentication = () => {
   //       !!inputValues[propertyName]
   //   );
   // };
+
+  console.log("inoputfeilds", inputFields);
 
   return (
     <>
@@ -205,9 +208,18 @@ const Authentication = () => {
                         type={fieldType === "textBox" ? "text" : "textarea"}
                         id={propertyName}
                         name={propertyName}
-                        className="form-control fs-14 mb-4"
+                        className="form-control fs-14 mb-4 auth-input-widths"
                         onChange={(e) =>
                           handleInputChange(propertyName, e.target.value)
+                        }
+                        placeholder={
+                          propertyName === "secura_authorization"
+                            ? "Bearer"
+                            : propertyName === "secura_loginURL"
+                            ? "http://192.168.18.20:8081/url"
+                            : propertyName === "secura_requestBody"
+                            ? "{ username: etc, password: etc }"
+                            : undefined
                         }
                       />
                     </div>
@@ -218,7 +230,7 @@ const Authentication = () => {
           <br />
           <button
             type="submit"
-            className="btn btn-lg btn-info btn-block mb-2"
+            className="btn btn-lg btn-info btn-block mb-2 auth-submit-btn"
             onClick={submitScrip}
             disabled={selectedItem === ""}
           >
@@ -230,7 +242,6 @@ const Authentication = () => {
           <CodeMirror
             value={script}
             height={Object.keys(inputFields).length > 3 ? "1030px " : "463px"}
-            className="editor-widths"
             theme={andromeda}
             extensions={[javascript({ jsx: true })]}
             onChange={(value, viewUpdate) => {

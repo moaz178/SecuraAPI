@@ -9,12 +9,20 @@
 }
 
 .editor-widths {
-  width: 800px;
+  width: 100%;
 }
 
 @media (max-width: 1532px) {
-  .auth-parent-container {
+  /* .auth-parent-container {
     flex-direction: column;
+  } */
+
+  .auth-input-widths {
+    width: 500px;
+  }
+
+  .auth-submit-btn {
+    width: 500px;
   }
 }
 
@@ -22,16 +30,18 @@
   .auth-parent-container {
     flex-direction: column;
   }
-  .editor-widths {
-    width: 650px;
-  }
 }
 
 @media (max-width: 994px) {
   .auth-parent-container {
     flex-direction: column;
   }
-  .editor-widths {
+
+  .auth-input-widths {
+    width: 350px;
+  }
+
+  .auth-submit-btn {
     width: 350px;
   }
 }

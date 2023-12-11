@@ -15,6 +15,8 @@ const ScanContext = createContext({
   setSubmittedScriptRes: () => {},
   file: "",
   setFile: () => null,
+  inputUrlVal: "",
+  setInputUrlVal: () => null,
   script: "",
   setScript: () => {},
   selectOptions: {},
@@ -29,6 +31,7 @@ export const useScanContext = () => useContext(ScanContext);
 
 const ScanProvider = ({ children }) => {
   const [file, setFile] = useState("");
+  const [inputUrlVal, setInputUrlVal] = useState("");
   const [scanningStart, setScanningStart] = useState(false);
   const [specStatus, setSpecStatus] = useState("Not Initiated");
   const [scanStatus, setScanStatus] = useState("Not Initiated");
@@ -59,6 +62,8 @@ const ScanProvider = ({ children }) => {
         setSubmittedScriptRes,
         file,
         setFile,
+        inputUrlVal,
+        setInputUrlVal,
         script,
         setScript,
         selectOptions,

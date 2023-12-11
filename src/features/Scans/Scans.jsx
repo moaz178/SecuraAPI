@@ -16,6 +16,7 @@ const Scans = () => {
   const [sslEnabled, setSslEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [openRows, setOpenRows] = useState([]);
+  // const [inputUrlVal, setInputUrlVal] = useState("");
   // const [file, setFile] = useState("");
   // const [scanningStart, setScanningStart] = useState(false);
   // const [refrenceID, setRefrenceID] = useState("");
@@ -39,6 +40,8 @@ const Scans = () => {
     submittedScriptRes,
     file,
     setFile,
+    inputUrlVal,
+    setInputUrlVal,
     scanDetails,
   } = useScanContext();
 
@@ -50,6 +53,7 @@ const Scans = () => {
     );
   };
 
+  //UPLOAD FILE
   const handleUpload = (e) => {
     e.preventDefault();
 
@@ -63,10 +67,47 @@ const Scans = () => {
     reader.readAsDataURL(file);
   };
 
+  //HIT SCAN BUTTON
   const handleSubmit = (e) => {
     e.preventDefault();
     setScanningStart(true);
     scanAPI();
+  };
+
+  //UPLOAD URL API CALL
+  const uploadURL = (e) => {
+    e.preventDefault();
+
+    const urlPayload = {
+      secura_key: "6m1fcduh0lm3h757ofun4194jn",
+      secura_url: inputUrlVal,
+      secura_sslEnabled: sslEnabled,
+    };
+
+    setSpecStatus("In Progress");
+    setShow(false);
+    axios
+      .post(`http://192.168.18.20:8082/SecuraCore/UploadURL`, urlPayload)
+      .then(function (res) {
+        // setLoading(false);
+
+        const { error } = res.data;
+        if (error !== null) {
+          toast.error(error);
+          // setFile("");
+          setSpecStatus("Failed");
+        } else {
+          // setRefrenceID(referenceId);
+          // setTargettedHost(targetHost);
+          setScanDetails(res.data);
+          setSpecStatus("Completed");
+        }
+      })
+      .catch(function (error) {
+        toast.error(error.message);
+        setLoading(false);
+        console.log("uploaded file error", error);
+      });
   };
 
   //UPLOAD FILE API CALL
@@ -170,6 +211,7 @@ const Scans = () => {
                           e.preventDefault();
                           setShow(!show);
                         }}
+                        disabled={inputUrlVal || scanStatus === "In Progress"}
                       >
                         Or Upload a Spec
                       </button>
@@ -177,15 +219,16 @@ const Scans = () => {
                   </div>
                 </div>
                 <div class="col d-flex justify-content-end">
-                  <div>
-                    <Container className="mt-2">
+                  <div className="d-flex mt-2">
+                    <Container>
                       <Form>
                         <Form.Check
                           type="switch"
                           id="custom-switch"
-                          label=""
+                          label="SSL Enabled"
                           // checked={isChecked}
                           onChange={() => setSslEnabled(!sslEnabled)}
+                          style={{ color: "grey", fontSize: "13px" }}
                         />
                       </Form>
                     </Container>
@@ -201,17 +244,36 @@ const Scans = () => {
                     </button> */}
                   </div>
                 </div>
-
                 <input
                   type="text"
                   name="name"
                   className="form-control fs-14 mt-2 mx-2"
+                  value={inputUrlVal}
+                  onChange={(e) => setInputUrlVal(e.target.value)}
                   placeholder={
                     file.name
                       ? file.name
                       : "Enter OpenAPI Specification URL / File"
                   }
                 />
+                {inputUrlVal && (
+                  <button
+                    style={{
+                      background: "none",
+                      border: "none",
+                      position: "relative",
+                      left: "94%",
+                      bottom: "35px",
+                      color: "rgb(191 191 191)",
+                    }}
+                    className="btn btn-outline-secondary ms-n5"
+                    type="submit"
+                    onClick={uploadURL}
+                    disabled={scanStatus === "In Progress"}
+                  >
+                    <i className="fa fa-paper-plane fa-1x"></i>
+                  </button>
+                )}
               </div>
             </div>
             <br />
@@ -219,7 +281,9 @@ const Scans = () => {
               type="submit"
               class="btn btn-lg btn-info btn-block mb-2"
               onClick={handleSubmit}
-              disabled={specStatus !== "Completed"}
+              disabled={
+                specStatus !== "Completed" || scanStatus === "In Progress"
+              }
             >
               Run a Scan
             </button>

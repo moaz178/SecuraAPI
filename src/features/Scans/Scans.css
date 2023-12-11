@@ -35,7 +35,7 @@
 }
 
 .hr-line-active {
-  border-bottom: 3px solid rgb(13 128 147);
+  border-bottom: 3px solid #2cc2da;
 }
 
 .btn:focus,

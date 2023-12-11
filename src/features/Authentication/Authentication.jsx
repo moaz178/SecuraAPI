@@ -216,7 +216,7 @@ const Authentication = () => {
                           propertyName === "secura_authorization"
                             ? "Bearer"
                             : propertyName === "secura_loginURL"
-                            ? "http://192.168.18.20:8081/url"
+                            ? "http://url/endpoint"
                             : propertyName === "secura_requestBody"
                             ? "{ username: etc, password: etc }"
                             : undefined

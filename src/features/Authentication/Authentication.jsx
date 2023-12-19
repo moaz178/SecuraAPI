@@ -172,7 +172,7 @@ const Authentication = () => {
           </div>
           <br />
 
-          <Form style={{ width: "350px" }}>
+          <Form style={{ width: "100%" }}>
             <Form.Group controlId="exampleForm.SelectCustom">
               <Form.Select
                 value={selectedItem}
@@ -227,15 +227,6 @@ const Authentication = () => {
               )}
             </div>
           </div>
-          <br />
-          <button
-            type="submit"
-            className="btn btn-lg btn-info btn-block mb-2 auth-submit-btn"
-            onClick={submitScrip}
-            disabled={selectedItem === ""}
-          >
-            Save
-          </button>
         </div>
         <br />
         <div className="col">
@@ -249,6 +240,15 @@ const Authentication = () => {
             }}
           />
         </div>
+        <br />
+        <button
+          type="submit"
+          className="btn btn-lg btn-info btn-block mt-2 auth-submit-btn"
+          onClick={submitScrip}
+          disabled={selectedItem === ""}
+        >
+          Save
+        </button>
       </div>
     </>
   );

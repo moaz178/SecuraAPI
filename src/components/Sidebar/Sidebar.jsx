@@ -56,14 +56,14 @@ const Sidebar = () => {
                 Scans
               </a>
             </li>
-            <li>
+            {/* <li>
               <a href="#" onClick={() => navigate("./authentication")}>
                 <span className="fa-stack fa-lg pull-left mr-3">
                   <i class="fa-solid fa-fingerprint fa-stack-1x"></i>
                 </span>{" "}
                 Authentication
               </a>
-            </li>
+            </li> */}
             <li>
               <a href="#">
                 {" "}

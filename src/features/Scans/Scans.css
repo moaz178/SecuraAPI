@@ -182,3 +182,7 @@
 .faq-section .mb-0 > a:hover {
   text-decoration: none;
 }
+.btn.btn-primary[disabled] {
+  background-color: #ced4da;
+  border: none;
+}

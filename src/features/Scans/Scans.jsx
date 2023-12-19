@@ -8,11 +8,14 @@ import Loader from "../../components/Loader/Loader";
 import SkeletonLoader from "../../components/SkeletonLoader/SkeletonLoader";
 import SecuraStepper from "../../components/SecuraStepper/SecuraStepper";
 import SpecUploadModal from "../../components/Modal/SpecUploadModal";
+import AddAuthModal from "../../components/Modal/AddAuthModal";
+
 import ScanSummary from "../ScanSummary/ScanSummary";
 import "./Scans.css";
 
 const Scans = () => {
   const [show, setShow] = useState(false);
+  const [open, setOpen] = useState(false);
   const [sslEnabled, setSslEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [openRows, setOpenRows] = useState([]);
@@ -194,6 +197,22 @@ const Scans = () => {
           },
         }}
       />
+      <div className="d-flex justify-content-end mb-1">
+        <button
+          style={{
+            marginRight: "-25px",
+          }}
+          className="btn btn-warning px-3"
+          type="button"
+          onClick={() => setOpen(!open)}
+          disabled={specStatus !== "Completed"}
+        >
+          <strong>
+            <i className="fa fa-plus fa-1x"></i>
+            &nbsp; Add Authentication
+          </strong>
+        </button>
+      </div>
 
       <div className="scan-parent-container">
         <div class="scan-container">
@@ -206,12 +225,17 @@ const Scans = () => {
                       Enter API spec:{" "}
                       <i class="fa fa-question-circle questionMark"></i>
                       <button
+                        style={{ textDecoration: "none" }}
                         className="btn btn-link"
                         onClick={(e) => {
                           e.preventDefault();
                           setShow(!show);
                         }}
-                        disabled={inputUrlVal || scanStatus === "In Progress"}
+                        disabled={
+                          inputUrlVal ||
+                          scanStatus === "In Progress" ||
+                          scanStatus === "Completed"
+                        }
                       >
                         Or Upload a Spec
                       </button>
@@ -259,17 +283,19 @@ const Scans = () => {
                 {inputUrlVal && (
                   <button
                     style={{
-                      background: "none",
-                      border: "none",
+                      border: "1px solid #ced4da",
                       position: "relative",
-                      left: "94%",
-                      bottom: "35px",
-                      color: "rgb(191 191 191)",
+                      padding: "5px 20px 5px 14px",
+                      left: "93%",
+                      bottom: "36px",
+                      // color: "rgb(191 191 191)",
                     }}
-                    className="btn btn-outline-secondary ms-n5"
+                    className="btn btn-primary ms-n5"
                     type="submit"
                     onClick={uploadURL}
-                    disabled={scanStatus === "In Progress"}
+                    disabled={
+                      scanStatus === "In Progress" || scanStatus === "Completed"
+                    }
                   >
                     <i className="fa fa-paper-plane fa-1x"></i>
                   </button>
@@ -277,16 +303,29 @@ const Scans = () => {
               </div>
             </div>
             <br />
-            <button
-              type="submit"
-              class="btn btn-lg btn-info btn-block mb-2"
-              onClick={handleSubmit}
-              disabled={
-                specStatus !== "Completed" || scanStatus === "In Progress"
-              }
-            >
-              Run a Scan
-            </button>
+            {scanResults ? (
+              <button
+                type="submit"
+                class="btn btn-lg btn-info btn-block mb-2"
+                onClick={() => window.location.reload()}
+                // disabled={
+                //   specStatus !== "Completed" || scanStatus === "In Progress"
+                // }
+              >
+                Start a new Scan
+              </button>
+            ) : (
+              <button
+                type="submit"
+                class="btn btn-lg btn-info btn-block mb-2"
+                onClick={handleSubmit}
+                disabled={
+                  specStatus !== "Completed" || scanStatus === "In Progress"
+                }
+              >
+                Run a Scan
+              </button>
+            )}
 
             <br />
             <SecuraStepper
@@ -295,7 +334,20 @@ const Scans = () => {
               authStatus={authStatus}
               scanningStart={scanningStart}
             />
-
+            {specStatus === "Completed" && (
+              <p
+                className="fs-15 text-primary"
+                style={{
+                  marginTop: "-35px",
+                  marginLeft: "-2px",
+                  // color: "rgb(255 178 0)",
+                  fontWeight: "600",
+                }}
+              >
+                <span className="text-secondary">Scanning Host:</span> &nbsp;
+                {scanDetails.targetHost}
+              </p>
+            )}
             {scanningStart ? (
               <>
                 {scanStatus === "In Progress" ? (
@@ -316,7 +368,7 @@ const Scans = () => {
                     <i className="fa-solid fa-mug-hot mt-1 text-center mb-3"></i>{" "}
                     !
                     <br />
-                    <span className="fs-14 text-info blinker-active">
+                    <span className="fs-14 text-primary blinker-active">
                       {" "}
                       <i className="fa-solid fa-triangle-exclamation mt-1 text-center"></i>
                       &nbsp; Please do not leave this page while scan is in
@@ -325,7 +377,7 @@ const Scans = () => {
                   </p>
                 )}
                 {scanStatus === "Completed" && (
-                  <p className="text-secondary text-center pb-1">
+                  <p className="text-secondary text-center pb-1 mt-4">
                     Hoorrraaaah !! The Scan is Completed !{" "}
                     <span style={{ fontSize: "25px" }}>🎉</span>
                   </p>
@@ -354,6 +406,7 @@ const Scans = () => {
             ) : null}
           </form>
         </div>
+        <AddAuthModal open={open} setOpen={setOpen} />
 
         <SpecUploadModal
           show={show}

@@ -46,7 +46,7 @@ const SecuraStepper = ({
       <div className="text-center">
         <i
           className={`      
-          fa-solid fa-fingerprint text-secondary fs-50 mb-2              
+          fa-regular fa-circle-check text-secondary fs-50 mb-2              
       ${authStatus === "Not Added" ? "text-secondary" : "text-info"}`}
         ></i>
         <p className={"fs-11"}>

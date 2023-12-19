@@ -1,47 +1,14 @@
 .auth-parent-container {
   display: flex;
   justify-content: space-between;
+  flex-direction: column;
   margin-top: 10px;
   border-radius: 10px;
-  /* width: 900px; */
+  width: 420px;
   background-color: #ffffff;
-  padding: 20px 30px 60px 30px;
+  padding: 0px 30px 40px 30px;
 }
 
 .editor-widths {
   width: 100%;
-}
-
-@media (max-width: 1532px) {
-  /* .auth-parent-container {
-    flex-direction: column;
-  } */
-
-  .auth-input-widths {
-    width: 500px;
-  }
-
-  .auth-submit-btn {
-    width: 500px;
-  }
-}
-
-@media (max-width: 1144px) {
-  .auth-parent-container {
-    flex-direction: column;
-  }
-}
-
-@media (max-width: 994px) {
-  .auth-parent-container {
-    flex-direction: column;
-  }
-
-  .auth-input-widths {
-    width: 350px;
-  }
-
-  .auth-submit-btn {
-    width: 350px;
-  }
 }

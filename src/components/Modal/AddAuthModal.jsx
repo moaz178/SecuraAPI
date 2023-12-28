@@ -10,7 +10,9 @@ const AddAuthModal = ({ open, setOpen }) => {
         onHide={() => {
           setOpen(false);
         }}
+        style={{ paddingBottom: "0px" }}
         centered
+        size="lg"
       >
         <Modal.Header
           closeButton

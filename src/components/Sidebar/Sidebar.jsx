@@ -65,6 +65,14 @@ const Sidebar = () => {
               </a>
             </li> */}
             <li>
+              <a href="#" onClick={() => navigate("./reports")}>
+                <span className="fa-stack fa-lg pull-left mr-3">
+                  <i className="fa  fa-bar-chart fa-stack-1x "></i>
+                </span>
+                Reports
+              </a>
+            </li>
+            <li>
               <a href="#">
                 {" "}
                 <span className="fa-stack fa-lg pull-left mr-3">
@@ -74,14 +82,6 @@ const Sidebar = () => {
               </a>
             </li>
 
-            <li>
-              <a href="#">
-                <span className="fa-stack fa-lg pull-left mr-3">
-                  <i className="fa  fa-bar-chart fa-stack-1x "></i>
-                </span>
-                Reports
-              </a>
-            </li>
             <li>
               <a href="#">
                 <span className="fa-stack fa-lg pull-left mr-3">

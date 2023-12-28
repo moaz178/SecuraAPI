@@ -12,7 +12,8 @@ import Payment from "../features/Payment/Payment";
 import PricingPlan from "../features/PricingPlans/PricingPlans";
 import Scans from "../features/Scans/Scans";
 import Authentication from "../features/Authentication/Authentication";
-
+import Reports from "../features/Reports/Reports";
+import ReportPdf from "../features/Reports/PDFGenerator/ReportPdf";
 const AppRoutes = () => {
   const { isLoggedIn } = useAuth();
 
@@ -31,6 +32,8 @@ const AppRoutes = () => {
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="scans" element={<Scans />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="reports/report/:id" element={<ReportPdf />} />
           <Route path="authentication" element={<Authentication />} />
           <Route path="plans" element={<PricingPlan />} />
         </Route>

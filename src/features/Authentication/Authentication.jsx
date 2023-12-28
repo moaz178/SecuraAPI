@@ -177,6 +177,7 @@ const Authentication = () => {
               <Form.Select
                 value={selectedItem}
                 onChange={(e) => setSelectedItem(e.target.value)}
+                size="sm"
               >
                 <option value="">Select</option>
                 {selectOptions &&
@@ -190,17 +191,16 @@ const Authentication = () => {
           </Form>
           <br />
           <div>
-            <br />
-            <div>
+            <div className="row">
               {Object.entries(inputFields).map(
                 ([propertyName, fieldType]) =>
                   (fieldType === "textBox" || fieldType === "textArea") && (
-                    <div key={propertyName}>
-                      <label className="fs-14" htmlFor={propertyName}>
+                    <div key={propertyName} className="col-md-4 mb-4">
+                      <label className="fs-13" htmlFor={propertyName}>
                         <strong>
                           {capitalizeFirstLetter(
                             propertyName.replace(/^secura_/, "")
-                          )}{" "}
+                          )}
                           :
                         </strong>
                       </label>
@@ -208,7 +208,7 @@ const Authentication = () => {
                         type={fieldType === "textBox" ? "text" : "textarea"}
                         id={propertyName}
                         name={propertyName}
-                        className="form-control fs-14 mb-4 auth-input-widths"
+                        className="form-control fs-13"
                         onChange={(e) =>
                           handleInputChange(propertyName, e.target.value)
                         }
@@ -218,7 +218,7 @@ const Authentication = () => {
                             : propertyName === "secura_loginURL"
                             ? "http://url/endpoint"
                             : propertyName === "secura_requestBody"
-                            ? "{ username: etc, password: etc }"
+                            ? "{ username: etc, pass: etc }"
                             : undefined
                         }
                       />
@@ -229,10 +229,21 @@ const Authentication = () => {
           </div>
         </div>
         <br />
+        <button
+          type="submit"
+          className="btn btn-sm btn-info btn-block mt-2 auth-submit-btn"
+          onClick={submitScrip}
+          disabled={selectedItem === ""}
+        >
+          Save
+        </button>
+        <br />
+
         <div className="col">
           <CodeMirror
             value={script}
-            height={Object.keys(inputFields).length > 3 ? "1030px " : "463px"}
+            height={Object.keys(inputFields).length > 3 ? "730px " : "463px"}
+            className="editor-scroll"
             theme={andromeda}
             extensions={[javascript({ jsx: true })]}
             onChange={(value, viewUpdate) => {
@@ -240,15 +251,6 @@ const Authentication = () => {
             }}
           />
         </div>
-        <br />
-        <button
-          type="submit"
-          className="btn btn-lg btn-info btn-block mt-2 auth-submit-btn"
-          onClick={submitScrip}
-          disabled={selectedItem === ""}
-        >
-          Save
-        </button>
       </div>
     </>
   );

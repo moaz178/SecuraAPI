@@ -13,6 +13,7 @@ const AddAuthModal = ({ open, setOpen }) => {
         style={{ paddingBottom: "0px" }}
         centered
         size="lg"
+        backdrop="static"
       >
         <Modal.Header
           closeButton

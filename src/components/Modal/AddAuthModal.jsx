@@ -25,7 +25,7 @@ const AddAuthModal = ({ open, setOpen }) => {
             style={{ paddingBottom: "0px" }}
             className="scan-upload-container"
           >
-            <Authentication />
+            <Authentication setOpen={setOpen} />
           </div>
         </Modal.Body>
       </Modal>

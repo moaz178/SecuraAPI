@@ -37,7 +37,7 @@ const SpecUploadModal = ({ show, setShow, handleUpload, file, uploadFile }) => {
             <br />
             <button
               type="submit"
-              className="btn btn-lg btn-info btn-block mb-2"
+              className="btn btn-md btn-info btn-block mb-2"
               onClick={uploadFile}
               disabled={!file}
               style={{ width: "300px" }}

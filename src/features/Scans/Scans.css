@@ -186,3 +186,17 @@
   background-color: #ced4da;
   border: none;
 }
+
+.btn.btn-warning[disabled] {
+  background-color: #ebc963;
+  /* color: #c5c5c5; */
+  border: #ebc963;
+}
+/* .btn.btn-warning:hover {
+  background-color: #ffc107;
+} */
+
+.btn.btn-warning:focus {
+  background-color: #ffc107;
+  border: 1px solid #ffc107;
+}

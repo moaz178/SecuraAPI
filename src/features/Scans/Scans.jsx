@@ -202,10 +202,15 @@ const Scans = () => {
           style={{
             marginRight: "-25px",
           }}
-          className="btn btn-warning px-3"
+          className="btn btn-sm btn-warning px-3"
           type="button"
           onClick={() => setOpen(!open)}
-          disabled={specStatus !== "Completed"}
+          disabled={
+            specStatus === "Not Initiated" ||
+            specStatus === "In Progress" ||
+            scanStatus === "In Progress" ||
+            scanStatus === "Completed"
+          }
         >
           <strong>
             <i className="fa fa-plus fa-1x"></i>
@@ -317,7 +322,7 @@ const Scans = () => {
             ) : (
               <button
                 type="submit"
-                class="btn btn-lg btn-info btn-block mb-2"
+                class="btn btn-md btn-info btn-block mb-2"
                 onClick={handleSubmit}
                 disabled={
                   specStatus !== "Completed" || scanStatus === "In Progress"
@@ -368,7 +373,7 @@ const Scans = () => {
                     <i className="fa-solid fa-mug-hot mt-1 text-center mb-3"></i>{" "}
                     !
                     <br />
-                    <span className="fs-14 text-primary blinker-active">
+                    <span className="fs-13 text-secondary blinker-active">
                       {" "}
                       <i className="fa-solid fa-triangle-exclamation mt-1 text-center"></i>
                       &nbsp; Please do not leave this page while scan is in

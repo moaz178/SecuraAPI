@@ -6,12 +6,12 @@
   border-radius: 10px;
   width: 720px;
   background-color: #ffffff;
-  padding: 0px 30px 40px 30px;
+  padding: 0px 10px 40px 20px;
 }
 
 /* For WebKit browsers (Chrome, Safari) */
 ::-webkit-scrollbar {
-  width: 5px; /* Set the width of the scrollbar */
+  width: 8px; /* Set the width of the scrollbar */
 }
 
 /* Track styles */
@@ -23,10 +23,5 @@
 ::-webkit-scrollbar-thumb {
   background-color: rgb(175, 174, 174); /* Color of the thumb */
   border-radius: 9px; /* Border radius of the thumb */
-  width: 5px;
-}
-
-body {
-  scrollbar-width: 9px;
-  scrollbar-color: rgb(175, 174, 174) #f1f1f1;
+  width: 7px;
 }

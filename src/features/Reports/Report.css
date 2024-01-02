@@ -2,6 +2,63 @@
   margin-top: 20px;
   background: #eee;
 } */
+.right-side {
+  margin-left: 0; /* Reset the margin */
+}
+
+/* Left side alignment */
+.left-side {
+  margin-right: 0; /* Reset the margin */
+}
+
+/* Add margin to separate items */
+.mb-3 {
+  margin-bottom: 20px; /* Adjust as needed */
+}
+.page-link {
+  border: none;
+  color: #797979;
+  font-size: 13px;
+}
+.page-item.active .page-link {
+  border-radius: 50px;
+  padding-left: 13px;
+  padding-right: 13px;
+}
+
+.darken-grey-text {
+  color: #2e2e2e;
+}
+.input-group.md-form.form-sm.form-2 input {
+  border: 1px solid #bdbdbd;
+  border-top-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+}
+.input-group.md-form.form-sm.form-2 input.purple-border {
+  border: 1px solid #9e9e9e;
+}
+.input-group.md-form.form-sm.form-2
+  input[type="text"]:focus:not([readonly]).purple-border {
+  border: 1px solid #ba68c8;
+  box-shadow: none;
+}
+.form-2 .input-group-addon {
+  border: 1px solid #ba68c8;
+}
+.danger-text {
+  color: #ff3547;
+}
+.success-text {
+  color: #00c851;
+}
+.table-bordered.red-border,
+.table-bordered.red-border th,
+.table-bordered.red-border td {
+  border: 1px solid #ff3547 !important;
+}
+.table.table-bordered th {
+  text-align: center;
+}
 
 .invoice {
   padding: 20px;

@@ -7,15 +7,13 @@ import { useScanContext } from "../../contexts/scanContext/scanContext";
 import CodeMirror from "@uiw/react-codemirror";
 import { andromeda } from "@uiw/codemirror-theme-andromeda";
 import { javascript } from "@codemirror/lang-javascript";
-import { useNavigate } from "react-router-dom";
 import { capitalizeFirstLetter } from "../../utils/helper";
 import "./Authentication.css";
 
-const Authentication = () => {
+const Authentication = ({ setOpen }) => {
   const [loading, setLoading] = useState(false);
   const [inputFields, setInputFeilds] = useState({});
   const [inputValues, setInputValues] = useState({});
-  const navigate = useNavigate();
   // const [selectOptions, setSelectOptions] = useState({});
   // const [selectedItem, setSelectedItem] = useState("");
   // const [script, setScript] = useState(
@@ -130,7 +128,7 @@ const Authentication = () => {
           setSubmittedScriptRes(res.data.script);
           toast.success(res.data.script.status);
           setAuthStatus("Added");
-          navigate("/home/scans");
+          setOpen(false);
         }
       })
       .catch(function (error) {
@@ -166,90 +164,92 @@ const Authentication = () => {
       />
 
       <div className="auth-parent-container">
-        <div className="col">
-          <div>
-            <strong className="fs-30">Add Authentication</strong>
-          </div>
-          <br />
-
-          <Form style={{ width: "100%" }}>
-            <Form.Group controlId="exampleForm.SelectCustom">
-              <Form.Select
-                value={selectedItem}
-                onChange={(e) => setSelectedItem(e.target.value)}
-                size="sm"
-              >
-                <option value="">Select</option>
-                {selectOptions &&
-                  Object.entries(selectOptions).map(([value, label]) => (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  ))}
-              </Form.Select>
-            </Form.Group>
-          </Form>
-          <br />
-          <div>
-            <div className="row">
-              {Object.entries(inputFields).map(
-                ([propertyName, fieldType]) =>
-                  (fieldType === "textBox" || fieldType === "textArea") && (
-                    <div key={propertyName} className="col-md-4 mb-4">
-                      <label className="fs-13" htmlFor={propertyName}>
-                        <strong>
-                          {capitalizeFirstLetter(
-                            propertyName.replace(/^secura_/, "")
-                          )}
-                          :
-                        </strong>
-                      </label>
-                      <input
-                        type={fieldType === "textBox" ? "text" : "textarea"}
-                        id={propertyName}
-                        name={propertyName}
-                        className="form-control fs-13"
-                        onChange={(e) =>
-                          handleInputChange(propertyName, e.target.value)
-                        }
-                        placeholder={
-                          propertyName === "secura_authorization"
-                            ? "Bearer"
-                            : propertyName === "secura_loginURL"
-                            ? "http://url/endpoint"
-                            : propertyName === "secura_requestBody"
-                            ? "{ username: etc, pass: etc }"
-                            : undefined
-                        }
-                      />
-                    </div>
-                  )
-              )}
+        <div className="row">
+          {/* Left Column */}
+          <div className="col-md-4">
+            <div>
+              <strong className="fs-15">Add Authentication</strong>
             </div>
+            <br />
+            <Form style={{ width: "100%" }}>
+              <Form.Group controlId="exampleForm.SelectCustom">
+                <Form.Select
+                  value={selectedItem}
+                  onChange={(e) => setSelectedItem(e.target.value)}
+                  size="sm"
+                >
+                  <option value="">Select</option>
+                  {selectOptions &&
+                    Object.entries(selectOptions).map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                </Form.Select>
+              </Form.Group>
+            </Form>
+            <br />
+            <div>
+              <div className="row">
+                {Object.entries(inputFields).map(
+                  ([propertyName, fieldType]) =>
+                    (fieldType === "textBox" || fieldType === "textArea") && (
+                      <div key={propertyName} className="mb-3">
+                        <label className="fs-13" htmlFor={propertyName}>
+                          <strong>
+                            {capitalizeFirstLetter(
+                              propertyName.replace(/^secura_/, "")
+                            )}
+                            :
+                          </strong>
+                        </label>
+                        <input
+                          type={fieldType === "textBox" ? "text" : "textarea"}
+                          id={propertyName}
+                          name={propertyName}
+                          className="form-control fs-13"
+                          onChange={(e) =>
+                            handleInputChange(propertyName, e.target.value)
+                          }
+                          placeholder={
+                            propertyName === "secura_authorization"
+                              ? "Bearer"
+                              : propertyName === "secura_loginURL"
+                              ? "http://url/endpoint"
+                              : propertyName === "secura_requestBody"
+                              ? "{ username: etc, pass: etc }"
+                              : undefined
+                          }
+                        />
+                      </div>
+                    )
+                )}
+              </div>
+            </div>
+            <button
+              type="submit"
+              className="btn btn-sm btn-primary mt-2 px-4"
+              onClick={submitScrip}
+              disabled={selectedItem === ""}
+            >
+              Save
+            </button>
+            <br />
           </div>
-        </div>
-        <br />
-        <button
-          type="submit"
-          className="btn btn-sm btn-info btn-block mt-2 auth-submit-btn"
-          onClick={submitScrip}
-          disabled={selectedItem === ""}
-        >
-          Save
-        </button>
-        <br />
 
-        <div className="col">
-          <CodeMirror
-            value={script}
-            height={Object.keys(inputFields).length > 3 ? "730px " : "463px"}
-            className="editor-scroll"
-            theme={andromeda}
-            extensions={[javascript({ jsx: true })]}
-            onChange={(value, viewUpdate) => {
-              setScript(value);
-            }}
-          />
+          {/* Right Column */}
+          <div className="col-md-8">
+            <CodeMirror
+              value={script}
+              height={Object.keys(inputFields).length > 3 ? "730px " : "463px"}
+              className="editor-scroll"
+              theme={andromeda}
+              extensions={[javascript({ jsx: true })]}
+              onChange={(value, viewUpdate) => {
+                setScript(value);
+              }}
+            />
+          </div>
         </div>
       </div>
     </>

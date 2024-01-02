@@ -27,7 +27,10 @@ const SecuraStepper = ({
           ) : specStatus === "In Progress" ? (
             <div className="text-secondary">In Progress</div>
           ) : specStatus === "Completed" ? (
-            <div className="text-info">Completed</div>
+            <div className="text-info">
+              <i className="fa-solid fa-circle-check text-success"></i>{" "}
+              &nbsp;Completed
+            </div>
           ) : specStatus === "Failed" ? (
             <div className="text-danger">Failed</div>
           ) : (
@@ -53,7 +56,11 @@ const SecuraStepper = ({
           {authStatus === "Not Added" ? (
             <div className="text-secondary">Not Added</div>
           ) : (
-            <div className="text-info">Added</div>
+            <div className="text-info">
+              {" "}
+              <i className="fa-solid fa-circle-check text-success"></i>{" "}
+              &nbsp;Added
+            </div>
           )}
         </p>
         <div class="progressText1 pt-2 w-max-content" id="generate">
@@ -86,7 +93,11 @@ const SecuraStepper = ({
           ) : scanStatus === "In Progress" ? (
             <div className="text-secondary">In Progress</div>
           ) : scanStatus === "Completed" ? (
-            <div className="text-info">Completed</div>
+            <div className="text-info">
+              {" "}
+              <i className="fa-solid fa-circle-check text-success"></i>{" "}
+              &nbsp;Completed
+            </div>
           ) : scanStatus === "Failed" ? (
             <div className="text-danger">Failed</div>
           ) : (
@@ -114,7 +125,11 @@ const SecuraStepper = ({
           ) : scanStatus === "In Progress" ? (
             <div className="text-secondary">Waiting</div>
           ) : scanStatus === "Completed" ? (
-            <div className="text-info">Achieved</div>
+            <div className="text-info">
+              {" "}
+              <i className="fa-solid fa-circle-check text-success"></i>{" "}
+              &nbsp;Achieved
+            </div>
           ) : scanStatus === "Failed" ? (
             <div className="text-danger">Failed</div>
           ) : (

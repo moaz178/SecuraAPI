@@ -5,7 +5,6 @@ import Document from "./Document";
 import Page from "./Page";
 import View from "./View";
 import Text from "./Text";
-import { Font } from "@react-pdf/renderer";
 import Download from "./DownloadPDF";
 import { useScanContext } from "../../../contexts/scanContext/scanContext";
 import "../Report.css";
@@ -60,18 +59,6 @@ export const initialInvoice = {
   term: "Please make the payment by the due date.",
 };
 
-Font.register({
-  family: "Nunito",
-
-  fonts: [
-    { src: "https://fonts.gstatic.com/s/nunito/v12/XRXV3I6Li01BKofINeaE.ttf" },
-    {
-      src:
-        "https://fonts.gstatic.com/s/nunito/v12/XRXW3I6Li01BKofA6sKUYevN.ttf",
-      fontWeight: 600,
-    },
-  ],
-});
 const description = [1, 2, 3, 4, 5, 6];
 const ReportPdf = ({ data, pdfMode, onChange }) => {
   const [invoice, setInvoice] = useState(

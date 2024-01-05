@@ -9,7 +9,6 @@ import SkeletonLoader from "../../components/SkeletonLoader/SkeletonLoader";
 import SecuraStepper from "../../components/SecuraStepper/SecuraStepper";
 import SpecUploadModal from "../../components/Modal/SpecUploadModal";
 import AddAuthModal from "../../components/Modal/AddAuthModal";
-
 import ScanSummary from "../ScanSummary/ScanSummary";
 import "./Scans.css";
 
@@ -46,6 +45,7 @@ const Scans = () => {
     inputUrlVal,
     setInputUrlVal,
     scanDetails,
+    awsData,
   } = useScanContext();
 
   const toggleCollapseTable = (rowId) => {
@@ -83,8 +83,14 @@ const Scans = () => {
 
     const urlPayload = {
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
-      secura_url: inputUrlVal,
-      secura_sslEnabled: sslEnabled,
+      secura_url:
+        Object.keys(awsData).length !== 0 || awsData.spec_url
+          ? awsData.spec_url
+          : inputUrlVal,
+      secura_sslEnabled:
+        Object.keys(awsData).length !== 0 || awsData.spec_url
+          ? true
+          : sslEnabled,
     };
 
     setSpecStatus("In Progress");
@@ -224,44 +230,46 @@ const Scans = () => {
           <form>
             <div class="form-group">
               <div class="form-row">
-                <div class="col">
-                  <div>
-                    <label>
-                      Enter API spec:{" "}
-                      <i class="fa fa-question-circle questionMark"></i>
-                      <button
-                        style={{ textDecoration: "none" }}
-                        className="btn btn-link"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setShow(!show);
-                        }}
-                        disabled={
-                          inputUrlVal ||
-                          scanStatus === "In Progress" ||
-                          scanStatus === "Completed"
-                        }
-                      >
-                        Or Upload a Spec
-                      </button>
-                    </label>
-                  </div>
-                </div>
-                <div class="col d-flex justify-content-end">
-                  <div className="d-flex mt-2">
-                    <Container>
-                      <Form>
-                        <Form.Check
-                          type="switch"
-                          id="custom-switch"
-                          label="SSL Enabled"
-                          // checked={isChecked}
-                          onChange={() => setSslEnabled(!sslEnabled)}
-                          style={{ color: "grey", fontSize: "13px" }}
-                        />
-                      </Form>
-                    </Container>
-                    {/* <button
+                {Object.keys(awsData).length === 0 || awsData.error !== null ? (
+                  <>
+                    <div class="col">
+                      <div>
+                        <label>
+                          Enter API spec:{" "}
+                          <i class="fa fa-question-circle questionMark"></i>
+                          <button
+                            style={{ textDecoration: "none" }}
+                            className="btn btn-link"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setShow(!show);
+                            }}
+                            disabled={
+                              inputUrlVal ||
+                              scanStatus === "In Progress" ||
+                              scanStatus === "Completed"
+                            }
+                          >
+                            Or Upload a Spec
+                          </button>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col d-flex justify-content-end">
+                      <div className="d-flex mt-2">
+                        <Container>
+                          <Form>
+                            <Form.Check
+                              type="switch"
+                              id="custom-switch"
+                              label="SSL Enabled"
+                              // checked={isChecked}
+                              onChange={() => setSslEnabled(!sslEnabled)}
+                              style={{ color: "grey", fontSize: "13px" }}
+                            />
+                          </Form>
+                        </Container>
+                        {/* <button
                       className="btn btn-link"
                       onClick={(e) => {
                         setFile("");
@@ -271,13 +279,19 @@ const Scans = () => {
                     >
                       Reset
                     </button> */}
-                  </div>
-                </div>
+                      </div>
+                    </div>
+                  </>
+                ) : null}
                 <input
                   type="text"
                   name="name"
                   className="form-control fs-14 mt-2 mx-2"
-                  value={inputUrlVal}
+                  value={
+                    Object.keys(awsData).length !== 0 || awsData.spec_url
+                      ? awsData.spec_url
+                      : inputUrlVal
+                  }
                   onChange={(e) => setInputUrlVal(e.target.value)}
                   placeholder={
                     file.name
@@ -285,17 +299,17 @@ const Scans = () => {
                       : "Enter OpenAPI Specification URL / File"
                   }
                 />
-                {inputUrlVal && (
+                {(inputUrlVal || awsData.spec_url) && (
                   <button
                     style={{
-                      border: "1px solid #ced4da",
+                      border: "none",
                       position: "relative",
                       padding: "5px 20px 5px 14px",
                       left: "93%",
-                      bottom: "36px",
+                      bottom: "35px",
                       // color: "rgb(191 191 191)",
                     }}
-                    className="btn btn-primary ms-n5"
+                    className="btn btn-info ms-n5"
                     type="submit"
                     onClick={uploadURL}
                     disabled={
@@ -311,8 +325,13 @@ const Scans = () => {
             {scanResults ? (
               <button
                 type="submit"
-                class="btn btn-lg btn-info btn-block mb-2"
+                class="btn btn-md btn-info btn-block mb-2"
                 onClick={() => window.location.reload()}
+                style={{
+                  color: "#fff",
+                  fontWeight: "600",
+                  letterSpacing: "1px",
+                }}
                 // disabled={
                 //   specStatus !== "Completed" || scanStatus === "In Progress"
                 // }
@@ -327,6 +346,11 @@ const Scans = () => {
                 disabled={
                   specStatus !== "Completed" || scanStatus === "In Progress"
                 }
+                style={{
+                  color: "#fff",
+                  fontWeight: "600",
+                  letterSpacing: "1px",
+                }}
               >
                 Run a Scan
               </button>

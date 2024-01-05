@@ -81,6 +81,10 @@ const Navbar = () => {
                   type="button"
                   className="btn btn-sm btn-info fs-14 mt-1"
                   onClick={() => navigate("plans")}
+                  style={{
+                    fontWeight: "600",
+                    letterSpacing: "1px",
+                  }}
                 >
                   Activate Trial
                 </button>

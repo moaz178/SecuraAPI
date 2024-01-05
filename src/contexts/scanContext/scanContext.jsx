@@ -27,6 +27,8 @@ const ScanContext = createContext({
   setAuthStatus: () => null,
   selectedReport: null,
   setSelectedReport: () => {},
+  awsData: {},
+  setAWSdata: () => {},
 });
 
 export const useScanContext = () => useContext(ScanContext);
@@ -44,6 +46,7 @@ const ScanProvider = ({ children }) => {
   const [selectedItem, setSelectedItem] = useState("");
   const [authStatus, setAuthStatus] = useState("Not Added");
   const [selectedReport, setSelectedReport] = useState(null);
+  const [awsData, setAWSdata] = useState({});
   const [script, setScript] = useState(
     "//You will get your script here by selecting any item ! \n\nvar message = 'Secura Scan!'\n//Please Upload the Specs first to get the script \nconsole.log(message);"
   );
@@ -77,6 +80,8 @@ const ScanProvider = ({ children }) => {
         setAuthStatus,
         selectedReport,
         setSelectedReport,
+        awsData,
+        setAWSdata,
       }}
     >
       {children}

@@ -72,6 +72,22 @@ const Sidebar = () => {
                 Reports
               </a>
             </li>
+
+            <li>
+              <a
+                href="#"
+                onClick={() => {
+                  navigate("./connectors");
+                  window.location.reload();
+                }}
+              >
+                {" "}
+                <span className="fa-stack fa-lg pull-left mr-3">
+                  <i className="fa-solid fa-plug-circle-bolt fa-stack-1x"></i>
+                </span>
+                Connectors
+              </a>
+            </li>
             <li>
               <a href="#">
                 {" "}

@@ -118,10 +118,10 @@ const Reports = () => {
                             size="sm"
                             variant="info"
                             className="mr-2 fs-13"
-                            onClick={() => handleView(report)}
+                            // onClick={() => handleView(report)}
                           >
                             <strong>
-                              <i className="fa-solid fa-eye"></i> {""} View
+                              <i className="fa-solid fa-eye"></i> &nbsp;View
                             </strong>
                           </Button>
                         </td>

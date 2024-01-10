@@ -167,7 +167,7 @@ const AWSForm = ({ handleNext }) => {
             </div>
           </Card.Body>
         </Card>
-        <div style={{ width: "500px", marginTop: "100px", marginLeft: "20px" }}>
+        <div style={{ width: "500px", marginTop: "100px", marginLeft: "10px" }}>
           <strong className="fs-20 ">
             <span>AWS</span> Connectors
           </strong>

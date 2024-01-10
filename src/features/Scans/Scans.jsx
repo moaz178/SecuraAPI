@@ -48,6 +48,12 @@ const Scans = () => {
     awsData,
   } = useScanContext();
 
+  useEffect(() => {
+    if (Object.keys(awsData).length !== 0 && awsData.spec_url) {
+      uploadAWSSpecURL();
+    }
+  }, []);
+
   const toggleCollapseTable = (rowId) => {
     setOpenRows((prevOpenRows) =>
       prevOpenRows.includes(rowId)
@@ -83,14 +89,8 @@ const Scans = () => {
 
     const urlPayload = {
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
-      secura_url:
-        Object.keys(awsData).length !== 0 || awsData.spec_url
-          ? awsData.spec_url
-          : inputUrlVal,
-      secura_sslEnabled:
-        Object.keys(awsData).length !== 0 || awsData.spec_url
-          ? true
-          : sslEnabled,
+      secura_url: inputUrlVal,
+      secura_sslEnabled: sslEnabled,
     };
 
     setSpecStatus("In Progress");
@@ -105,6 +105,40 @@ const Scans = () => {
           toast.error(error);
           // setFile("");
           setSpecStatus("Failed");
+        } else {
+          // setRefrenceID(referenceId);
+          // setTargettedHost(targetHost);
+          setScanDetails(res.data);
+          setSpecStatus("Completed");
+        }
+      })
+      .catch(function (error) {
+        toast.error(error.message);
+        setLoading(false);
+        console.log("uploaded file error", error);
+      });
+  };
+
+  //UPLOAD AWS Spec URL API CALL
+  const uploadAWSSpecURL = () => {
+    const urlPayload = {
+      secura_key: "6m1fcduh0lm3h757ofun4194jn",
+      secura_url: awsData.spec_url,
+      secura_sslEnabled: true,
+    };
+
+    setSpecStatus("In Progress");
+    setShow(false);
+    axios
+      .post(`http://192.168.18.20:8082/SecuraCore/UploadURL`, urlPayload)
+      .then(function (res) {
+        // setLoading(false);
+
+        const { error } = res.data;
+        if (error !== null) {
+          toast.error("AWS connection failed. Try again !");
+          // setFile("");
+          setSpecStatus("Not Initiated");
         } else {
           // setRefrenceID(referenceId);
           // setTargettedHost(targetHost);
@@ -283,23 +317,23 @@ const Scans = () => {
                     </div>
                   </>
                 ) : null}
+
                 <input
                   type="text"
                   name="name"
                   className="form-control fs-14 mt-2 mx-2"
-                  value={
-                    Object.keys(awsData).length !== 0 || awsData.spec_url
-                      ? awsData.spec_url
-                      : inputUrlVal
-                  }
+                  value={inputUrlVal}
                   onChange={(e) => setInputUrlVal(e.target.value)}
                   placeholder={
                     file.name
                       ? file.name
                       : "Enter OpenAPI Specification URL / File"
                   }
+                  disabled={
+                    Object.keys(awsData).length !== 0 && awsData.spec_url
+                  }
                 />
-                {(inputUrlVal || awsData.spec_url) && (
+                {inputUrlVal && (
                   <button
                     style={{
                       border: "none",

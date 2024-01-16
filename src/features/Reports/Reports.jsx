@@ -56,10 +56,6 @@ const Reports = () => {
     }
   };
 
-  const handleDownload = (refId) => {
-    console.log(`Download clicked for reference ID ${refId}`);
-  };
-
   console.log("SelectedReport", selectedReport);
   return (
     <>
@@ -75,7 +71,7 @@ const Reports = () => {
 
       {reportList === null ||
         (reportList.length < 1 ? (
-          <strong>No Reports Found ! Network Error. </strong>
+          <strong>Loading.. </strong>
         ) : (
           <div
             style={{
@@ -118,7 +114,7 @@ const Reports = () => {
                             size="sm"
                             variant="info"
                             className="mr-2 fs-13"
-                            // onClick={() => handleView(report)}
+                            onClick={() => handleView(report)}
                           >
                             <strong>
                               <i className="fa-solid fa-eye"></i> &nbsp;View

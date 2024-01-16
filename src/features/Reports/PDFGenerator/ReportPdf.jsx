@@ -1,794 +1,659 @@
-import React, { useState, useEffect } from "react";
-// import EditableInput from "./EditableInput";
-import EditableFileImage from "./EditableFileImage";
-import Document from "./Document";
-import Page from "./Page";
-import View from "./View";
-import Text from "./Text";
-import Download from "./DownloadPDF";
+import React from "react";
+import html2pdf from "html2pdf.js";
+import { Table } from "react-bootstrap";
+import ReactDOMServer from "react-dom/server";
 import { useScanContext } from "../../../contexts/scanContext/scanContext";
 import "../Report.css";
 
-export const initialProductLine = {
-  description: "",
-  quantity: "1",
-  rate: "0.00",
-};
-
-export const initialInvoice = {
-  logo: "",
-  logoWidth: 100,
-  signature: "",
-  title: "INVOICE",
-  companyName: "",
-  name: "",
-  companyAddress: "",
-  companyAddress2: "",
-  companyCountry: "United States",
-  billTo: "Bill To:",
-  clientName: "",
-  clientAddress: "",
-  clientAddress2: "",
-  clientCountry: "United States",
-  invoiceTitleLabel: "Invoice#",
-  invoiceTitle: "",
-  invoiceDateLabel: "Invoice Date",
-  invoiceDate: "",
-  invoiceDueDateLabel: "Due Date",
-  invoiceDueDate: "",
-  productLineDescription: "Item Description",
-  productLineQuantity: "Qty",
-  productLineQuantityRate: "Rate",
-  productLineQuantityAmount: "Amount",
-  productLines: [
-    {
-      description: "Brochure Design",
-      quantity: "2",
-      rate: "100.00",
-    },
-    { ...initialProductLine },
-    { ...initialProductLine },
-  ],
-  subTotalLabel: "Sub Total",
-  taxLabel: "Sale Tax (10%)",
-  totalLabel: "TOTAL",
-  currency: "$",
-  notesLabel: "Notes",
-  notes: "It was great doing business with you.",
-  termLabel: "Terms & Conditions",
-  term: "Please make the payment by the due date.",
-};
-
-const description = [1, 2, 3, 4, 5, 6];
 const ReportPdf = ({ data, pdfMode, onChange }) => {
-  const [invoice, setInvoice] = useState(
-    data ? { ...data } : { ...initialInvoice }
-  );
-
-  const invoiceDate =
-    invoice.invoiceDate !== "" ? new Date(invoice.invoiceDate) : new Date();
-  const invoiceDueDate =
-    invoice.invoiceDueDate !== ""
-      ? new Date(invoice.invoiceDueDate)
-      : new Date(invoiceDate.valueOf());
-
-  if (invoice.invoiceDueDate === "") {
-    invoiceDueDate.setDate(invoiceDueDate.getDate() + 30);
-  }
-
-  useEffect(() => {
-    if (onChange) {
-      onChange(invoice);
-    }
-  }, [onChange, invoice]);
-
   //Scan context
   const { selectedReport } = useScanContext();
   console.log("selectedReport: ", selectedReport);
 
-  return (
-    <Document pdfMode={pdfMode}>
-      <Page className="invoice-wrapper" pdfMode={pdfMode}>
-        {!pdfMode && <Download data={invoice} />}
+  // Check for selectedReport exists before accessing its properties
+  if (!selectedReport) {
+    return (
+      <div className="text-secondary fs-15">
+        Something went wrong !{" "}
+        <button
+          className="btn btn-sm btn-info ml-3"
+          onClick={() => window.history.back()}
+        >
+          <i className="fa-solid fa-arrow-left"></i> Go back
+        </button>
+      </div>
+    );
+  }
 
-        <View className="flex mb-20" pdfMode={pdfMode}>
-          <View className="w-50" pdfMode={pdfMode}>
-            <View className="w-60" pdfMode={pdfMode}>
-              <EditableFileImage
-                className="logo"
-                placeholder="Your Logo"
-                value={"/dist/securaLogo.png"}
-                width={"300px"}
-                pdfMode={pdfMode}
-              />
-            </View>
-          </View>
-          <View className="w-50" pdfMode={pdfMode}>
-            <View className="w-85" pdfMode={pdfMode}>
-              <View className="flex mb-1" pdfMode={pdfMode}>
-                <View className="w-40" pdfMode={pdfMode}>
-                  <Text className="dark bold" pdfMode={pdfMode}>
-                    Scan Started
-                  </Text>
-                </View>
-                <View className="w-60" pdfMode={pdfMode}>
-                  <Text className="dark" pdfMode={pdfMode}>
-                    Thu Dec 28 17:32:03 2023 PKT
-                  </Text>
-                </View>
-              </View>
-              <View className="flex mb-1" pdfMode={pdfMode}>
-                <View className="w-40" pdfMode={pdfMode}>
-                  <Text className="dark bold" pdfMode={pdfMode}>
-                    Scan Ended
-                  </Text>
-                </View>
-                <View className="w-60" pdfMode={pdfMode}>
-                  <Text className="dark" pdfMode={pdfMode}>
-                    Thu Dec 28 17:32:22 2023 PKT
-                  </Text>
-                </View>
-              </View>
-              <View className="flex mb-1" pdfMode={pdfMode}>
-                <View className="w-40" pdfMode={pdfMode}>
-                  <Text className="dark bold" pdfMode={pdfMode}>
-                    Scan Duration
-                  </Text>
-                </View>
-                <View className="w-60" pdfMode={pdfMode}>
-                  <Text className="dark" pdfMode={pdfMode}>
-                    0:0:19
-                  </Text>
-                </View>
-              </View>
-              <View className="flex mb-5" pdfMode={pdfMode}>
-                <View className="w-40" pdfMode={pdfMode}>
-                  <Text className="dark bold" pdfMode={pdfMode}>
-                    Scan Status
-                  </Text>
-                </View>
-                <View className="w-60" pdfMode={pdfMode}>
-                  <Text
-                    className="bg-success white fs-12 bold p-5px p-1 w-30 badge badge-success"
-                    pdfMode={pdfMode}
+  const getBadgeColor = (risk) => {
+    switch (risk) {
+      case "1":
+        return "badge-danger";
+      case "2":
+        return "badge-warning";
+      case "3":
+        return "badge-info";
+      case "4":
+        return "badge-success";
+      default:
+        return "badge-secondary";
+    }
+  };
+
+  const pdfJSX = () => {
+    return (
+      <>
+        <div
+          style={{ margin: "10px 25px", paddingTop: "20px" }}
+          id="report-pdf"
+        >
+          <strong className="fs-20">Scan Summary:</strong>
+          <br />
+          <br />
+          <div className="d-flex justify-content-between">
+            <div>
+              <strong className="fs-14 text-primary">Scan Information</strong>
+              <div className="d-flex">
+                <div>
+                  <p className="fs-14 text-secondary mt-2">Scan Started :</p>
+                  <p className="fs-14 text-secondary">Scan Ended :</p>
+                  <p className="fs-14 text-secondary">Scan Duration :</p>
+                  <p className="fs-14 text-secondary">Scan Status :</p>
+                </div>
+                <div className="ml-4">
+                  <p className="fs-14 text-secondary mt-2">
+                    <strong className="fs-14 text-secondary">
+                      {selectedReport.status
+                        ? selectedReport.status.startTime
+                        : "N/A"}
+                    </strong>
+                  </p>
+                  <p className="fs-14 text-secondary">
+                    <strong className="fs-14 text-secondary">
+                      {selectedReport.status
+                        ? selectedReport.status.endTime
+                        : "N/A"}
+                    </strong>
+                  </p>
+                  <p className="fs-14 text-secondary">
+                    <strong className="fs-14 text-secondary">
+                      {selectedReport.status
+                        ? selectedReport.status.Duration
+                        : "N/A"}
+                    </strong>
+                  </p>
+                  <p className="fs-14 text-secondary">
+                    <span className="badge badge-success">Finished</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <strong className="fs-14 text-primary">Findings</strong>
+
+              <div className="d-flex justify-content-between">
+                <div>
+                  <p className="fs-14 text-secondary mt-2">High :</p>
+                  <p className="fs-14 text-secondary mt-3">Medium :</p>
+                  <p className="fs-14 text-secondary mt-3">Low:</p>
+                  <p className="fs-14 text-secondary mt-3">Informational :</p>
+                </div>
+                <div className="ml-4">
+                  <div
+                    className="py-1 bg-danger text-light mt-1 "
+                    style={{
+                      width: `${
+                        selectedReport.summary.High
+                          ? selectedReport.summary.High + 40
+                          : 40
+                      }px`,
+                    }}
                   >
-                    Finished
-                  </Text>
-                </View>
-              </View>
-            </View>
-          </View>
-          {/* <View className="w-50" pdfMode={pdfMode}>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  R/O Open Date
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  123-45666-77
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Time Recieved
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Mar 01, 2022
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-5" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Current Mileage
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Feb 03, 2022
-                </Text>
-              </View>
-            </View>
-          </View> */}
-        </View>
+                    <strong className="fs-15 pl-3">
+                      {selectedReport.summary.High
+                        ? selectedReport.summary.High
+                        : 0}
+                    </strong>
+                  </div>
+                  <div
+                    className="py-1 bg-warning text-light mt-1 "
+                    style={{
+                      width: `${
+                        selectedReport.summary.Medium
+                          ? selectedReport.summary.Medium + 40
+                          : 40
+                      }px`,
+                    }}
+                  >
+                    <strong className="fs-15 pl-3">
+                      {selectedReport.summary.Medium
+                        ? selectedReport.summary.Medium
+                        : 0}
+                    </strong>
+                  </div>
+                  <div
+                    className="py-1 bg-primary text-light mt-1 "
+                    style={{
+                      width: `${
+                        selectedReport.summary.Low
+                          ? selectedReport.summary.Low + 40
+                          : 40
+                      }px`,
+                    }}
+                  >
+                    <strong className="fs-15 pl-3">
+                      {selectedReport.summary.Low
+                        ? selectedReport.summary.Low
+                        : 0}
+                    </strong>
+                  </div>
+                  <div
+                    className="py-1 text-light mt-1"
+                    style={{
+                      width: `${
+                        selectedReport.summary.Informational
+                          ? selectedReport.summary.Informational + 40
+                          : 40
+                      }px`,
+                      background: "rgb(128 199 145)",
+                    }}
+                  >
+                    <strong className="fs-15 pl-3">
+                      {selectedReport.summary.Informational
+                        ? selectedReport.summary.Informational
+                        : 0}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <View className="flex" pdfMode={pdfMode}>
-          <View className="w-45" pdfMode={pdfMode}>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Report ID
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  01
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  UserKey
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Null
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-5" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Report Date
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Dec 28, 2023
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View className="w-45" pdfMode={pdfMode}>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  User ID
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  123-45666-77
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  User Name
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Aiman
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-5" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  User Email
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  aiman.ali@rc.com
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View className="w-45" pdfMode={pdfMode}>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Refrence ID
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  SECURA_1702643980
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Target Host
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  http://192.168.18.20:8081
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-5" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Authentication
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Null
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
+          <hr className="grey-hr" />
+          <br />
 
-        <View className="flex bg-dark white mb-5 mt-20 mb-20" pdfMode={pdfMode}>
-          <Text className="ml-2 pl-5px" pdfMode={pdfMode}>
-            Risk Findings
-          </Text>
-        </View>
-        <View className="flex" pdfMode={pdfMode}>
-          <View className="w-45" pdfMode={pdfMode}>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  High
-                </Text>
-              </View>
-              <View className="w-40 mb-5px" pdfMode={pdfMode}>
-                <Text className="bold bg-danger white pl-5px" pdfMode={pdfMode}>
-                  12
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold " pdfMode={pdfMode}>
-                  Medium
-                </Text>
-              </View>
-              <View className="w-40 mb-5px" pdfMode={pdfMode}>
-                <Text className="bold bg-warning dark pl-5px" pdfMode={pdfMode}>
-                  05
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Low
-                </Text>
-              </View>
-              <View className="w-40 mb-5px" pdfMode={pdfMode}>
-                <Text
-                  className="bold bg-primary white pl-5px"
-                  pdfMode={pdfMode}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <div style={{ width: "160px" }}>
+              <div className="py-3 bg-danger text-light text-center width-75">
+                <strong className="fs-50">
+                  {" "}
+                  {selectedReport.summary.High
+                    ? selectedReport.summary.High
+                    : 0}
+                </strong>
+              </div>
+              <div className="py-1 bg-danger text-light mt-1 text-center width-75">
+                <strong className="fs-15 ">High</strong>
+              </div>
+            </div>
+            <div style={{ width: "160px" }}>
+              <div className="py-3 bg-warning text-light text-center width-75">
+                <strong className="fs-50">
+                  {selectedReport.summary.Medium
+                    ? selectedReport.summary.Medium
+                    : 0}
+                </strong>
+              </div>
+              <div className="px-1 py-1 bg-warning text-light mt-1 text-center width-75">
+                <strong className="fs-15 ">Medium</strong>
+              </div>
+            </div>
+            <div style={{ width: "160px" }}>
+              <div className="py-3 bg-primary text-light text-center width-75">
+                <strong className="fs-50">
+                  {selectedReport.summary.Low ? selectedReport.summary.Low : 0}
+                </strong>
+              </div>
+              <div className="px-1 py-1 bg-primary text-light mt-1 text-center width-75">
+                <strong className="fs-15 ">Low</strong>
+              </div>
+            </div>
+
+            <div style={{ width: "200px" }}>
+              <div className="py-3 bg-success text-light text-center width-75">
+                <strong className="fs-50">
+                  {selectedReport.summary.Informational
+                    ? selectedReport.summary.Informational
+                    : 0}
+                </strong>
+              </div>
+              <div className="px-1 py-1 bg-success text-light mt-1 text-center width-75">
+                <strong className="fs-15 ">Informational</strong>
+              </div>
+            </div>
+
+            <div style={{ width: "410px" }}>
+              <div className="text-secondary fs-14 mt-3">
+                <p>
+                  Any <strong className="text-danger">High</strong> and{" "}
+                  <strong className="text-warning">Medium</strong> risk
+                  vulnerabilities should be investigated and confirmed so that
+                  remedation can take place.
+                  <strong className="text-primary"> Low</strong> risk items
+                  should not be ignored as they can be chained with other
+                  vulnerabilities to enable further attacks.
+                </p>
+              </div>
+            </div>
+          </div>
+          <br />
+          <br />
+          <br />
+          <strong className="fs-15 text-primary">
+            {" "}
+            Vulnerabilities Summary:
+          </strong>
+          <br />
+          <br />
+
+          <Table style={{ tableLayout: "fixed" }}>
+            <thead style={{ background: "#f5f5f5" }}>
+              <tr>
+                <th scope="col">Severity</th>
+                <th scope="col" style={{ width: "500px" }}>
+                  Description
+                </th>
+                <th scope="col" style={{ width: "100px" }}>
+                  Count
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(selectedReport.vulnerability).map(
+                ([severity, details]) => (
+                  <React.Fragment key={severity}>
+                    {Object.entries(details).map(
+                      ([description, subDetails]) => (
+                        <React.Fragment key={description}>
+                          <tr>
+                            <td>
+                              <span
+                                className={`badge ${getBadgeColor(
+                                  severity
+                                )} px-3 py-1`}
+                              >
+                                {severity === "1"
+                                  ? "High"
+                                  : severity === "2"
+                                  ? "Medium"
+                                  : severity === "3"
+                                  ? "Low"
+                                  : "Informational"}
+                              </span>
+                            </td>
+                            <td>
+                              <strong>{description}</strong>
+                            </td>
+                            <td>{Object.keys(subDetails).length}</td>
+                          </tr>
+                          {Object.entries(subDetails).map(([key, value]) => (
+                            <tr key={key}>
+                              <td colSpan="3" style={{ padding: "0px" }}>
+                                <div>
+                                  <Table
+                                    bordered
+                                    style={{ tableLayout: "fixed" }}
+                                  >
+                                    <tbody className="fs-12">
+                                      {Object.entries(value).map(
+                                        ([propertyKey, propertyValue]) => (
+                                          <tr key={propertyKey}>
+                                            <td colSpan="2">{propertyKey}</td>
+                                            <td
+                                              colSpan="9"
+                                              style={{
+                                                wordWrap: "break-word",
+                                              }}
+                                            >
+                                              {propertyValue}
+                                            </td>
+                                          </tr>
+                                        )
+                                      )}
+                                    </tbody>
+                                  </Table>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </React.Fragment>
+                      )
+                    )}
+                  </React.Fragment>
+                )
+              )}
+            </tbody>
+          </Table>
+        </div>
+      </>
+    );
+  };
+
+  const printHandler = () => {
+    const printElement = ReactDOMServer.renderToString(pdfJSX());
+    // const printElement = pdfJSX();
+
+    html2pdf().from(printElement).save();
+  };
+
+  return (
+    <>
+      <button onClick={printHandler} className="btn btn-sm btn-primary">
+        Donwload
+      </button>
+      <div
+        style={{ margin: "20px 100px", padding: "26px 35px" }}
+        id="report-pdf"
+        className="shadow"
+      >
+        <strong className="fs-20">Scan Summary:</strong>
+        <br />
+        <br />
+        <div className="d-flex justify-content-between">
+          <div>
+            <strong className="fs-14 text-primary">Scan Information</strong>
+            <div className="d-flex">
+              <div>
+                <p className="fs-14 text-secondary mt-2">Scan Started :</p>
+                <p className="fs-14 text-secondary">Scan Ended :</p>
+                <p className="fs-14 text-secondary">Scan Duration :</p>
+                <p className="fs-14 text-secondary">Scan Status :</p>
+              </div>
+              <div className="ml-4">
+                <p className="fs-14 text-secondary mt-2">
+                  <strong className="fs-14 text-secondary">
+                    {selectedReport.status
+                      ? selectedReport.status.startTime
+                      : "N/A"}
+                  </strong>
+                </p>
+                <p className="fs-14 text-secondary">
+                  <strong className="fs-14 text-secondary">
+                    {selectedReport.status
+                      ? selectedReport.status.endTime
+                      : "N/A"}
+                  </strong>
+                </p>
+                <p className="fs-14 text-secondary">
+                  <strong className="fs-14 text-secondary">
+                    {selectedReport.status
+                      ? selectedReport.status.Duration
+                      : "N/A"}
+                  </strong>
+                </p>
+                <p className="fs-14 text-secondary">
+                  <span className="badge badge-success">Finished</span>
+                </p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <strong className="fs-14 text-primary">Findings</strong>
+
+            <div className="d-flex justify-content-between">
+              <div>
+                <p className="fs-14 text-secondary mt-2">High :</p>
+                <p className="fs-14 text-secondary mt-3">Medium :</p>
+                <p className="fs-14 text-secondary mt-3">Low:</p>
+                <p className="fs-14 text-secondary mt-3">Informational :</p>
+              </div>
+              <div className="ml-4">
+                <div
+                  className="py-1 bg-danger text-light mt-1 "
+                  style={{
+                    width: `${
+                      selectedReport.summary.High
+                        ? selectedReport.summary.High + 40
+                        : 40
+                    }px`,
+                  }}
                 >
-                  0
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-5" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Informational
-                </Text>
-              </View>
-              <View className="w-40 mb-5px" pdfMode={pdfMode}>
-                <Text
-                  className="bold bg-success white pl-5px"
-                  pdfMode={pdfMode}
+                  <strong className="fs-15 pl-3">
+                    {selectedReport.summary.High
+                      ? selectedReport.summary.High
+                      : 0}
+                  </strong>
+                </div>
+                <div
+                  className="py-1 bg-warning text-light mt-1 "
+                  style={{
+                    width: `${
+                      selectedReport.summary.Medium
+                        ? selectedReport.summary.Medium + 40
+                        : 40
+                    }px`,
+                  }}
                 >
-                  10
-                </Text>
-              </View>
-            </View>
-          </View>
+                  <strong className="fs-15 pl-3">
+                    {selectedReport.summary.Medium
+                      ? selectedReport.summary.Medium
+                      : 0}
+                  </strong>
+                </div>
+                <div
+                  className="py-1 bg-primary text-light mt-1 "
+                  style={{
+                    width: `${
+                      selectedReport.summary.Low
+                        ? selectedReport.summary.Low + 40
+                        : 40
+                    }px`,
+                  }}
+                >
+                  <strong className="fs-15 pl-3">
+                    {selectedReport.summary.Low
+                      ? selectedReport.summary.Low
+                      : 0}
+                  </strong>
+                </div>
+                <div
+                  className="py-1 text-light mt-1"
+                  style={{
+                    width: `${
+                      selectedReport.summary.Informational
+                        ? selectedReport.summary.Informational + 40
+                        : 40
+                    }px`,
+                    background: "rgb(128 199 145)",
+                  }}
+                >
+                  <strong className="fs-15 pl-3">
+                    {selectedReport.summary.Informational
+                      ? selectedReport.summary.Informational
+                      : 0}
+                  </strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-          <View className="w-60" pdfMode={pdfMode}>
-            <Text className="dark" pdfMode={pdfMode}>
-              Any <strong className="text-danger">High</strong> and{" "}
-              <strong className="text-warning">Medium</strong> risk
-              vulnerabilities should be investigated and confirmed so that
-              remedation can take place.
-              <strong className="text-primary"> Low</strong> risk items should
-              not be ignored as they can be chained with other vulnerabilities
-              to enable further attacks.
-            </Text>
-          </View>
-        </View>
+        <hr className="grey-hr" />
+        <br />
 
-        {/* <View className="w-100 flex" pdfMode={pdfMode}>
-          <View className="w-60" pdfMode={pdfMode}>
-            <Text className="dark" pdfMode={pdfMode}>
-              #1 - Customer Reports: driver window inoperable
-            </Text>
-          </View>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ width: "160px" }}>
+            <div className="py-3 bg-danger text-light text-center width-75">
+              <strong className="fs-50">
+                {" "}
+                {selectedReport.summary.High ? selectedReport.summary.High : 0}
+              </strong>
+            </div>
+            <div className="py-1 bg-danger text-light mt-1 text-center width-75">
+              <strong className="fs-15 ">High</strong>
+            </div>
+          </div>
+          <div style={{ width: "160px" }}>
+            <div className="py-3 bg-warning text-light text-center width-75">
+              <strong className="fs-50">
+                {selectedReport.summary.Medium
+                  ? selectedReport.summary.Medium
+                  : 0}
+              </strong>
+            </div>
+            <div className="px-1 py-1 bg-warning text-light mt-1 text-center width-75">
+              <strong className="fs-15 ">Medium</strong>
+            </div>
+          </div>
+          <div style={{ width: "160px" }}>
+            <div className="py-3 bg-primary text-light text-center width-75">
+              <strong className="fs-50">
+                {selectedReport.summary.Low ? selectedReport.summary.Low : 0}
+              </strong>
+            </div>
+            <div className="px-1 py-1 bg-primary text-light mt-1 text-center width-75">
+              <strong className="fs-15 ">Low</strong>
+            </div>
+          </div>
 
-          <View className="w-20 flex" pdfMode={pdfMode}>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Estimate :
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="flex mb-5" pdfMode={pdfMode}>
-                <View className="w-20" pdfMode={pdfMode}>
-                  <Text className="dark" pdfMode={pdfMode}>
-                    .00
-                  </Text>
-                </View>
-              </View>
-            </View>
-            <View className="flex mb-5" pdfMode={pdfMode}>
-              <View className="w-20" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  CC.00
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View> */}
-        {/* <View className="w-100 flex" pdfMode={pdfMode}>
-          <View className="w-60" pdfMode={pdfMode}>
-            <Text className="dark w-50" pdfMode={pdfMode}>
-              #2 - Customer Reports: key fob working inconsistently, please
-              check and advise
-            </Text>
-          </View>
+          <div style={{ width: "200px" }}>
+            <div className="py-3 bg-success text-light text-center width-75">
+              <strong className="fs-50">
+                {selectedReport.summary.Informational
+                  ? selectedReport.summary.Informational
+                  : 0}
+              </strong>
+            </div>
+            <div className="px-1 py-1 bg-success text-light mt-1 text-center width-75">
+              <strong className="fs-15 ">Informational</strong>
+            </div>
+          </div>
 
-          <View className="w-20 flex" pdfMode={pdfMode}>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Estimate :
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="flex mb-5" pdfMode={pdfMode}>
-                <View className="w-20" pdfMode={pdfMode}>
-                  <Text className="dark" pdfMode={pdfMode}>
-                    .00
-                  </Text>
-                </View>
-              </View>
-            </View>
-            <View className="flex mb-5" pdfMode={pdfMode}>
-              <View className="w-20" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  CC.00
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View> */}
+          <div style={{ width: "410px" }}>
+            <div className="text-secondary fs-14 mt-3">
+              <p>
+                Any <strong className="text-danger">High</strong> and{" "}
+                <strong className="text-warning">Medium</strong> risk
+                vulnerabilities should be investigated and confirmed so that
+                remedation can take place.
+                <strong className="text-primary"> Low</strong> risk items should
+                not be ignored as they can be chained with other vulnerabilities
+                to enable further attacks.
+              </p>
+            </div>
+          </div>
+        </div>
+        <br />
+        <br />
+        <br />
+        <strong className="fs-15 text-primary">
+          {" "}
+          Vulnerabilities Summary:
+        </strong>
+        <br />
+        <br />
 
-        <View className="flex bg-dark white mb-5 mt-20 mb-20" pdfMode={pdfMode}>
-          <Text className="ml-2 pl-5px" pdfMode={pdfMode}>
-            Vulnerability Summary
-          </Text>
-        </View>
-        {description.map(() => {
-          return (
-            <View className="flex" pdfMode={pdfMode}>
-              <View className="w-20" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  MI1
-                </Text>
-              </View>
-              <View className="w-20" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  1234
-                </Text>
-              </View>
-              <View className="w-20" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  22/12/22
-                </Text>
-              </View>
-              <View className="w-20" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  3322
-                </Text>
-              </View>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  James Aderson
-                </Text>
-              </View>
-              <View className="w-20" pdfMode={pdfMode}>
-                <Text className="white" pdfMode={pdfMode}>
-                  -
-                </Text>
-              </View>
-              <View className="w-20" pdfMode={pdfMode}>
-                <Text className="datk" pdfMode={pdfMode}>
-                  TG
-                </Text>
-              </View>
-              <View className="w-20" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  .00
-                </Text>
-              </View>
-              <View className="w-20" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  .00
-                </Text>
-              </View>
-            </View>
-          );
-        })}
-
-        <View className="mt-5" pdfMode={pdfMode}>
-          <Text className="dark bold" pdfMode={pdfMode}>
-            Note:
-          </Text>
-
-          <Text className="dark fs-13" pdfMode={pdfMode}>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularised in the 1960s
-            with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus
-            PageMaker including versions of Lorem Ipsum
-          </Text>
-        </View>
-      </Page>
-
-      {/* 2nd Layout For Report */}
-      {/* <Page className="invoice-wrapper" pdfMode={pdfMode}>
-        {!pdfMode && <Download data={invoice} />}
-        <View className="flex" pdfMode={pdfMode}>
-          <View className="w-50" pdfMode={pdfMode}>
-            <EditableFileImage
-              className="logo"
-              placeholder="Your Logo"
-              value={"/dist/securaLogo.png"}
-              width={"300px"}
-              pdfMode={pdfMode}
-            />
-            <Text className="dark bold" pdfMode={pdfMode}>
-              Company Name
-            </Text>
-            <Text className="dark bold" pdfMode={pdfMode}>
-              Your Name
-            </Text>
-            <Text className="dark bold" pdfMode={pdfMode}>
-              Company Address
-            </Text>
-            <Text className="dark bold" pdfMode={pdfMode}>
-              Company Address 2
-            </Text>
-          </View>
-          <View className="w-50" pdfMode={pdfMode}>
-            <Text className="dark bold" pdfMode={pdfMode}>
-              Invoice
-            </Text>
-          </View>
-        </View>
-
-        <View className="flex mt-10" pdfMode={pdfMode}>
-          <View className="w-55" pdfMode={pdfMode}>
-            <Text className="dark bold" pdfMode={pdfMode}>
-              Bill To{" "}
-            </Text>
-
-            <Text className="dark bold" pdfMode={pdfMode}>
-              Client Name
-            </Text>
-
-            <Text className="dark bold" pdfMode={pdfMode}>
-              Address 1
-            </Text>
-
-            <Text className="dark bold" pdfMode={pdfMode}>
-              Address 2
-            </Text>
-
-            <Text className="dark bold" pdfMode={pdfMode}>
-              Country Code
-            </Text>
-          </View>
-          <View className="w-45" pdfMode={pdfMode}>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Invoice#;
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  123-45666-77
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Invoice Date
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Mar 01, 2022
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-5" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Due Date
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Feb 03, 2022
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        <View className="flex mt-5" pdfMode={pdfMode}>
-          <View className="w-45" pdfMode={pdfMode}>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Year
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  123-45666-77
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Make
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Mar 01, 2022
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-5" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Modal
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Feb 03, 2022
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View className="w-45" pdfMode={pdfMode}>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Body
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  123-45666-77
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Engine Code
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Mar 01, 2022
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-5" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Service Advisor
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Feb 03, 2022
-                </Text>
-              </View>
-            </View>
-          </View>
-          <View className="w-45" pdfMode={pdfMode}>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Vehicle ID No#
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  123-45666-77
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-1" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Color
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  SILVER
-                </Text>
-              </View>
-            </View>
-            <View className="flex mb-5" pdfMode={pdfMode}>
-              <View className="w-40" pdfMode={pdfMode}>
-                <Text className="dark bold" pdfMode={pdfMode}>
-                  Lisence No#
-                </Text>
-              </View>
-              <View className="w-60" pdfMode={pdfMode}>
-                <Text className="dark" pdfMode={pdfMode}>
-                  Feb 03, 2022
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        <View className="flex bg-dark white w-100 mt-5" pdfMode={pdfMode}>
-          <View className="w-30" pdfMode={pdfMode}>
-            <Text className="white" pdfMode={pdfMode}>
-              <span style={{ marginLeft: "10px" }}>Item description</span>
-            </Text>
-          </View>
-          <View className="w-30" pdfMode={pdfMode}>
-            <Text className="white" pdfMode={pdfMode}>
-              Quantity
-            </Text>
-          </View>
-          <View className="w-30" pdfMode={pdfMode}>
-            <Text className="white" pdfMode={pdfMode}>
-              Rate{" "}
-            </Text>
-          </View>
-
-          <View className="w-40" pdfMode={pdfMode}>
-            <Text className="white" pdfMode={pdfMode}>
-              Amount
-            </Text>
-          </View>
-        </View>
-
-        <View className="mt-5" pdfMode={pdfMode}>
-          <Text className="dark bold" pdfMode={pdfMode}>
-            Notes
-          </Text>
-          <Text className="dark " pdfMode={pdfMode}>
-            It was great doing business with you.{" "}
-          </Text>
-        </View>
-        <View className="mt-2" pdfMode={pdfMode}>
-          <Text className="dark bold" pdfMode={pdfMode}>
-            Terms &amp; Conditions
-          </Text>
-
-          <Text className="dark" pdfMode={pdfMode}>
-            Please make the payment by the due date.{" "}
-          </Text>
-        </View>
-      </Page> */}
-    </Document>
+        <Table style={{ tableLayout: "fixed" }}>
+          <thead style={{ background: "#f5f5f5" }}>
+            <tr>
+              <th scope="col">Severity</th>
+              <th scope="col" style={{ width: "500px" }}>
+                Description
+              </th>
+              <th scope="col" style={{ width: "100px" }}>
+                Count
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.entries(selectedReport.vulnerability).map(
+              ([severity, details]) => (
+                <React.Fragment key={severity}>
+                  {Object.entries(details).map(([description, subDetails]) => (
+                    <React.Fragment key={description}>
+                      <tr>
+                        <td>
+                          <span
+                            className={`badge ${getBadgeColor(
+                              severity
+                            )} px-3 py-1`}
+                          >
+                            {severity === "1"
+                              ? "High"
+                              : severity === "2"
+                              ? "Medium"
+                              : severity === "3"
+                              ? "Low"
+                              : "Informational"}
+                          </span>
+                        </td>
+                        <td>
+                          <strong>{description}</strong>
+                        </td>
+                        <td>{Object.keys(subDetails).length}</td>
+                      </tr>
+                      {Object.entries(subDetails).map(([key, value]) => (
+                        <tr key={key}>
+                          <td colSpan="3" style={{ padding: "0px" }}>
+                            <div>
+                              <Table bordered style={{ tableLayout: "fixed" }}>
+                                <tbody className="fs-13">
+                                  {Object.entries(subDetails).map(
+                                    ([key, value]) => (
+                                      <tr key={key}>
+                                        <td
+                                          colSpan="6"
+                                          style={{ padding: "0px" }}
+                                        >
+                                          <div>
+                                            <Table
+                                              bordered
+                                              style={{ tableLayout: "fixed" }}
+                                            >
+                                              <tbody className="fs-13">
+                                                {Object.entries(value).map(
+                                                  ([
+                                                    propertyKey,
+                                                    propertyValue,
+                                                  ]) => (
+                                                    <tr key={propertyKey}>
+                                                      <td colSpan="2">
+                                                        {propertyKey}
+                                                      </td>
+                                                      <td
+                                                        colSpan="6"
+                                                        style={{
+                                                          wordWrap:
+                                                            "break-word",
+                                                        }}
+                                                      >
+                                                        {propertyValue}
+                                                      </td>
+                                                    </tr>
+                                                  )
+                                                )}
+                                              </tbody>
+                                            </Table>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    )
+                                  )}
+                                </tbody>
+                              </Table>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
+                  ))}
+                </React.Fragment>
+              )
+            )}
+          </tbody>
+        </Table>
+      </div>
+    </>
   );
 };
 

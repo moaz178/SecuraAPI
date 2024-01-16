@@ -49,11 +49,12 @@ const ScanSummary = ({ scanResults, toggleCollapseTable, openRows }) => {
                           <tbody className="fs-13">
                             {Object.entries(value).map(([key, value]) => (
                               <tr key={key}>
-                                <td>{key}</td>
+                                <td colSpan="2"> {key}</td>
                                 <td
                                   style={{
                                     wordWrap: "break-word",
                                   }}
+                                  colSpan="6"
                                 >
                                   {value}
                                 </td>

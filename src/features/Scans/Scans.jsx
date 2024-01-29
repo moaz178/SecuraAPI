@@ -135,6 +135,7 @@ const Scans = () => {
         // setLoading(false);
 
         const { error } = res.data;
+        console.log("resData", res.data);
         if (error !== null) {
           toast.error("AWS connection failed. Try again !");
           // setFile("");

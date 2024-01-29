@@ -12,6 +12,7 @@ const AWSForm = ({ handleNext }) => {
     awsSecret: "",
     stageName: "",
     apiId: "",
+    region: "",
   });
 
   //Context
@@ -34,6 +35,7 @@ const AWSForm = ({ handleNext }) => {
       stageName: formData.stageName,
       apiId: formData.apiId,
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
+      awsRegion: formData.region,
     };
     axios
       .post(`http://192.168.18.20:8082/SecuraCore/AWS_Connect`, awsParams)
@@ -130,6 +132,19 @@ const AWSForm = ({ handleNext }) => {
               name="apiId"
               className="form-control fs-13"
               onChange={(e) => handleChange(e, "apiId")}
+              // placeholder="API ID"
+            />
+
+            <br />
+            <label className="fs-13" htmlFor="region">
+              <strong>Region</strong>
+            </label>
+            <input
+              type="text"
+              id="region"
+              name="region"
+              className="form-control fs-13"
+              onChange={(e) => handleChange(e, "region")}
               // placeholder="API ID"
             />
 

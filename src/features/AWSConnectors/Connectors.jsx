@@ -1,19 +1,30 @@
 import React, { useState } from "react";
 import { Card } from "react-bootstrap";
 import AWSForm from "./AWSForm";
+import MulesoftForm from "./MulesoftForm"; // Import the MuleSoftForm component
 import AWSStatus from "./AWSStatus";
+import MulesoftStatus from "./MulesoftStatus"; // Import the MuleSoftStatus component
 
 const Connectors = () => {
   const [currentScreen, setCurrentScreen] = useState("connectors");
-  const [isChecked, setChecked] = useState(false);
+  const [isCheckedAWS, setCheckedAWS] = useState(false); // Separate state for AWS checkbox
+  const [isCheckedMuleSoft, setCheckedMuleSoft] = useState(false); // Separate state for MuleSoft checkbox
 
   const handleNext = () => {
     switch (currentScreen) {
       case "connectors":
-        setCurrentScreen("form");
+        if (isCheckedAWS) setCurrentScreen("formAWS");
+        else if (isCheckedMuleSoft) setCurrentScreen("formMuleSoft");
         break;
-      case "form":
-        setCurrentScreen("message");
+      case "formAWS":
+        setCurrentScreen("messageAWS");
+        break;
+      case "formMuleSoft":
+        setCurrentScreen("messageMuleSoft");
+        break;
+      case "messageAWS":
+      case "messageMuleSoft":
+        setCurrentScreen("connectors");
         break;
       default:
         setCurrentScreen("connectors");
@@ -23,11 +34,17 @@ const Connectors = () => {
 
   const handlePrevious = () => {
     switch (currentScreen) {
-      case "form":
+      case "formAWS":
         setCurrentScreen("connectors");
         break;
-      case "message":
-        setCurrentScreen("form");
+      case "formMuleSoft":
+        setCurrentScreen("connectors");
+        break;
+      case "messageAWS":
+        setCurrentScreen("formAWS");
+        break;
+      case "messageMuleSoft":
+        setCurrentScreen("formMuleSoft");
         break;
       default:
         setCurrentScreen("connectors");
@@ -48,56 +65,78 @@ const Connectors = () => {
                 <strong className="fs-20 text-secondary">Connectors</strong>
                 <br />
                 <br />
-                <img
-                  src="/dist/aws-logo.jpeg"
-                  alt="aws-logo"
-                  width="100px"
-                  className="ml-5 pl-4"
-                />
-                <div className="form-check mt-3" style={{ marginLeft: "75px" }}>
-                  <input
-                    className="form-check-input"
-                    type="checkbox"
-                    value=""
-                    id="defaultCheck1"
-                    checked={isChecked}
-                    onChange={() => setChecked(!isChecked)}
-                  />
-                  {/* <label className="form-check-label fs-14" for="defaultCheck1">
-                    <strong>{isChecked ? "connected" : "connect"}</strong>
-                    {isChecked ? (
-                      <i className="fa-solid fa-plug-circle-check ml-2 text-success fs-20"></i>
-                    ) : (
-                      <i className="fa-solid fa-plug-circle-xmark ml-2 text-secondary fs-20"></i>
-                    )}
-                  </label> */}
+                <div className="d-flex">
+                  <div className="d-flex flex-column">
+                    <img
+                      src="/dist/aws-logo.jpeg"
+                      alt="aws-logo"
+                      width="100px"
+                      className="ml-5 pl-4"
+                    />
+                    <div
+                      className="form-check mt-3"
+                      style={{ marginLeft: "75px" }}
+                    >
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        value=""
+                        id="awsCheckbox"
+                        checked={isCheckedAWS}
+                        onChange={() => setCheckedAWS(!isCheckedAWS)}
+                        disabled={isCheckedMuleSoft}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="d-flex flex-column justify-content-start">
+                    <img
+                      src="/dist/mulesoft.png"
+                      alt="mulesoft-logo"
+                      width="100px"
+                      className="ml-5 pl-4"
+                    />
+                    <div
+                      className="form-check mt-3"
+                      style={{ marginLeft: "75px" }}
+                    >
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        value=""
+                        id="muleSoftCheckbox"
+                        checked={isCheckedMuleSoft}
+                        onChange={() => setCheckedMuleSoft(!isCheckedMuleSoft)}
+                        disabled={isCheckedAWS}
+                      />
+                    </div>
+                  </div>
                 </div>
+
                 <div
                   className="d-flex justify-content-end"
                   style={{ marginTop: "230px" }}
                 >
                   <button
                     className="btn btn-primary"
-                    disabled={!isChecked}
+                    disabled={!isCheckedAWS && !isCheckedMuleSoft}
                     onClick={handleNext}
                   >
-                    <strong
-                      style={{
-                        letterSpacing: "1px",
-                      }}
-                    >
-                      Next
-                    </strong>
+                    <strong style={{ letterSpacing: "1px" }}>Next</strong>
                   </button>
                 </div>
               </Card.Body>
             </Card>
           </div>
         );
-      case "form":
+      case "formAWS":
         return <AWSForm handleNext={handleNext} />;
-      case "message":
+      case "formMuleSoft":
+        return <MulesoftForm handleNext={handleNext} />;
+      case "messageAWS":
         return <AWSStatus handlePrevious={handlePrevious} />;
+      case "messageMuleSoft":
+        return <MulesoftStatus handlePrevious={handlePrevious} />;
       default:
         return null;
     }

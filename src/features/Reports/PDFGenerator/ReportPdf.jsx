@@ -337,8 +337,15 @@ const ReportPdf = ({ data, pdfMode, onChange }) => {
   const printHandler = () => {
     const printElement = ReactDOMServer.renderToString(pdfJSX());
     // const printElement = pdfJSX();
+    const options = {
+      margin: 10,
+      filename: "report.pdf",
+      image: { type: "pdf", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "a3", orientation: "landscape" },
+    };
 
-    html2pdf().from(printElement).save();
+    html2pdf().from(printElement).set(options).save();
   };
 
   return (

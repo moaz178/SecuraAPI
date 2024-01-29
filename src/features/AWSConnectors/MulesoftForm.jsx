@@ -5,12 +5,11 @@ import { useScanContext } from "../../contexts/scanContext/scanContext";
 import axios from "axios";
 import Loader from "../../components/Loader/Loader";
 
-const AWSForm = ({ handleNext }) => {
+const MulesoftForm = ({ handleNext }) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    awsKey: "",
-    awsSecret: "",
-    stageName: "",
+    userId: "",
+    password: "",
     apiId: "",
   });
 
@@ -28,15 +27,13 @@ const AWSForm = ({ handleNext }) => {
     console.log("formData", formData);
     setLoading(true);
 
-    const awsParams = {
-      awsKey: formData.awsKey,
-      awsSecret: formData.awsSecret,
-      stageName: formData.stageName,
+    const mulesoftParams = {
+      userId: formData.userId,
+      password: formData.password,
       apiId: formData.apiId,
-      secura_key: "6m1fcduh0lm3h757ofun4194jn",
     };
     axios
-      .post(`http://192.168.18.20:8082/SecuraCore/AWS_Connect`, awsParams)
+      .post(`http://192.168.18.20:8082/SecuraCore/Mule_Connect`, mulesoftParams)
       .then(function (res) {
         setAWSdata(res.data);
         setLoading(false);
@@ -49,7 +46,7 @@ const AWSForm = ({ handleNext }) => {
       .catch(function (error) {
         toast.error(error);
         setLoading(false);
-        console.log("aws form error", error);
+        console.log("mulesoft form error", error);
       });
   };
 
@@ -72,51 +69,42 @@ const AWSForm = ({ handleNext }) => {
         <Card style={{ width: "600px" }} className="shadow">
           <Card.Body>
             <strong className="fs-20 text-secondary">
-              <span className="">AWS</span> Connectors
+              <span className="">Mule</span> Connectors
             </strong>
             <br />
+            <br />
+
+            <strong className="fs-14 text-secondary">API Manager</strong>
+            <br />
+
             <p className="text-secondary fs-13 mt-1">
               Please Enter following fields !
             </p>
-            <label className="fs-13 mt-1" htmlFor="awsKey">
-              <strong>AWS Key</strong>
+            <label className="fs-13 mt-1" htmlFor="userId">
+              <strong>User ID:</strong>
               <strong className="text-danger ml-1">*</strong>
             </label>
             <input
               type="text"
-              id="awsKey"
-              name="awsKey"
+              id="userId"
+              name="userId"
               className="form-control fs-13"
-              onChange={(e) => handleChange(e, "awsKey")}
+              onChange={(e) => handleChange(e, "userId")}
               // placeholder="AWS Key"
             />
 
             <br />
-            <label className="fs-13" htmlFor="secretKey">
-              <strong>Secret Key</strong>
+            <label className="fs-13" htmlFor="password">
+              <strong>Password</strong>
               <strong className="text-danger ml-1">*</strong>
             </label>
             <input
               type="text"
-              id="secretKey"
-              name="secretKey"
+              id="password"
+              name="password"
               className="form-control fs-13"
-              onChange={(e) => handleChange(e, "awsSecret")}
+              onChange={(e) => handleChange(e, "password")}
               // placeholder="Secret Key"
-            />
-
-            <br />
-            <label className="fs-13" htmlFor="stageName">
-              <strong>Stage Name</strong>
-              <strong className="text-danger ml-1">*</strong>
-            </label>
-            <input
-              type="text"
-              id="stageName"
-              name="stageName"
-              className="form-control fs-13"
-              onChange={(e) => handleChange(e, "stageName")}
-              // placeholder="Stage Name"
             />
 
             <br />
@@ -133,20 +121,6 @@ const AWSForm = ({ handleNext }) => {
               // placeholder="API ID"
             />
 
-            {/* <br />
-            <label className="fs-13" htmlFor="region">
-              <strong>Region</strong>
-              <strong className="text-danger ml-1">*</strong>
-            </label>
-            <input
-              type="text"
-              id="region"
-              name="region"
-              className="form-control fs-13"
-              onChange={(e) => handleChange(e, "region")}
-              placeholder="Region"
-            /> */}
-
             <div
               className="d-flex justify-content-end"
               style={{ marginTop: "30px" }}
@@ -160,7 +134,6 @@ const AWSForm = ({ handleNext }) => {
                   <i class="fa-solid fa-arrow-left"></i> Back
                 </strong>
               </button> */}
-
               <button
                 className="btn btn-primary"
                 onClick={handleSubmitForm}
@@ -177,21 +150,9 @@ const AWSForm = ({ handleNext }) => {
             </div>
           </Card.Body>
         </Card>
-        <div style={{ width: "500px", marginTop: "100px", marginLeft: "10px" }}>
-          <strong className="fs-20 ">
-            <span>AWS</span> Connectors
-          </strong>
-          <p className="fs-14 text-secondary mt-3">
-            Easily retrieve API specifications from API Gateway using our
-            intuitive platform. We've seamlessly integrated AWS CLI connectors,
-            providing a straightforward and hassle-free method for downloading
-            API details. Enhance your experience with our scanning tool,
-            streamlining the entire process for efficient utilization.
-          </p>
-        </div>
       </div>
     </>
   );
 };
 
-export default AWSForm;
+export default MulesoftForm;

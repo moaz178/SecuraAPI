@@ -351,7 +351,7 @@ const ReportPdf = ({ data, pdfMode, onChange }) => {
   return (
     <>
       <button onClick={printHandler} className="btn btn-sm btn-primary">
-        Donwload
+        Download
       </button>
       <div
         style={{ margin: "20px 100px", padding: "26px 35px" }}

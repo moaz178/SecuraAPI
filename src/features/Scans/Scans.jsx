@@ -137,7 +137,7 @@ const Scans = () => {
         const { error } = res.data;
         console.log("resData", res.data);
         if (error !== null) {
-          toast.error("AWS connection failed. Try again !");
+          toast.error("Connection failed. Try again !");
           // setFile("");
           setSpecStatus("Not Initiated");
         } else {

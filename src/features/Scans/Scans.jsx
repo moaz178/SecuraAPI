@@ -137,7 +137,7 @@ const Scans = () => {
         const { error } = res.data;
         console.log("resData", res.data);
         if (error !== null) {
-          toast.error("Connection failed. Try again !");
+          toast.error("Something went wrong. Please wait!");
           // setFile("");
           setSpecStatus("Not Initiated");
         } else {

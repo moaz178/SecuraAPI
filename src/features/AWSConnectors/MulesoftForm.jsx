@@ -1,25 +1,52 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Card } from "react-bootstrap";
 import { useScanContext } from "../../contexts/scanContext/scanContext";
 import axios from "axios";
 import Loader from "../../components/Loader/Loader";
 
+// Inside your component
 const MulesoftForm = ({ handleNext }) => {
   const [loading, setLoading] = useState(false);
+  const [isMFAEnabled, setMFAEnabled] = useState(false);
   const [formData, setFormData] = useState({
     userId: "",
     password: "",
     apiId: "",
     environmnet: "",
+    clientId: "",
+    clientSecret: "",
   });
+  const [formValid, setFormValid] = useState(false);
+
+  // Define isFormValid function
+  const isFormValid = () => {
+    if (isMFAEnabled) {
+      return (
+        formData.apiId.trim() !== "" &&
+        formData.environmnet.trim() !== "" &&
+        formData.clientId.trim() !== "" &&
+        formData.clientSecret.trim() !== ""
+      );
+    } else {
+      return (
+        formData.userId.trim() !== "" &&
+        formData.password.trim() !== "" &&
+        formData.apiId.trim() !== "" &&
+        formData.environmnet.trim() !== ""
+      );
+    }
+  };
+
+  // Update form validity whenever formData or isMFAEnabled changes
+  useEffect(() => {
+    const isValid = isFormValid();
+    setFormValid(isValid);
+  }, [formData, isMFAEnabled]);
 
   //Context
   const { setAWSdata } = useScanContext();
 
-  const isFormValid = () => {
-    return Object.values(formData).every((value) => value.trim() !== "");
-  };
   const handleChange = (e, field) => {
     setFormData({ ...formData, [field]: e.target.value });
   };
@@ -29,8 +56,14 @@ const MulesoftForm = ({ handleNext }) => {
     setLoading(true);
 
     const mulesoftParams = {
-      userId: formData.userId,
-      password: formData.password,
+      ...(isMFAEnabled
+        ? {
+            isMFA: true,
+            client_id: formData.clientId,
+            client_secret: formData.clientSecret,
+          }
+        : { userId: formData.userId, password: formData.password }),
+
       apiId: formData.apiId,
       environmnet: formData.environmnet,
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
@@ -52,7 +85,6 @@ const MulesoftForm = ({ handleNext }) => {
         console.log("mulesoft form error", error);
       });
   };
-
   return (
     <>
       <Loader show={loading} />
@@ -88,32 +120,81 @@ const MulesoftForm = ({ handleNext }) => {
             <p className="text-secondary fs-13 mt-1 mb-3">
               Please Enter following fields !
             </p>
-            <label className="fs-13 mt-1" htmlFor="userId">
-              <strong>User ID:</strong>
-              <strong className="text-danger ml-1">*</strong>
-            </label>
-            <input
-              type="text"
-              id="userId"
-              name="userId"
-              className="form-control fs-13"
-              onChange={(e) => handleChange(e, "userId")}
-              // placeholder="AWS Key"
-            />
 
-            <br />
-            <label className="fs-13" htmlFor="password">
-              <strong>Password</strong>
-              <strong className="text-danger ml-1">*</strong>
-            </label>
-            <input
-              type="text"
-              id="password"
-              name="password"
-              className="form-control fs-13"
-              onChange={(e) => handleChange(e, "password")}
-              // placeholder="Secret Key"
-            />
+            <div class="form-check ml-1">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                value=""
+                id="MFACheckbox"
+                checked={isMFAEnabled}
+                onChange={() => setMFAEnabled(!isMFAEnabled)}
+              />
+              <label
+                className="form-check-label fs-13 text-primary"
+                for="flexCheckDefault"
+              >
+                Is MFA Enabled ?
+              </label>
+            </div>
+
+            {isMFAEnabled ? (
+              <>
+                {" "}
+                <label className="fs-13 mt-3" htmlFor="clientId">
+                  <strong>Client ID:</strong>
+                  <strong className="text-danger ml-1">*</strong>
+                </label>
+                <input
+                  type="text"
+                  id="clientId"
+                  name="clientId"
+                  className="form-control fs-13"
+                  onChange={(e) => handleChange(e, "clientId")}
+                />
+                <br />
+                <label className="fs-13" htmlFor="clientSecret">
+                  <strong>Client Secret</strong>
+                  <strong className="text-danger ml-1">*</strong>
+                </label>
+                <input
+                  type="text"
+                  id="clientSecret"
+                  name="clientSecret"
+                  className="form-control fs-13"
+                  onChange={(e) => handleChange(e, "clientSecret")}
+                />
+              </>
+            ) : (
+              <>
+                <label className="fs-13 mt-3" htmlFor="userId">
+                  <strong>User ID:</strong>
+                  <strong className="text-danger ml-1">*</strong>
+                </label>
+                <input
+                  type="text"
+                  id="userId"
+                  name="userId"
+                  className="form-control fs-13"
+                  onChange={(e) => handleChange(e, "userId")}
+                  // placeholder="AWS Key"
+                />
+
+                <br />
+                <label className="fs-13" htmlFor="password">
+                  <strong>Password</strong>
+                  <strong className="text-danger ml-1">*</strong>
+                </label>
+                <input
+                  type="text"
+                  id="password"
+                  name="password"
+                  className="form-control fs-13"
+                  onChange={(e) => handleChange(e, "password")}
+                  // placeholder="Secret Key"
+                />
+              </>
+            )}
 
             <br />
             <label className="fs-13" htmlFor="apiId">
@@ -158,7 +239,7 @@ const MulesoftForm = ({ handleNext }) => {
               <button
                 className="btn btn-primary"
                 onClick={handleSubmitForm}
-                disabled={!isFormValid()}
+                disabled={!formValid}
               >
                 <strong
                   style={{

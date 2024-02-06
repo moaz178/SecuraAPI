@@ -25,8 +25,8 @@ const AWSStatus = ({ handlePrevious }) => {
             )}
             {awsData.error && (
               <>
-                {awsData.error}{" "}
-                <i class="fa-solid fa-circle-exclamation text-danger"></i>{" "}
+                {awsData.error}
+                <i class="fa-solid fa-circle-exclamation text-danger ml-3"></i>{" "}
               </>
             )}
           </p>
@@ -34,7 +34,7 @@ const AWSStatus = ({ handlePrevious }) => {
             className="d-flex justify-content-end"
             style={{ marginTop: "230px" }}
           >
-            {awsData.msg && (
+            {awsData.msg !== null && (
               <button
                 className="btn btn-primary"
                 onClick={() => {

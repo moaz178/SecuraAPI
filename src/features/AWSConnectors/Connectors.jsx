@@ -1,14 +1,15 @@
 import React, { useState } from "react";
 import { Card } from "react-bootstrap";
 import AWSForm from "./AWSForm";
-import MulesoftForm from "./MulesoftForm"; // Import the MuleSoftForm component
+import MulesoftForm from "./MulesoftForm";
 import AWSStatus from "./AWSStatus";
-import MulesoftStatus from "./MulesoftStatus"; // Import the MuleSoftStatus component
+import MulesoftStatus from "./MulesoftStatus";
+import MuleAPIList from "./MuleAPIList";
 
 const Connectors = () => {
   const [currentScreen, setCurrentScreen] = useState("connectors");
-  const [isCheckedAWS, setCheckedAWS] = useState(false); // Separate state for AWS checkbox
-  const [isCheckedMuleSoft, setCheckedMuleSoft] = useState(false); // Separate state for MuleSoft checkbox
+  const [isCheckedAWS, setCheckedAWS] = useState(false);
+  const [isCheckedMuleSoft, setCheckedMuleSoft] = useState(false);
 
   const handleNext = () => {
     switch (currentScreen) {
@@ -20,12 +21,14 @@ const Connectors = () => {
         setCurrentScreen("messageAWS");
         break;
       case "formMuleSoft":
+        setCurrentScreen("muleAPIList");
+        break;
+      case "muleAPIList":
         setCurrentScreen("messageMuleSoft");
         break;
       case "messageAWS":
       case "messageMuleSoft":
-        setCurrentScreen("connectors");
-        break;
+
       default:
         setCurrentScreen("connectors");
         break;
@@ -35,13 +38,14 @@ const Connectors = () => {
   const handlePrevious = () => {
     switch (currentScreen) {
       case "formAWS":
-        setCurrentScreen("connectors");
-        break;
       case "formMuleSoft":
         setCurrentScreen("connectors");
         break;
       case "messageAWS":
         setCurrentScreen("formAWS");
+        break;
+      case "muleAPIList":
+        setCurrentScreen("formMuleSoft");
         break;
       case "messageMuleSoft":
         setCurrentScreen("formMuleSoft");
@@ -122,7 +126,9 @@ const Connectors = () => {
                     disabled={!isCheckedAWS && !isCheckedMuleSoft}
                     onClick={handleNext}
                   >
-                    <strong style={{ letterSpacing: "1px" }}>Next</strong>
+                    <strong style={{ letterSpacing: "1px" }}>
+                      Next <i class="fa-solid fa-arrow-right"></i>
+                    </strong>
                   </button>
                 </div>
               </Card.Body>
@@ -137,6 +143,14 @@ const Connectors = () => {
         return <AWSStatus handlePrevious={handlePrevious} />;
       case "messageMuleSoft":
         return <MulesoftStatus handlePrevious={handlePrevious} />;
+      case "muleAPIList":
+        // Conditionally render MuleAPIList based on isCheckedMuleSoft state
+        return (
+          <MuleAPIList
+            handleNext={handleNext}
+            handlePrevious={handlePrevious}
+          />
+        );
       default:
         return null;
     }

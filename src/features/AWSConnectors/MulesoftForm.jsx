@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from "react";
-import toast, { Toaster } from "react-hot-toast";
 import { Card } from "react-bootstrap";
 import { useScanContext } from "../../contexts/scanContext/scanContext";
-import axios from "axios";
-import Loader from "../../components/Loader/Loader";
 
-// Inside your component
 const MulesoftForm = ({ handleNext }) => {
-  const [loading, setLoading] = useState(false);
   const [isMFAEnabled, setMFAEnabled] = useState(false);
   const [formData, setFormData] = useState({
     userId: "",
     password: "",
-    apiId: "",
     environmnet: "",
     clientId: "",
     clientSecret: "",
@@ -23,16 +17,14 @@ const MulesoftForm = ({ handleNext }) => {
   const isFormValid = () => {
     if (isMFAEnabled) {
       return (
-        formData.apiId.trim() !== "" &&
-        formData.environmnet.trim() !== "" &&
         formData.clientId.trim() !== "" &&
-        formData.clientSecret.trim() !== ""
+        formData.clientSecret.trim() !== "" &&
+        formData.environmnet.trim() !== ""
       );
     } else {
       return (
         formData.userId.trim() !== "" &&
         formData.password.trim() !== "" &&
-        formData.apiId.trim() !== "" &&
         formData.environmnet.trim() !== ""
       );
     }
@@ -45,63 +37,33 @@ const MulesoftForm = ({ handleNext }) => {
   }, [formData, isMFAEnabled]);
 
   //Context
-  const { setAWSdata } = useScanContext();
+  const { setMuleData } = useScanContext();
 
   const handleChange = (e, field) => {
     setFormData({ ...formData, [field]: e.target.value });
   };
 
   const handleSubmitForm = () => {
-    console.log("formData", formData);
-    setLoading(true);
-
     const mulesoftParams = {
-      ...(isMFAEnabled
-        ? {
-            isMFA: true,
-            client_id: formData.clientId,
-            client_secret: formData.clientSecret,
-          }
-        : { userId: formData.userId, password: formData.password }),
-
-      apiId: formData.apiId,
+      isMFA: isMFAEnabled,
+      client_id: formData.clientId,
+      client_secret: formData.clientSecret,
+      userId: formData.userId,
+      password: formData.password,
       environmnet: formData.environmnet,
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
     };
-    axios
-      .post(`http://192.168.18.20:8082/SecuraCore/Mule_Connect`, mulesoftParams)
-      .then(function (res) {
-        setAWSdata(res.data);
-        setLoading(false);
-        handleNext();
-        // if (res.data.error !== null) {
-        //   toast.error(res.data.error);
-        //   setLoading(false);
-        // }
-      })
-      .catch(function (error) {
-        toast.error(error);
-        setLoading(false);
-        console.log("mulesoft form error", error);
-      });
+
+    setMuleData(mulesoftParams);
+    handleNext();
   };
   return (
     <>
-      <Loader show={loading} />
-      <Toaster
-        toastOptions={{
-          style: {
-            fontWeight: "600",
-            fontSize: "12px",
-            padding: "20px 10px",
-          },
-        }}
-      />
       <div
         className="d-flex justify-content-between"
         style={{ marginLeft: "50px", marginTop: "30px" }}
       >
-        <Card style={{ width: "600px" }} className="shadow">
+        <Card style={{ width: "700px" }} className="shadow">
           <Card.Body>
             <strong className="fs-20 text-secondary">
               <span className="">Mule</span> Connectors
@@ -146,6 +108,7 @@ const MulesoftForm = ({ handleNext }) => {
                   <strong className="text-danger ml-1">*</strong>
                 </label>
                 <input
+                  value={formData.clientId}
                   type="text"
                   id="clientId"
                   name="clientId"
@@ -158,6 +121,7 @@ const MulesoftForm = ({ handleNext }) => {
                   <strong className="text-danger ml-1">*</strong>
                 </label>
                 <input
+                  value={formData.clientSecret}
                   type="text"
                   id="clientSecret"
                   name="clientSecret"
@@ -172,6 +136,7 @@ const MulesoftForm = ({ handleNext }) => {
                   <strong className="text-danger ml-1">*</strong>
                 </label>
                 <input
+                  value={formData.userId}
                   type="text"
                   id="userId"
                   name="userId"
@@ -186,6 +151,7 @@ const MulesoftForm = ({ handleNext }) => {
                   <strong className="text-danger ml-1">*</strong>
                 </label>
                 <input
+                  value={formData.password}
                   type="text"
                   id="password"
                   name="password"
@@ -197,25 +163,12 @@ const MulesoftForm = ({ handleNext }) => {
             )}
 
             <br />
-            <label className="fs-13" htmlFor="apiId">
-              <strong>API ID</strong>
-              <strong className="text-danger ml-1">*</strong>
-            </label>
-            <input
-              type="text"
-              id="apiId"
-              name="apiId"
-              className="form-control fs-13"
-              onChange={(e) => handleChange(e, "apiId")}
-              // placeholder="API ID"
-            />
-
-            <br />
             <label className="fs-13" htmlFor="environment">
               <strong>Environment</strong>
               <strong className="text-danger ml-1">*</strong>
             </label>
             <input
+              value={formData.environmnet}
               type="text"
               id="environment"
               name="environmnet"
@@ -252,6 +205,19 @@ const MulesoftForm = ({ handleNext }) => {
             </div>
           </Card.Body>
         </Card>
+
+        <div style={{ width: "400px", marginTop: "100px", marginLeft: "20px" }}>
+          <strong className="fs-20 ">
+            <span>Mule</span> Connectors
+          </strong>
+          <p className="fs-14 text-secondary mt-3">
+            Easily retrieve API specifications from API Gateway using our
+            intuitive platform. We've seamlessly integrated AWS CLI connectors,
+            providing a straightforward and hassle-free method for downloading
+            API details. Enhance your experience with our scanning tool,
+            streamlining the entire process for efficient utilization.
+          </p>
+        </div>
       </div>
     </>
   );

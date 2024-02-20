@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Form } from "react-bootstrap";
+import { Container, Form, Modal } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
 import { useScanContext } from "../../contexts/scanContext/scanContext";
 import axios from "axios";
@@ -18,6 +18,9 @@ const Scans = () => {
   const [sslEnabled, setSslEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [openRows, setOpenRows] = useState([]);
+  const [openSpecModal, setSpecModal] = useState(false);
+  const [muleSpecVal, setMuleSpecVal] = useState("");
+
   // const [inputUrlVal, setInputUrlVal] = useState("");
   // const [file, setFile] = useState("");
   // const [scanningStart, setScanningStart] = useState(false);
@@ -119,7 +122,7 @@ const Scans = () => {
       });
   };
 
-  //UPLOAD AWS Spec URL API CALL
+  //UPLOAD AWS/Mule Connector Spec URL API CALL
   const uploadAWSSpecURL = () => {
     const urlPayload = {
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
@@ -132,17 +135,45 @@ const Scans = () => {
     axios
       .post(`http://192.168.18.20:8082/SecuraCore/UploadURL`, urlPayload)
       .then(function (res) {
-        // setLoading(false);
-
         const { error } = res.data;
         console.log("resData", res.data);
         if (error !== null) {
           toast.error("Something went wrong. Please wait!");
-          // setFile("");
+          setSpecStatus("Not Initiated");
+        } else if (error === "Host Name Missing") {
+          setSpecModal(true);
+        } else {
+          setScanDetails(res.data);
+          setSpecStatus("Completed");
+        }
+      })
+      .catch(function (error) {
+        toast.error(error.message);
+        setLoading(false);
+        console.log("uploaded file error", error);
+      });
+  };
+
+  //UPLOAD Mule Connector Missig Spec URL API CALL
+  const verifyMissingMuleSpecURL = () => {
+    const payload = {
+      secura_key: "6m1fcduh0lm3h757ofun4194jn",
+      secura_url: muleSpecVal,
+      secura_sslEnabled: false,
+      secura_host: scanDetails.targetHost,
+    };
+    setSpecModal(false);
+    setSpecStatus("In Progress");
+    setShow(false);
+    axios
+      .post(`http://192.168.18.20:8082/SecuraCore/UploadURL`, payload)
+      .then(function (res) {
+        const { error } = res.data;
+        console.log("resData", res.data);
+        if (error !== null) {
+          toast.error("Something went wrong. Please wait!");
           setSpecStatus("Not Initiated");
         } else {
-          // setRefrenceID(referenceId);
-          // setTargettedHost(targetHost);
           setScanDetails(res.data);
           setSpecStatus("Completed");
         }
@@ -479,6 +510,57 @@ const Scans = () => {
           handleUpload={handleUpload}
           uploadFile={uploadFile}
         />
+
+        {/*Modal for missing connector spec*/}
+        <Modal
+          show={openSpecModal}
+          onHide={() => {
+            setSpecModal(false);
+          }}
+          style={{ paddingBottom: "0px" }}
+          centered
+          size="lg"
+          backdrop="static"
+        >
+          <Modal.Header
+            closeButton
+            style={{
+              borderBottom: "0px",
+              padding: "5px 5px 0px 5px",
+            }}
+          >
+            <label className="fs-13 mt-3 ml-3" htmlFor="missingSpecUrl">
+              <strong className="text-danger">
+                Server URL missing in spec
+              </strong>
+            </label>
+          </Modal.Header>
+
+          <Modal.Body>
+            <div className="d-flex mb-3">
+              <input
+                type="text"
+                id="missingSpecUrl"
+                name="missingSpecUrl"
+                className="form-control fs-13"
+                onChange={(e) => setMuleSpecVal(e.target.value)}
+                placeholder="Enter server URL"
+              />
+              <button
+                className="btn btn-primary btn-sm ml-2"
+                onClick={verifyMissingMuleSpecURL}
+              >
+                <strong
+                  style={{
+                    letterSpacing: "1px",
+                  }}
+                >
+                  Verify
+                </strong>
+              </button>
+            </div>
+          </Modal.Body>
+        </Modal>
       </div>
     </>
   );

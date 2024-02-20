@@ -208,7 +208,7 @@ const MulesoftForm = ({ handleNext }) => {
 
         <div style={{ width: "400px", marginTop: "100px", marginLeft: "20px" }}>
           <strong className="fs-20 ">
-            <span>Mule</span> Connectors
+            <span>Mule</span>
           </strong>
           <p className="fs-14 text-secondary mt-3">
             Easily retrieve API specifications from API Gateway using our

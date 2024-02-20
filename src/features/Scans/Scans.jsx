@@ -16,19 +16,11 @@ const Scans = () => {
   const [show, setShow] = useState(false);
   const [open, setOpen] = useState(false);
   const [sslEnabled, setSslEnabled] = useState(false);
+  const [securaEnvironmentStatus, setSecuraEnvironmentStatus] = useState(false);
   const [loading, setLoading] = useState(false);
   const [openRows, setOpenRows] = useState([]);
   const [openSpecModal, setSpecModal] = useState(false);
-  const [muleSpecVal, setMuleSpecVal] = useState("");
-
-  // const [inputUrlVal, setInputUrlVal] = useState("");
-  // const [file, setFile] = useState("");
-  // const [scanningStart, setScanningStart] = useState(false);
-  // const [refrenceID, setRefrenceID] = useState("");
-  // const [targettedHost, setTargettedHost] = useState("");
-  // const [scanResults, setScanResutls] = useState(null);
-  // const [specStatus, setSpecStatus] = useState("Not Initiated");
-  // const [scanStatus, setScanStatus] = useState("Not Initiated");
+  const [missingHostURL, setMissingHostURL] = useState("");
 
   //Scan context
   const {
@@ -102,15 +94,13 @@ const Scans = () => {
       .post(`http://192.168.18.20:8082/SecuraCore/UploadURL`, urlPayload)
       .then(function (res) {
         // setLoading(false);
-
         const { error } = res.data;
-        if (error !== null) {
+        if (error === "Host Name Missing") {
+          setSpecModal(true);
+        } else if (error !== null) {
           toast.error(error);
-          // setFile("");
           setSpecStatus("Failed");
         } else {
-          // setRefrenceID(referenceId);
-          // setTargettedHost(targetHost);
           setScanDetails(res.data);
           setSpecStatus("Completed");
         }
@@ -134,39 +124,6 @@ const Scans = () => {
     setShow(false);
     axios
       .post(`http://192.168.18.20:8082/SecuraCore/UploadURL`, urlPayload)
-      .then(function (res) {
-        const { error } = res.data;
-        console.log("resData", res.data);
-        if (error !== null) {
-          toast.error("Something went wrong. Please wait!");
-          setSpecStatus("Not Initiated");
-        } else if (error === "Host Name Missing") {
-          setSpecModal(true);
-        } else {
-          setScanDetails(res.data);
-          setSpecStatus("Completed");
-        }
-      })
-      .catch(function (error) {
-        toast.error(error.message);
-        setLoading(false);
-        console.log("uploaded file error", error);
-      });
-  };
-
-  //UPLOAD Mule Connector Missig Spec URL API CALL
-  const verifyMissingMuleSpecURL = () => {
-    const payload = {
-      secura_key: "6m1fcduh0lm3h757ofun4194jn",
-      secura_url: muleSpecVal,
-      secura_sslEnabled: false,
-      secura_host: scanDetails.targetHost,
-    };
-    setSpecModal(false);
-    setSpecStatus("In Progress");
-    setShow(false);
-    axios
-      .post(`http://192.168.18.20:8082/SecuraCore/UploadURL`, payload)
       .then(function (res) {
         const { error } = res.data;
         console.log("resData", res.data);
@@ -203,11 +160,39 @@ const Scans = () => {
         const { error, referenceId, targetHost } = res.data;
         if (error !== null) {
           toast.error(error);
-          // setFile("");
           setSpecStatus("Failed");
         } else {
-          // setRefrenceID(referenceId);
-          // setTargettedHost(targetHost);
+          setScanDetails(res.data);
+          setSpecStatus("Completed");
+        }
+      })
+      .catch(function (error) {
+        toast.error(error.message);
+        setLoading(false);
+        console.log("uploaded file error", error);
+      });
+  };
+
+  //UPLOAD MISSING HOST NAME API CALL
+  const verifyMissingSpecURL = () => {
+    const payload = {
+      secura_key: "6m1fcduh0lm3h757ofun4194jn",
+      secura_url: inputUrlVal,
+      secura_sslEnabled: sslEnabled,
+      secura_host: missingHostURL,
+    };
+    setSpecModal(false);
+    setSpecStatus("In Progress");
+    setShow(false);
+    axios
+      .post(`http://192.168.18.20:8082/SecuraCore/UploadURLWithHost`, payload)
+      .then(function (res) {
+        const { error } = res.data;
+        console.log("resData", res.data);
+        if (error !== null) {
+          toast.error("Something went wrong. Please wait!");
+          setSpecStatus("Not Initiated");
+        } else {
           setScanDetails(res.data);
           setSpecStatus("Completed");
         }
@@ -225,6 +210,8 @@ const Scans = () => {
       secura_referenceId: scanDetails.referenceId,
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
       secura_targetHost: scanDetails.targetHost,
+      secura_environment: securaEnvironmentStatus ? "PRD" : "DEV",
+
       ...(submittedScriptRes.scanId && {
         secura_scanId: submittedScriptRes.scanId,
       }),
@@ -322,7 +309,23 @@ const Scans = () => {
                       </div>
                     </div>
                     <div class="col d-flex justify-content-end">
-                      <div className="d-flex mt-2">
+                      <div className="d-flex flex-column mt-2">
+                        <Container>
+                          <Form>
+                            <Form.Check
+                              type="switch"
+                              id="custom-switch"
+                              label="Production"
+                              // checked={isChecked}
+                              onChange={() =>
+                                setSecuraEnvironmentStatus(
+                                  !securaEnvironmentStatus
+                                )
+                              }
+                              style={{ color: "grey", fontSize: "13px" }}
+                            />
+                          </Form>
+                        </Container>
                         <Container>
                           <Form>
                             <Form.Check
@@ -543,12 +546,12 @@ const Scans = () => {
                 id="missingSpecUrl"
                 name="missingSpecUrl"
                 className="form-control fs-13"
-                onChange={(e) => setMuleSpecVal(e.target.value)}
+                onChange={(e) => setMissingHostURL(e.target.value)}
                 placeholder="Enter server URL"
               />
               <button
                 className="btn btn-primary btn-sm ml-2"
-                onClick={verifyMissingMuleSpecURL}
+                onClick={verifyMissingSpecURL}
               >
                 <strong
                   style={{

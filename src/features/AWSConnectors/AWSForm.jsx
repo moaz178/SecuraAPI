@@ -4,6 +4,7 @@ import { Card } from "react-bootstrap";
 import { useScanContext } from "../../contexts/scanContext/scanContext";
 import axios from "axios";
 import Loader from "../../components/Loader/Loader";
+import { secura_URL } from "../../utils/endpoint";
 
 const AWSForm = ({ handleNext }) => {
   const [loading, setLoading] = useState(false);
@@ -38,7 +39,7 @@ const AWSForm = ({ handleNext }) => {
       awsRegion: formData.region,
     };
     axios
-      .post(`http://192.168.18.20:8082/SecuraCore/AWS_Connect`, awsParams)
+      .post(`${secura_URL}/AWS_Connect`, awsParams)
       .then(function (res) {
         setAWSdata(res.data);
         setLoading(false);

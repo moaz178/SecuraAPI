@@ -3,6 +3,7 @@ import toast, { Toaster } from "react-hot-toast";
 import { ListGroup, Pagination, Button, Table, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useScanContext } from "../../contexts/scanContext/scanContext";
+import { secura_URL } from "../../utils/endpoint";
 import axios from "axios";
 
 const Reports = () => {
@@ -18,7 +19,7 @@ const Reports = () => {
   useEffect(() => {
     const securaKey = { secura_key: "6m1fcduh0lm3h757ofun4194jn" };
     axios
-      .post(`http://192.168.18.20:8082/SecuraCore/ListReport`, securaKey)
+      .post(`${secura_URL}/ListReport`, securaKey)
       .then(function (res) {
         setReportList(res.data);
         console.log("reportslist", reportList);
@@ -41,12 +42,9 @@ const Reports = () => {
   const handleView = async (report) => {
     console.log("report: ", report);
     try {
-      const response = await axios.post(
-        `http://192.168.18.20:8082/SecuraCore/Report`,
-        {
-          secura_referenceId: report.referenceId,
-        }
-      );
+      const response = await axios.post(`${secura_URL}/Report`, {
+        secura_referenceId: report.referenceId,
+      });
 
       setSelectedReport(response.data);
       navigate(`./${report.id}`);

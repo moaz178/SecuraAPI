@@ -8,6 +8,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { andromeda } from "@uiw/codemirror-theme-andromeda";
 import { javascript } from "@codemirror/lang-javascript";
 import { capitalizeFirstLetter } from "../../utils/helper";
+import { secura_URL } from "../../utils/endpoint";
 import "./Authentication.css";
 
 const Authentication = ({ setOpen }) => {
@@ -41,7 +42,7 @@ const Authentication = ({ setOpen }) => {
       };
       // setLoading(true);
       axios
-        .post(`http://192.168.18.20:8082/SecuraCore/ListAuthScript`, params)
+        .post(`${secura_URL}/ListAuthScript`, params)
         .then(function (res) {
           setLoading(false);
           setSelectOptions(res.data.script);
@@ -68,7 +69,7 @@ const Authentication = ({ setOpen }) => {
     };
     // setLoading(true);
     axios
-      .post(`http://192.168.18.20:8082/SecuraCore/ShowAuthScript`, scriptParams)
+      .post(`${secura_URL}/ShowAuthScript`, scriptParams)
       .then(function (res) {
         setLoading(false);
         if (res.data.script.Error) {
@@ -114,7 +115,7 @@ const Authentication = ({ setOpen }) => {
     console.log("submitted params :", submitParams);
     setLoading(true);
     axios
-      .post(`http://192.168.18.20:8082/SecuraCore/AuthScriptLoad`, submitParams)
+      .post(`${secura_URL}/AuthScriptLoad`, submitParams)
       .then(function (res) {
         setLoading(false);
         if (res.data.script.Error) {

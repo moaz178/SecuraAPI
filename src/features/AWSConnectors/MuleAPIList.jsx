@@ -5,6 +5,7 @@ import { useScanContext } from "../../contexts/scanContext/scanContext";
 import axios from "axios";
 import ReactLoading from "react-loading";
 import Loader from "../../components/Loader/Loader";
+import { secura_URL } from "../../utils/endpoint";
 
 const MuleAPIList = ({ handleNext, handlePrevious }) => {
   const [loading, setLoading] = useState(false);
@@ -17,7 +18,7 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
   useEffect(() => {
     setLoading(true);
     axios
-      .post(`http://192.168.18.20:8082/SecuraCore/Mule_APIList`, muleData)
+      .post(`${secura_URL}/Mule_APIList`, muleData)
       .then(function (res) {
         setMuleAPIdata(res.data);
         setLoading(false);
@@ -38,10 +39,7 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
       ...muleData,
     };
     axios
-      .post(
-        ` http://192.168.18.20:8082/SecuraCore/Mule_Connect`,
-        mulesoftParams
-      )
+      .post(` ${secura_URL}/Mule_Connect`, mulesoftParams)
       .then(function (res) {
         setAWSdata(res.data);
         setLoading(false);
@@ -106,7 +104,7 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
                         colSpan="6"
                         className="text-center fs-13 text-primary mt-4"
                       >
-                        Please wait. Request is in process !
+                        Please wait. Request is being processed !
                       </td>
                     </tr>
                   ) : muleAPIdata.length > 0 ? (

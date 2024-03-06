@@ -10,6 +10,8 @@ import SecuraStepper from "../../components/SecuraStepper/SecuraStepper";
 import SpecUploadModal from "../../components/Modal/SpecUploadModal";
 import AddAuthModal from "../../components/Modal/AddAuthModal";
 import ScanSummary from "../ScanSummary/ScanSummary";
+import { secura_URL } from "../../utils/endpoint";
+
 import "./Scans.css";
 
 const Scans = () => {
@@ -81,7 +83,7 @@ const Scans = () => {
   //UPLOAD URL API CALL
   const uploadURL = (e) => {
     e.preventDefault();
-
+    setMissingHostURL("");
     const urlPayload = {
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
       secura_url: inputUrlVal,
@@ -91,7 +93,7 @@ const Scans = () => {
     setSpecStatus("In Progress");
     setShow(false);
     axios
-      .post(`http://192.168.18.20:8082/SecuraCore/UploadURL`, urlPayload)
+      .post(`${secura_URL}/UploadURL`, urlPayload)
       .then(function (res) {
         // setLoading(false);
         const { error } = res.data;
@@ -123,11 +125,13 @@ const Scans = () => {
     setSpecStatus("In Progress");
     setShow(false);
     axios
-      .post(`http://192.168.18.20:8082/SecuraCore/UploadURL`, urlPayload)
+      .post(`${secura_URL}/UploadURL`, urlPayload)
       .then(function (res) {
         const { error } = res.data;
         console.log("resData", res.data);
-        if (error !== null) {
+        if (error === "Host Name Missing") {
+          setSpecModal(true);
+        } else if (error !== null) {
           toast.error("Something went wrong. Please wait!");
           setSpecStatus("Not Initiated");
         } else {
@@ -151,7 +155,7 @@ const Scans = () => {
     setSpecStatus("In Progress");
     setShow(false);
     axios
-      .post(`http://192.168.18.20:8082/SecuraCore/Upload`, form, {
+      .post(`${secura_URL}/Upload`, form, {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then(function (res) {
@@ -185,12 +189,12 @@ const Scans = () => {
     setSpecStatus("In Progress");
     setShow(false);
     axios
-      .post(`http://192.168.18.20:8082/SecuraCore/UploadURLWithHost`, payload)
+      .post(`${secura_URL}/UploadURLWithHost`, payload)
       .then(function (res) {
         const { error } = res.data;
         console.log("resData", res.data);
         if (error !== null) {
-          toast.error("Something went wrong. Please wait!");
+          toast.error("Something went wrong. Try again !");
           setSpecStatus("Not Initiated");
         } else {
           setScanDetails(res.data);
@@ -224,7 +228,7 @@ const Scans = () => {
     // console.log("scanparms", scanParams);
     setScanStatus("In Progress");
     axios
-      .post(`http://192.168.18.20:8082/SecuraCore/ScanAPI`, scanParams)
+      .post(`${secura_URL}/ScanAPI`, scanParams)
       .then(function (res) {
         setLoading(false);
         setScanResutls(res.data);
@@ -526,7 +530,6 @@ const Scans = () => {
           backdrop="static"
         >
           <Modal.Header
-            closeButton
             style={{
               borderBottom: "0px",
               padding: "5px 5px 0px 5px",
@@ -552,6 +555,7 @@ const Scans = () => {
               <button
                 className="btn btn-primary btn-sm ml-2"
                 onClick={verifyMissingSpecURL}
+                disabled={missingHostURL === ""}
               >
                 <strong
                   style={{

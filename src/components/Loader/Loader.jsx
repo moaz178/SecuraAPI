@@ -21,7 +21,7 @@ const Loader = ({ show }) => {
               width={60}
             />
             <Modal.Title className="fs-15 ml-4 mt-4">
-              Please wait. It may take a minute ...
+              Please wait. It may take few seconds ...
             </Modal.Title>
           </div>
         </Modal.Body>

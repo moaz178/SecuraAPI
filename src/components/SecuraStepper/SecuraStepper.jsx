@@ -25,11 +25,11 @@ const SecuraStepper = ({
           {specStatus === "Not Initiated" ? (
             <div className="text-secondary">Not Initiated</div>
           ) : specStatus === "In Progress" ? (
-            <div className="text-secondary">In Progress</div>
+            <div className="text-secondary">Verifying.. .</div>
           ) : specStatus === "Completed" ? (
             <div className="text-info">
               <i className="fa-solid fa-circle-check text-success"></i>{" "}
-              &nbsp;Completed
+              &nbsp;Verified
             </div>
           ) : specStatus === "Failed" ? (
             <div className="text-danger">Failed</div>

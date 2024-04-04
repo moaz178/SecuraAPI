@@ -208,11 +208,11 @@ const MulesoftForm = ({ handleNext }) => {
 
         <div style={{ width: "400px", marginTop: "100px", marginLeft: "20px" }}>
           <strong className="fs-20 ">
-            <span>Mule</span>
+            <span>About Mule</span> <i class="fa-solid fa-arrow-right-long"></i>
           </strong>
           <p className="fs-14 text-secondary mt-3">
             Easily retrieve API specifications from API Gateway using our
-            intuitive platform. We've seamlessly integrated AWS CLI connectors,
+            intuitive platform. We've seamlessly integrated Mule CLI connectors,
             providing a straightforward and hassle-free method for downloading
             API details. Enhance your experience with our scanning tool,
             streamlining the entire process for efficient utilization.

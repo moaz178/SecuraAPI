@@ -92,7 +92,7 @@ const Header = () => {
                 </ul>
               </li>
               <li>
-                <Link to={`/home`}>Platform</Link>
+                <Link to={`#`}>Platform</Link>
               </li>
               <li>
                 <a href="#team">Pricing</a>

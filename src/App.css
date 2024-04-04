@@ -98,12 +98,14 @@ h6 {
   transition: 0.5s;
   margin: 0 20px 20px 0;
   color: #fff;
+  cursor: pointer;
 }
 
 #intro .intro-info .btn-get-started {
   background: #007bff;
   border: 1px solid #007bff;
   color: #fff;
+  cursor: pointer;
 }
 
 #intro .intro-info .btn-get-started:hover {

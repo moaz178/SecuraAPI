@@ -1,78 +1,35 @@
-import React from "react";
-import { Container, Table, Collapse, Modal, Form } from "react-bootstrap";
+import React, { useState } from "react";
+import {
+  Container,
+  Table,
+  Collapse,
+  Badge,
+  Modal,
+  Form,
+} from "react-bootstrap";
 
-const ScanSummary = ({ scanResults, toggleCollapseTable, openRows }) => {
-  //Get Badge based on Risk
-  const getBadgeColor = (risk) => {
-    switch (risk) {
-      case "1":
-        return "badge-danger";
-      case "2":
-        return "badge-warning";
-      case "3":
-        return "badge-info";
-      case "4":
-        return "badge-success";
-      default:
-        return "badge-secondary";
+const ScanSummary = ({ scanResults }) => {
+  console.log("scanResults: ", scanResults);
+  const [expandedRows, setExpandedRows] = useState([]);
+  const [expandedNestedRows, setExpandedNestedRows] = useState([]);
+
+  const toggleCollapseTable = (index) => {
+    if (expandedRows.includes(index)) {
+      setExpandedRows(expandedRows.filter((item) => item !== index));
+    } else {
+      setExpandedRows([...expandedRows, index]);
     }
   };
 
-  //Nested tables
-  const renderNestedTable = (subDetails, rowId) => (
-    <Collapse in={openRows.includes(rowId)}>
-      <div>
-        <Table className="m-0" style={{ tableLayout: "fixed" }}>
-          <tbody>
-            {Object.entries(subDetails).map(([key, value]) => (
-              <React.Fragment key={key}>
-                <tr>
-                  <td style={{ wordWrap: "break-word", width: "100%" }}>
-                    <div
-                      className="clickable fs-14 text-secondary"
-                      onClick={() => toggleCollapseTable(`${rowId}-${key}`)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <strong>
-                        <i class="fa-solid fa-angle-down ml-4 mr-5"></i>
-                      </strong>
-                      &nbsp;
-                      <strong> {key}</strong>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td colSpan="3" style={{ padding: "0px" }}>
-                    <Collapse in={openRows.includes(`${rowId}-${key}`)}>
-                      <div>
-                        <Table bordered style={{ tableLayout: "fixed" }}>
-                          <tbody className="fs-13">
-                            {Object.entries(value).map(([key, value]) => (
-                              <tr key={key}>
-                                <td colSpan="2"> {key}</td>
-                                <td
-                                  style={{
-                                    wordWrap: "break-word",
-                                  }}
-                                  colSpan="6"
-                                >
-                                  {value}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </Table>
-                      </div>
-                    </Collapse>
-                  </td>
-                </tr>
-              </React.Fragment>
-            ))}
-          </tbody>
-        </Table>
-      </div>
-    </Collapse>
-  );
+  const toggleCollapseNestedTable = (index) => {
+    if (expandedNestedRows.includes(index)) {
+      setExpandedNestedRows(
+        expandedNestedRows.filter((item) => item !== index)
+      );
+    } else {
+      setExpandedNestedRows([...expandedNestedRows, index]);
+    }
+  };
 
   return (
     <>
@@ -257,73 +214,173 @@ const ScanSummary = ({ scanResults, toggleCollapseTable, openRows }) => {
       <br />
       <strong className="fs-20 text-primary"> Vulnerabilities Summary:</strong>
 
-      <Container className="mt-5">
-        <Table style={{ tableLayout: "fixed" }}>
+      <Container className="mt-5 p-0">
+        <Table>
           <thead style={{ background: "#f5f5f5" }}>
             <tr>
-              <th scope="col">Severity</th>
-              <th scope="col" style={{ width: "500px" }}>
-                Description
-              </th>
-              <th scope="col" style={{ width: "100px" }}>
-                Count
-              </th>
+              <th>Severity</th>
+              <th>Description</th>
+              <th>Count</th>
             </tr>
           </thead>
           <tbody>
-            {Object.entries(scanResults.vulnerability).map(
-              ([severity, details]) => (
-                <React.Fragment key={severity}>
-                  {Object.entries(details).map(([description, subDetails]) => (
-                    <React.Fragment key={description}>
-                      <tr
-                        className="clickable"
-                        onClick={() =>
-                          toggleCollapseTable(`${severity}-${description}`)
-                        }
-                        style={{ cursor: "pointer" }}
-                      >
-                        <td>
-                          <span
-                            className={`badge ${getBadgeColor(
-                              severity
-                            )} px-3 py-1`}
-                          >
-                            {severity === "1"
-                              ? "High"
-                              : severity === "2"
-                              ? "Medium"
-                              : severity === "3"
-                              ? "Low"
-                              : "Informational"}
-                          </span>
-                        </td>
-                        <td>
-                          <strong>
-                            <i
-                              className={
-                                openRows.length > 0
-                                  ? "fa-solid fa-angle-down  mr-3"
-                                  : "fa-solid fa-angle-right  mr-3"
-                              }
-                            ></i>
-                          </strong>
-                          {description}
-                        </td>
-                        <td>{Object.keys(subDetails).length}</td>
-                      </tr>
-                      <tr>
-                        <td colSpan="3" style={{ padding: "0px" }}>
-                          {renderNestedTable(
-                            subDetails,
-                            `${severity}-${description}`
+            {Object.keys(scanResults.vulnerability).map(
+              (vulnerability, index) => {
+                const severity = vulnerability.split("-***-")[1].toLowerCase();
+                let badgeVariant;
+                switch (severity) {
+                  case "high":
+                    badgeVariant = "danger";
+                    break;
+                  case "medium":
+                    badgeVariant = "warning";
+                    break;
+                  case "informational":
+                    badgeVariant = "success";
+                    break;
+                  case "low":
+                    badgeVariant = "primary";
+                    break;
+                  default:
+                    badgeVariant = "info";
+                }
+                const vulnerabilityDetails =
+                  scanResults.vulnerability[vulnerability];
+
+                return (
+                  <React.Fragment key={index}>
+                    <tr
+                      onClick={() => toggleCollapseTable(index)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <td>
+                        <Badge bg={badgeVariant}>{severity}</Badge>
+                      </td>
+                      <td>
+                        <p style={{ fontSize: "15px" }}>
+                          {expandedRows.includes(index) ? (
+                            <i className="fa-solid fa-angle-down mr-2 "></i>
+                          ) : (
+                            <i className="fa-solid fa-angle-right mr-2 "></i>
                           )}
-                        </td>
-                      </tr>
-                    </React.Fragment>
-                  ))}
-                </React.Fragment>
-              )
+                          {vulnerability.split("***-")[2]}
+                        </p>
+                      </td>
+                      <td>
+                        <p style={{ paddingLeft: "20px" }}>
+                          {vulnerabilityDetails.APIs
+                            ? vulnerabilityDetails.APIs.length
+                            : null}
+                        </p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        colSpan="3"
+                        style={{
+                          padding: "0px",
+                          borderBottom: "none",
+                        }}
+                      >
+                        <Collapse in={expandedRows.includes(index)}>
+                          <div className="fs-13">
+                            {vulnerabilityDetails.Description && (
+                              <>
+                                <td>
+                                  <strong>Description</strong>
+                                </td>
+                                <td
+                                  style={{
+                                    paddingRight: "200px",
+                                    paddingLeft: "90px",
+                                  }}
+                                >
+                                  {vulnerabilityDetails.Description}
+                                </td>
+                              </>
+                            )}
+
+                            <Table
+                              style={{ fontSize: "12px", marginBottom: "0px" }}
+                            >
+                              <thead>
+                                <tr
+                                  onClick={() =>
+                                    toggleCollapseNestedTable(
+                                      vulnerabilityDetails.Id
+                                    )
+                                  }
+                                  style={{ cursor: "pointer" }}
+                                >
+                                  <th
+                                    colSpan="2"
+                                    className="text-start"
+                                    style={{ borderBottom: "none" }}
+                                  >
+                                    {" "}
+                                    <i className="fa-solid fa-angle-down mr-2"></i>{" "}
+                                    APIs
+                                  </th>
+                                </tr>
+                              </thead>
+                              <Collapse
+                                in={expandedNestedRows.includes(
+                                  vulnerabilityDetails.Id
+                                )}
+                              >
+                                <tbody style={{ border: "1px solid #dee2e6" }}>
+                                  {vulnerabilityDetails.APIs &&
+                                    vulnerabilityDetails.APIs.map(
+                                      (api, apiIndex) => (
+                                        <React.Fragment key={apiIndex}>
+                                          {Object.entries(api).map(
+                                            ([key, value]) => (
+                                              <tr key={key}>
+                                                <td>{key}</td>
+                                                <td>{value}</td>
+                                              </tr>
+                                            )
+                                          )}
+                                          <br />
+                                        </React.Fragment>
+                                      )
+                                    )}
+                                </tbody>
+                              </Collapse>
+                            </Table>
+                            <Table style={{ fontSize: "13px" }}>
+                              <tbody>
+                                {Object.entries(vulnerabilityDetails)
+                                  .filter(
+                                    ([key, value]) =>
+                                      key !== "APIs" &&
+                                      key !== "Description" &&
+                                      key !== "Id"
+                                  )
+                                  .map(([key, value]) => (
+                                    <tr key={key}>
+                                      <td style={{ width: "100px" }}>
+                                        <strong>{key}</strong>
+                                      </td>
+                                      <td
+                                        style={{
+                                          paddingRight: "200px",
+                                          paddingLeft: "90px",
+                                        }}
+                                      >
+                                        {value ? value : "N/A"}
+                                      </td>
+                                    </tr>
+                                  ))}
+                              </tbody>
+                            </Table>
+                          </div>
+                        </Collapse>
+                      </td>
+                    </tr>
+                  </React.Fragment>
+                );
+              }
             )}
           </tbody>
         </Table>

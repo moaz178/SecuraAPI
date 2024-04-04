@@ -2,27 +2,33 @@ import React, { useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Card, Table } from "react-bootstrap";
 import { useScanContext } from "../../contexts/scanContext/scanContext";
+import { useNavigate } from "react-router-dom";
+import { secura_URL } from "../../utils/endpoint";
 import axios from "axios";
 import ReactLoading from "react-loading";
-import Loader from "../../components/Loader/Loader";
-import { secura_URL } from "../../utils/endpoint";
 
 const MuleAPIList = ({ handleNext, handlePrevious }) => {
   const [loading, setLoading] = useState(false);
   const [muleAPIdata, setMuleAPIdata] = useState([]);
   const [selectedAPIId, setSelectedAPIId] = useState(null); // State to track selected API ID
+  const [statusMsg, setStatusMsg] = useState(
+    " Please wait. Request is being processed !"
+  );
 
   // Context
   const { muleData, setAWSdata } = useScanContext();
 
+  //For navigation
+  const navigate = useNavigate();
+
   useEffect(() => {
     setLoading(true);
+
     axios
       .post(`${secura_URL}/Mule_APIList`, muleData)
       .then(function (res) {
         setMuleAPIdata(res.data);
         setLoading(false);
-        console.log("api table data", res.data);
       })
       .catch(function (error) {
         toast.error(error);
@@ -34,6 +40,7 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
   const handleSubmitForm = (e) => {
     e.preventDefault();
     setLoading(true);
+    setStatusMsg("Downloading.. .");
     const mulesoftParams = {
       apiId: selectedAPIId,
       ...muleData,
@@ -43,7 +50,7 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
       .then(function (res) {
         setAWSdata(res.data);
         setLoading(false);
-        handleNext();
+        navigate("/home/scans", { replace: true });
       })
       .catch(function (error) {
         toast.error(error);
@@ -52,11 +59,11 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
       });
   };
 
-  console.log("api listttttttt", muleAPIdata);
+  console.log("mule api list", muleAPIdata);
 
   return (
     <>
-      <Loader show={loading} />
+      {/* <Loader show={loading} /> */}
       <Toaster
         toastOptions={{
           style: {
@@ -91,8 +98,7 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
                       <i className="fa-solid fa-angle-down"></i>
                     </th>
                     <th className="text-center">API Name</th>
-                    <th className="text-center">Runtime</th>
-                    <th className="text-center">Label</th>
+                    <th className="text-center">Runtime Label</th>
                     <th className="text-center">Version</th>
                     <th className="text-center">Instance</th>
                   </tr>
@@ -104,43 +110,58 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
                         colSpan="6"
                         className="text-center fs-13 text-primary mt-4"
                       >
-                        Please wait. Request is being processed !
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <ReactLoading
+                            type={"spokes"}
+                            color={"#55b9f2"}
+                            height={20}
+                            width={20}
+                          />
+                          <p className="ml-3"> {statusMsg}</p>
+                        </div>{" "}
                       </td>
                     </tr>
-                  ) : muleAPIdata.length > 0 ? (
-                    muleAPIdata.map(
-                      ({
-                        assetId,
-                        technology,
-                        productVersion,
-                        id,
-                        instanceLabel,
-                      }) => (
-                        <tr key={assetId}>
+                  ) : muleAPIdata.assets && muleAPIdata.assets.length > 0 ? (
+                    muleAPIdata.assets.map(({ assetId, apis }) =>
+                      apis.map((api) => (
+                        <tr key={api.id}>
                           <td className="text-center">
+                            {/* <input
+                              type="checkbox"
+                              name="selectAPI"
+                              value={api.id}
+                              onChange={() => setSelectedAPIId(api.id)}
+                            /> */}
                             <input
                               type="radio"
                               name="selectAPI"
-                              value={id}
-                              checked={selectedAPIId === id}
-                              onChange={() => setSelectedAPIId(id)} // Update selectedAPIId when radio is changed
+                              value={api.id}
+                              checked={selectedAPIId === api.id}
+                              onChange={() => setSelectedAPIId(api.id)} // Update selectedAPIId when radio is changed
                             />
-                          </td>{" "}
+                          </td>
                           <td className="text-center">
                             <a href="#">{assetId}</a>
                           </td>
                           <td className="text-center">
-                            <p className="text-secondary">{technology}</p>
+                            <p className="text-secondary">{api.technology}</p>
                           </td>
-                          <td className="text-center">
+                          {/* <td className="text-center">
                             <strong className="text-secondary fs-13">
-                              {instanceLabel !== null ? instanceLabel : "-"}
+                              {api.instanceLabel !== null
+                                ? api.instanceLabel
+                                : "-"}
                             </strong>
-                          </td>
-                          <td className="text-center">{productVersion}</td>
-                          <td className="text-center">{id}</td>
+                          </td> */}
+                          <td className="text-center">{api.productVersion}</td>
+                          <td className="text-center">{api.id}</td>
                         </tr>
-                      )
+                      ))
                     )
                   ) : (
                     <tr>
@@ -148,7 +169,9 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
                         colSpan="6"
                         className="text-center fs-15 text-danger mt-4"
                       >
-                        Something went wrong !
+                        {muleAPIdata.error
+                          ? muleAPIdata.error
+                          : "Something went wrong !"}
                       </td>
                     </tr>
                   )}

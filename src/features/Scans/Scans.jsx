@@ -46,6 +46,7 @@ const Scans = () => {
   } = useScanContext();
 
   useEffect(() => {
+    console.log("awsData", awsData);
     if (Object.keys(awsData).length !== 0 && awsData.spec_url) {
       uploadAWSSpecURL();
     }

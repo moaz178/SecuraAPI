@@ -10,7 +10,10 @@ import ReactLoading from "react-loading";
 const MuleAPIList = ({ handleNext, handlePrevious }) => {
   const [loading, setLoading] = useState(false);
   const [muleAPIdata, setMuleAPIdata] = useState([]);
-  const [selectedAPIId, setSelectedAPIId] = useState(null); // State to track selected API ID
+  const [selectedAPIId, setSelectedAPIId] = useState({
+    assetId: "",
+    organizationId: "",
+  }); // State to track selected API ID
   const [statusMsg, setStatusMsg] = useState(
     " Please wait. Request is being processed !"
   );
@@ -42,11 +45,13 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
     setLoading(true);
     setStatusMsg("Downloading.. .");
     const mulesoftParams = {
-      apiId: selectedAPIId,
+      assetId: selectedAPIId.assetId,
+      organizationId: selectedAPIId.organizationId,
       ...muleData,
     };
+    console.log("mulesoftParams: ", mulesoftParams);
     axios
-      .post(` ${secura_URL}/Mule_Connect`, mulesoftParams)
+      .post(` ${secura_URL}/Mule_SpecDownload`, mulesoftParams)
       .then(function (res) {
         setAWSdata(res.data);
         setLoading(false);
@@ -127,41 +132,53 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
                       </td>
                     </tr>
                   ) : muleAPIdata.assets && muleAPIdata.assets.length > 0 ? (
-                    muleAPIdata.assets.map(({ assetId, apis }) =>
-                      apis.map((api) => (
-                        <tr key={api.id}>
-                          <td className="text-center">
-                            {/* <input
+                    muleAPIdata.assets.map(
+                      ({ exchangeAssetName, assetId, apis }) =>
+                        apis.map((api) => (
+                          <tr key={api.id}>
+                            <td className="text-center">
+                              {/* <input
                               type="checkbox"
                               name="selectAPI"
                               value={api.id}
                               onChange={() => setSelectedAPIId(api.id)}
                             /> */}
-                            <input
-                              type="radio"
-                              name="selectAPI"
-                              value={api.id}
-                              checked={selectedAPIId === api.id}
-                              onChange={() => setSelectedAPIId(api.id)} // Update selectedAPIId when radio is changed
-                            />
-                          </td>
-                          <td className="text-center">
-                            <a href="#">{assetId}</a>
-                          </td>
-                          <td className="text-center">
-                            <p className="text-secondary">{api.technology}</p>
-                          </td>
-                          {/* <td className="text-center">
+                              <input
+                                type="radio"
+                                name="selectAPI"
+                                value={api.id}
+                                checked={
+                                  selectedAPIId.assetId === api.assetId &&
+                                  selectedAPIId.organizationId ===
+                                    api.organizationId
+                                }
+                                onChange={() =>
+                                  setSelectedAPIId({
+                                    assetId: api.assetId,
+                                    organizationId: api.organizationId,
+                                  })
+                                }
+                              />
+                            </td>
+                            <td className="text-center">
+                              <a href="#">{exchangeAssetName}</a>
+                            </td>
+                            <td className="text-center">
+                              <p className="text-secondary">{api.technology}</p>
+                            </td>
+                            {/* <td className="text-center">
                             <strong className="text-secondary fs-13">
                               {api.instanceLabel !== null
                                 ? api.instanceLabel
                                 : "-"}
                             </strong>
                           </td> */}
-                          <td className="text-center">{api.productVersion}</td>
-                          <td className="text-center">{api.id}</td>
-                        </tr>
-                      ))
+                            <td className="text-center">
+                              {api.productVersion}
+                            </td>
+                            <td className="text-center">{api.id}</td>
+                          </tr>
+                        ))
                     )
                   ) : (
                     <tr>

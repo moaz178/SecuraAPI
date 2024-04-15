@@ -25,7 +25,7 @@ const SpecUploadModal = ({ show, setShow, handleUpload, file, uploadFile }) => {
             <br />
             <h3 className="text-center text-info">Drag your file here Or</h3>
             {/* <h3 className="text-center text-info">Or</h3> */}
-            <i className="fa fa-download fa-5x text-dark"></i>
+            <i className="fa fa-upload fa-5x text-dark"></i>
             <br />
 
             <input

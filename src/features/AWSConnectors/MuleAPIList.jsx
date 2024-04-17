@@ -197,21 +197,23 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
 
               <br />
 
-              <div className="d-flex">
-                <button
-                  className="btn btn-primary"
-                  style={{ marginLeft: "auto", width: "100px" }}
-                  onClick={handleSubmitForm}
-                  disabled={loading || !selectedAPIId} // Disable button if no API is selected
-                >
-                  <strong
-                    style={{
-                      letterSpacing: "1px",
-                    }}
+              <div className="d-flex justify-content-end">
+                {muleAPIdata.error ? null : (
+                  <button
+                    className="btn btn-primary"
+                    style={{ marginLeft: "auto", width: "100px" }}
+                    onClick={handleSubmitForm}
+                    disabled={loading || !selectedAPIId} // Disable button if no API is selected
                   >
-                    Next <i className="fa-solid fa-arrow-right"></i>
-                  </strong>
-                </button>
+                    <strong
+                      style={{
+                        letterSpacing: "1px",
+                      }}
+                    >
+                      Next <i className="fa-solid fa-arrow-right"></i>
+                    </strong>
+                  </button>
+                )}
                 {muleAPIdata.error && (
                   <button
                     className="btn btn-primary ml-2"

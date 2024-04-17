@@ -70,29 +70,6 @@ const Connectors = () => {
                 <br />
                 <br />
                 <div className="d-flex">
-                  <div className="d-flex flex-column">
-                    <img
-                      src="/dist/aws-logo.jpeg"
-                      alt="aws-logo"
-                      width="100px"
-                      className="ml-5 pl-4"
-                    />
-                    <div
-                      className="form-check mt-3"
-                      style={{ marginLeft: "75px" }}
-                    >
-                      <input
-                        className="form-check-input"
-                        type="checkbox"
-                        value=""
-                        id="awsCheckbox"
-                        checked={isCheckedAWS}
-                        onChange={() => setCheckedAWS(!isCheckedAWS)}
-                        disabled={isCheckedMuleSoft}
-                      />
-                    </div>
-                  </div>
-
                   <div className="d-flex flex-column justify-content-start">
                     <img
                       src="/dist/mulesoft.png"
@@ -112,6 +89,28 @@ const Connectors = () => {
                         checked={isCheckedMuleSoft}
                         onChange={() => setCheckedMuleSoft(!isCheckedMuleSoft)}
                         disabled={isCheckedAWS}
+                      />
+                    </div>
+                  </div>
+                  <div className="d-flex flex-column">
+                    <img
+                      src="/dist/aws-logo.jpeg"
+                      alt="aws-logo"
+                      width="100px"
+                      className="ml-5 pl-4"
+                    />
+                    <div
+                      className="form-check mt-3"
+                      style={{ marginLeft: "75px" }}
+                    >
+                      <input
+                        className="form-check-input"
+                        type="checkbox"
+                        value=""
+                        id="awsCheckbox"
+                        checked={isCheckedAWS}
+                        onChange={() => setCheckedAWS(!isCheckedAWS)}
+                        disabled={isCheckedMuleSoft}
                       />
                     </div>
                   </div>

@@ -259,9 +259,9 @@ const ScanSummary = ({ scanResults }) => {
                       <td>
                         <p style={{ fontSize: "15px" }}>
                           {expandedRows.includes(index) ? (
-                            <i className="fa-solid fa-angle-down mr-2 "></i>
+                            <i className="fa-solid fa-angle-down mr-3 "></i>
                           ) : (
-                            <i className="fa-solid fa-angle-right mr-2 "></i>
+                            <i className="fa-solid fa-angle-right mr-3 "></i>
                           )}
                           {vulnerability.split("***-")[2]}
                         </p>
@@ -318,7 +318,13 @@ const ScanSummary = ({ scanResults }) => {
                                     style={{ borderBottom: "none" }}
                                   >
                                     {" "}
-                                    <i className="fa-solid fa-angle-down mr-2"></i>{" "}
+                                    {expandedNestedRows.includes(
+                                      vulnerabilityDetails.Id
+                                    ) ? (
+                                      <i className="fa-solid fa-minus mr-2"></i>
+                                    ) : (
+                                      <i className="fa-solid fa-plus mr-2"></i>
+                                    )}
                                     APIs
                                   </th>
                                 </tr>

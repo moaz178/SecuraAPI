@@ -77,9 +77,14 @@ const ReportPdf = ({ data, pdfMode, onChange }) => {
 
   return (
     <>
-      <button onClick={printHandler} className="btn btn-sm btn-primary">
-        Download <i class="fa-solid fa-arrow-down"></i>
+      <button
+        onClick={printHandler}
+        className="btn btn-sm btn-info ml-4"
+        disabled
+      >
+        <i className="fa fa-download fa-1x"></i>
       </button>
+
       <div
         style={{ margin: "20px 100px", padding: "26px 35px" }}
         id="report-pdf"
@@ -97,12 +102,20 @@ const ReportPdf = ({ data, pdfMode, onChange }) => {
               <strong className="fs-15 text-primary">Scan Information</strong>
               <div className="d-flex">
                 <div>
+                  <p className="fs-14 text-secondary mt-2">Scanned Host :</p>
                   <p className="fs-14 text-secondary mt-2">Scan Started :</p>
                   <p className="fs-14 text-secondary">Scan Ended :</p>
                   <p className="fs-14 text-secondary">Scan Duration :</p>
                   <p className="fs-14 text-secondary">Scan Status :</p>
                 </div>
                 <div className="ml-4">
+                  <p className="fs-14 text-secondary mt-2">
+                    <strong className="fs-14 text-secondary">
+                      {selectedReport.secura_targetHost
+                        ? selectedReport.secura_targetHost
+                        : "N/A"}
+                    </strong>
+                  </p>
                   <p className="fs-14 text-secondary mt-2">
                     <strong className="fs-14 text-secondary">
                       {selectedReport.status
@@ -301,8 +314,19 @@ const ReportPdf = ({ data, pdfMode, onChange }) => {
                 </tr>
               </thead>
               <tbody>
-                {Object.keys(selectedReport.vulnerability).map(
-                  (vulnerability, index) => {
+                {Object.keys(selectedReport.vulnerability)
+                  .sort((a, b) => {
+                    const severityA = a.split("-***-")[1].toLowerCase();
+                    const severityB = b.split("-***-")[1].toLowerCase();
+                    const severityOrder = {
+                      high: 1,
+                      medium: 2,
+                      low: 3,
+                      informational: 4,
+                    };
+                    return severityOrder[severityA] - severityOrder[severityB];
+                  })
+                  .map((vulnerability, index) => {
                     const severity = vulnerability
                       .split("-***-")[1]
                       .toLowerCase();
@@ -400,7 +424,13 @@ const ReportPdf = ({ data, pdfMode, onChange }) => {
                                         style={{ borderBottom: "none" }}
                                       >
                                         {" "}
-                                        <i className="fa-solid fa-angle-down mr-2"></i>{" "}
+                                        {expandedNestedRows.includes(
+                                          vulnerabilityDetails.Id
+                                        ) ? (
+                                          <i className="fa-solid fa-minus mr-2"></i>
+                                        ) : (
+                                          <i className="fa-solid fa-plus mr-2"></i>
+                                        )}
                                         APIs
                                       </th>
                                     </tr>
@@ -464,8 +494,7 @@ const ReportPdf = ({ data, pdfMode, onChange }) => {
                         </tr>
                       </React.Fragment>
                     );
-                  }
-                )}
+                  })}
               </tbody>
             </Table>
           </Container>

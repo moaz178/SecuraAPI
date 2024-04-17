@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Card } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { useScanContext } from "../../contexts/scanContext/scanContext";
 import axios from "axios";
 import Loader from "../../components/Loader/Loader";
@@ -18,6 +19,7 @@ const AWSForm = ({ handleNext }) => {
 
   //Context
   const { setAWSdata } = useScanContext();
+  const navigate = useNavigate();
 
   const isFormValid = () => {
     return Object.values(formData).every((value) => value.trim() !== "");
@@ -41,13 +43,15 @@ const AWSForm = ({ handleNext }) => {
     axios
       .post(`${secura_URL}/AWS_Connect`, awsParams)
       .then(function (res) {
-        setAWSdata(res.data);
-        setLoading(false);
-        handleNext();
-        // if (res.data.error !== null) {
-        //   toast.error(res.data.error);
-        //   setLoading(false);
-        // }
+        // handleNext();
+        if (res.data.error !== null) {
+          toast.error(res.data.error);
+          setLoading(false);
+        } else {
+          setAWSdata(res.data);
+          setLoading(false);
+          navigate("/home/scans", { replace: true });
+        }
       })
       .catch(function (error) {
         toast.error(error);

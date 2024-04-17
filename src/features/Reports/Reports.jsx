@@ -46,7 +46,13 @@ const Reports = () => {
         secura_referenceId: report.referenceId,
       });
 
-      setSelectedReport(response.data);
+      const modifiedData = {
+        ...response.data,
+        secura_targetHost: report.targetHost,
+      };
+
+      setSelectedReport(modifiedData);
+      // setSelectedReport(response.data);
       navigate(`./${report.id}`);
     } catch (error) {
       toast.error(error.message);

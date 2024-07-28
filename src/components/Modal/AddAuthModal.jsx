@@ -12,7 +12,7 @@ const AddAuthModal = ({ open, setOpen }) => {
         }}
         style={{ paddingBottom: "0px" }}
         centered
-        size="lg"
+        size="xl"
         backdrop="static"
       >
         <Modal.Header

@@ -15,6 +15,7 @@ import Authentication from "../features/Authentication/Authentication";
 import Reports from "../features/Reports/Reports";
 import ReportPdf from "../features/Reports/PDFGenerator/ReportPdf";
 import Connectors from "../features/AWSConnectors/Connectors";
+import Settings from "../features/Settings/Settings";
 const AppRoutes = () => {
   const { isLoggedIn } = useAuth();
 
@@ -36,6 +37,8 @@ const AppRoutes = () => {
           <Route path="reports" element={<Reports />} />
           <Route path="reports/:id" element={<ReportPdf />} />
           <Route path="connectors" element={<Connectors />} />
+          <Route path="settings" element={<Settings />} />
+
           {/* <Route path="authentication" element={<Authentication />} /> */}
           <Route path="plans" element={<PricingPlan />} />
         </Route>

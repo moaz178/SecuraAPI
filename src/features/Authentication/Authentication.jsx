@@ -167,7 +167,7 @@ const Authentication = ({ setOpen }) => {
       <div className="auth-parent-container">
         <div className="row">
           {/* Left Column */}
-          <div className="col-md-4">
+          <div className="col-md-3">
             <div>
               <strong className="fs-15">Add Authentication</strong>
             </div>
@@ -239,7 +239,7 @@ const Authentication = ({ setOpen }) => {
           </div>
 
           {/* Right Column */}
-          <div className="col-md-8">
+          <div className="col-md-9">
             <CodeMirror
               value={script}
               height={Object.keys(inputFields).length > 3 ? "730px " : "463px"}

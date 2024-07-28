@@ -107,7 +107,7 @@ const Sidebar = () => {
               </a>
             </li>
             <li>
-              <a href="#">
+              <a href="#" onClick={() => navigate("./settings")}>
                 <span className="fa-stack fa-lg pull-left mr-3">
                   <i className="fa fa-cog fa-stack-1x "></i>
                 </span>

@@ -1,6 +1,7 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
 import { useAuth } from "../../features/SignIn/authContext/authContext";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 const Sidebar = () => {
@@ -49,13 +50,13 @@ const Sidebar = () => {
               </a>
             </li>
             <li>
-              <a href="#" onClick={() => navigate("./scans")}>
-                <span className="fa-stack fa-lg pull-left mr-3">
-                  <i className="fa fa-spinner fa-stack-1x "></i>
-                </span>
-                Scans
-              </a>
-            </li>
+  <Link to="scans">
+    <span className="fa-stack fa-lg pull-left mr-3">
+      <i className="fa fa-spinner fa-stack-1x"></i>
+    </span>
+    Scans
+  </Link>
+</li>
             {/* <li>
               <a href="#" onClick={() => navigate("./authentication")}>
                 <span className="fa-stack fa-lg pull-left mr-3">

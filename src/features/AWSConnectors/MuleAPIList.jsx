@@ -88,7 +88,7 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
             <br />
             <div className="mt-2 mb-3">
               <img
-                src="/dist/muleAPI.png"
+                src={process.env.PUBLIC_URL + "/dist/muleAPI.png"}
                 alt="apimanager-logo"
                 width="30px"
                 className="mr-2"

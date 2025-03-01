@@ -71,12 +71,13 @@ const Connectors = () => {
                 <br />
                 <div className="d-flex">
                   <div className="d-flex flex-column justify-content-start">
-                    <img
-                      src="/dist/mulesoft.png"
-                      alt="mulesoft-logo"
-                      width="100px"
-                      className="ml-5 pl-4"
-                    />
+                  <img
+  src={process.env.PUBLIC_URL + "/dist/mulesoft.png"}
+  alt="mulesoft-logo"
+  width="100px"
+  className="ml-5 pl-4"
+/>
+
                     <div
                       className="form-check mt-3"
                       style={{ marginLeft: "75px" }}
@@ -94,7 +95,7 @@ const Connectors = () => {
                   </div>
                   <div className="d-flex flex-column">
                     <img
-                      src="/dist/aws-logo.jpeg"
+                      src={process.env.PUBLIC_URL + "/dist/aws-logo.jpeg"}
                       alt="aws-logo"
                       width="100px"
                       className="ml-5 pl-4"

@@ -25,9 +25,12 @@ const AppRoutes = () => {
   return (
     <HashRouter>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/signin" element={<Login />} />
         <Route path="/create-acount" element={<Registration />} />
+
+        {/* Nested /home Routes */}
         <Route path="/home" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
@@ -39,8 +42,11 @@ const AppRoutes = () => {
           <Route path="settings" element={<Settings />} />
           <Route path="plans" element={<PricingPlan />} />
         </Route>
-        <Route path="startscan" element={<StartScan />} />
+
+        <Route path="/startscan" element={<StartScan />} />
         <Route path="/update-password" element={<UpdatePassword />} />
+
+        {/* Catch-All / 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </HashRouter>

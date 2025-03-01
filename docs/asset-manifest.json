@@ -1,20 +1,20 @@
 {
   "files": {
-    "main.css": "/SecuraAPI/static/css/main.6d68b26f.css",
-    "main.js": "/SecuraAPI/static/js/main.8e94cdc1.js",
+    "main.css": "/SecuraAPI/static/css/main.3fa71359.css",
+    "main.js": "/SecuraAPI/static/js/main.25b7bedd.js",
     "static/js/703.368b7277.chunk.js": "/SecuraAPI/static/js/703.368b7277.chunk.js",
     "static/js/379.fc203833.chunk.js": "/SecuraAPI/static/js/379.fc203833.chunk.js",
     "static/js/787.1342cae8.chunk.js": "/SecuraAPI/static/js/787.1342cae8.chunk.js",
     "static/media/bg-spotlight.webp": "/SecuraAPI/static/media/bg-spotlight.cf1eea19dd3ad98ec3be.webp",
     "index.html": "/SecuraAPI/index.html",
-    "main.6d68b26f.css.map": "/SecuraAPI/static/css/main.6d68b26f.css.map",
-    "main.8e94cdc1.js.map": "/SecuraAPI/static/js/main.8e94cdc1.js.map",
+    "main.3fa71359.css.map": "/SecuraAPI/static/css/main.3fa71359.css.map",
+    "main.25b7bedd.js.map": "/SecuraAPI/static/js/main.25b7bedd.js.map",
     "703.368b7277.chunk.js.map": "/SecuraAPI/static/js/703.368b7277.chunk.js.map",
     "379.fc203833.chunk.js.map": "/SecuraAPI/static/js/379.fc203833.chunk.js.map",
     "787.1342cae8.chunk.js.map": "/SecuraAPI/static/js/787.1342cae8.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.6d68b26f.css",
-    "static/js/main.8e94cdc1.js"
+    "static/css/main.3fa71359.css",
+    "static/js/main.25b7bedd.js"
   ]
 }

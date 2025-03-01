@@ -108,6 +108,7 @@ const Header = () => {
                   style={{
                     color: "white",
                     fontWeight: "bolder",
+                    
                   }}
                 >
                   START FOR FREE &nbsp;

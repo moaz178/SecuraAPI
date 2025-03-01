@@ -1,3 +1,4 @@
+
 .scan-parent-container {
   display: flex;
   justify-content: center;
@@ -205,4 +206,35 @@
 .btn.btn-warning:focus {
   background-color: #ffc107;
   border: 1px solid #ffc107;
+}
+.best-practices-modal {
+  transform: translateX(100px); 
+  min-height: 70vh;
+}
+.best-practices-modal .modal-dialog {
+  max-width: 70vw; 
+  width: 100%; 
+  
+  
+
+}
+.custom-button {
+  /* position: relative; */
+  /* left: 600px; */
+
+ 
+  transform: translateY(350%);
+  background: linear-gradient(135deg, #ffc107, #ff6f61); /* Gradient background */
+  color: white; 
+  border: none; 
+  padding: 10px 40px; 
+  cursor: pointer; 
+  font-size: 20px;
+  font-weight: bold;
+  margin-left: 650px;
+  border-radius: 4px;
+}
+
+.custom-button:hover {
+  background: linear-gradient(135deg, #d6b307, #e65c00); /* Darker gradient on hover */
 }

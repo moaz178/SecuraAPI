@@ -1,0 +1,147 @@
+.best-practices-container {
+  margin: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  min-height: 70rem;
+  max-height: 85rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  font-size: 2rem;
+  color: #333;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  width: 100%;
+  border: 2px dashed #ccc;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.best-practices-info {
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  flex: 1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.spec-preview {
+  flex: 3;
+  padding: 20px;
+  border: 1px solid #ddd;
+  background-color: #f4f4f4;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.code-container {
+  border-radius: 20px; 
+  border: 5px solid #010001;
+  overflow: hidden; /* Ensure the CodeMirror content respects the border-radius */
+  max-height: 800px;
+  overflow-y: scroll; /* Add scrollbar to the code container */
+}
+
+.best-practices-title {
+  color: #d9534f;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.practice-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.practice-icon {
+  color: #d9534f;
+  margin-right: 10px;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.practice-content {
+  flex: 1;
+}
+
+.no-data {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 1.5rem;
+  color: #666;
+}
+
+/* Custom Scrollbar Styling */
+.code-container::-webkit-scrollbar {
+  display: none;
+  width: 12px;
+}
+
+.code-container::-webkit-scrollbar-track {
+  background: #f4f4f4;
+}
+
+.code-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 10px;
+  border: 3px solid #f4f4f4;
+}
+
+.code-container::-webkit-scrollbar-thumb:hover {
+  background: #b3b3b3;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+    padding: 10px;
+  }
+  .best-practices-info,
+  .spec-preview {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+  }
+  .practice-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .practice-icon {
+    margin-bottom: 5px;
+  }
+}
+
+/* New Back Button Fixed at Bottom Right */
+.back-button-fixed {
+  /* position: fixed; */
+  /* bottom: 20px;
+  right: 20px; */
+  background-color: #17a2b8; /* Bootstrap info background color */
+  border: none;
+  color: white;
+  margin-left: 20px;
+  padding: 10px 30px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.back-button-fixed:hover {
+  background-color: #138496;
+}

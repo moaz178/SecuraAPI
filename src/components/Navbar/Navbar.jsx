@@ -31,7 +31,7 @@ const Navbar = () => {
               }}
             >
               {/* {firstName}'s Organization */}
-              Aiman's Workspace
+              RC Solutions
               <span className="text-secondary">
                 &nbsp; / &nbsp;
                 {routeName.charAt(0).toUpperCase() +

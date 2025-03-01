@@ -53,6 +53,7 @@ const MuleAPIList = ({ handleNext, handlePrevious }) => {
     axios
       .post(` ${secura_URL}/Mule_SpecDownload`, mulesoftParams)
       .then(function (res) {
+        console.log("res", res);
         setAWSdata(res.data);
         setLoading(false);
         navigate("/home/scans", { replace: true });

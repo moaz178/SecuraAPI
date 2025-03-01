@@ -1,9 +1,12 @@
+// src/pages/Scans/Scans.jsx
 import React, { useState, useEffect } from "react";
 import { Container, Form, Modal } from "react-bootstrap";
 import toast, { Toaster } from "react-hot-toast";
 import { useScanContext } from "../../contexts/scanContext/scanContext";
 import axios from "axios";
 import ReactLoading from "react-loading";
+import { useNavigate, useLocation } from "react-router-dom";
+import ScanCode from "../ScanCode/NewScanCode";
 import Loader from "../../components/Loader/Loader";
 import SkeletonLoader from "../../components/SkeletonLoader/SkeletonLoader";
 import SecuraStepper from "../../components/SecuraStepper/SecuraStepper";
@@ -11,7 +14,12 @@ import SpecUploadModal from "../../components/Modal/SpecUploadModal";
 import AddAuthModal from "../../components/Modal/AddAuthModal";
 import ScanSummary from "../ScanSummary/ScanSummary";
 import { secura_URL } from "../../utils/endpoint";
-
+import CodeMirror from "@uiw/react-codemirror";
+import { json } from "@codemirror/lang-json";
+import { yaml } from "@codemirror/lang-yaml";
+import { basicSetup } from "codemirror";
+import { andromeda } from "@uiw/codemirror-theme-andromeda";
+import { IoIosCloseCircle } from "react-icons/io";
 import "./Scans.css";
 
 const Scans = () => {
@@ -20,11 +28,22 @@ const Scans = () => {
   const [sslEnabled, setSslEnabled] = useState(false);
   const [securaEnvironmentStatus, setSecuraEnvironmentStatus] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [bestpracLoading, setbestpracLoading] = useState(false);
   const [openRows, setOpenRows] = useState([]);
   const [openSpecModal, setSpecModal] = useState(false);
   const [missingHostURL, setMissingHostURL] = useState("");
+  const [specurl, setspecurl] = useState("");
+  const [temporary_spec, settemporary_spec] = useState("");
+  const [contentType, setContentType] = useState("");
+  const [showComponent, setShowComponent] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  // const [bestPracticesCache, setBestPracticesCache] = useState(null);
+  const [bestPracticesCache, setBestPracticesCache] = useState(null);
+  const [fetchedSpecData, setFetchedSpecData] = useState(null);
 
-  //Scan context
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const {
     scanningStart,
     setScanningStart,
@@ -46,11 +65,41 @@ const Scans = () => {
   } = useScanContext();
 
   useEffect(() => {
-    console.log("awsData", awsData);
-    if (Object.keys(awsData).length !== 0 && awsData.spec_url) {
-      uploadAWSSpecURL();
+    if (specurl) {
+      sessionStorage.setItem('specurl', specurl);
+    }
+    if (bestPracticesCache) {
+      sessionStorage.setItem('bestPracticesCache', JSON.stringify(bestPracticesCache));
+    }
+    if (fetchedSpecData) {
+      sessionStorage.setItem('fetchedSpecData', JSON.stringify(fetchedSpecData));
+    }
+  }, [specurl, bestPracticesCache, fetchedSpecData]);
+
+  useEffect(() => {
+    const savedSpecUrl = sessionStorage.getItem('specurl');
+    const savedBestPractices = sessionStorage.getItem('bestPracticesCache');
+    const savedFetchedSpecData = sessionStorage.getItem('fetchedSpecData');
+    
+    if (savedSpecUrl) {
+      setspecurl(savedSpecUrl);
+    }
+    if (savedBestPractices) {
+      setBestPracticesCache(JSON.parse(savedBestPractices));
+    }
+    if (savedFetchedSpecData) {
+      setFetchedSpecData(JSON.parse(savedFetchedSpecData));
+      const parsedData = JSON.parse(savedFetchedSpecData);
+      settemporary_spec(parsedData.processedData);
+      setContentType(parsedData.contentType);
     }
   }, []);
+
+  useEffect(() => {
+    if (awsData && Object.keys(awsData).length !== 0 && awsData.spec_url) {
+      uploadAWSSpecURL(awsData);
+    }
+  }, [awsData]);
 
   const toggleCollapseTable = (rowId) => {
     setOpenRows((prevOpenRows) =>
@@ -60,17 +109,16 @@ const Scans = () => {
     );
   };
 
-  //UPLOAD FILE
+  //UPLOAD FILE (onChange)
   const handleUpload = (e) => {
+    
     e.preventDefault();
 
     let reader = new FileReader();
     let file = e.target.files[0];
-
     reader.onloadend = () => {
       setFile(file);
     };
-
     reader.readAsDataURL(file);
   };
 
@@ -83,20 +131,24 @@ const Scans = () => {
 
   //UPLOAD URL API CALL
   const uploadURL = (e) => {
+    
     e.preventDefault();
+    clearCache();
     setMissingHostURL("");
+
     const urlPayload = {
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
       secura_url: inputUrlVal,
       secura_sslEnabled: sslEnabled,
     };
-
     setSpecStatus("In Progress");
     setShow(false);
+
     axios
       .post(`${secura_URL}/UploadURL`, urlPayload)
       .then(function (res) {
-        // setLoading(false);
+        console.log("simpledata", res.data);
+        setspecurl(res.data.specURL);
         const { error } = res.data;
         if (error === "Host Name Missing") {
           setSpecModal(true);
@@ -117,17 +169,20 @@ const Scans = () => {
 
   //UPLOAD AWS/Mule Connector Spec URL API CALL
   const uploadAWSSpecURL = () => {
+    clearCache();
     const urlPayload = {
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
       secura_url: awsData.spec_url,
       secura_sslEnabled: true,
     };
+    console.log("payload of aws spec url ", urlPayload);
 
     setSpecStatus("In Progress");
     setShow(false);
     axios
       .post(`${secura_URL}/UploadURL`, urlPayload)
       .then(function (res) {
+        setspecurl(res.data.specURL);
         const { error } = res.data;
         console.log("resData", res.data);
         if (error === "Host Name Missing") {
@@ -149,24 +204,30 @@ const Scans = () => {
 
   //UPLOAD FILE API CALL
   const uploadFile = () => {
+    clearCache();
     const form = new FormData();
     form.append("secura_apiFile", file);
     form.append("secura_key", "6m1fcduh0lm3h757ofun4194jn");
     form.append("secura_sslEnabled", sslEnabled);
+
     setSpecStatus("In Progress");
     setShow(false);
+
     axios
       .post(`${secura_URL}/Upload`, form, {
         headers: { "Content-Type": "multipart/form-data" },
       })
       .then(function (res) {
-        // setLoading(false);
+        console.log(res.data);
+        const { error, referenceId, targetHost, specURL } = res.data;
+        console.log("file upload spec url ", specURL);
+        setspecurl(specURL);
 
-        const { error, referenceId, targetHost } = res.data;
         if (error !== null) {
           toast.error(error);
           setSpecStatus("Failed");
         } else {
+          setspecurl(specURL);
           setScanDetails(res.data);
           setSpecStatus("Completed");
         }
@@ -178,8 +239,86 @@ const Scans = () => {
       });
   };
 
+  //BEST PRACTICES HANDLER
+  const handleShowBestPractices = async (e) => {
+    e.preventDefault();
+    setbestpracLoading(true);
+
+    try {
+      // If we have both cached best practices and spec data, use them
+      if (bestPracticesCache && fetchedSpecData) {
+        navigate("/home/bestpractices", {
+          state: {
+            bestPracticesData: bestPracticesCache,
+            temporary_spec: fetchedSpecData.processedData,
+            contentType: fetchedSpecData.contentType,
+          },
+        });
+        setbestpracLoading(false);
+        return;
+      }
+
+      const response = await fetch(specurl);
+      if (!response.ok) throw new Error("Network response was not ok");
+
+      const data = await response.text();
+      const trimmedData = data.trim();
+      const isJSON = trimmedData.startsWith("{") || trimmedData.startsWith("[");
+      const isRAML = trimmedData.startsWith("#%RAML");
+
+      const detectedContentType = isJSON
+        ? "application/json"
+        : isRAML
+        ? "application/raml+yaml"
+        : "text/plain";
+
+      const processedData = isJSON
+        ? JSON.stringify(JSON.parse(trimmedData), null, 2)
+        : trimmedData;
+
+      // Cache the fetched spec data
+      const specData = {
+        processedData,
+        contentType: detectedContentType,
+        timestamp: Date.now()
+      };
+      setFetchedSpecData(specData);
+      settemporary_spec(processedData);
+      setContentType(detectedContentType);
+
+      if (specurl) {
+        const payload = {
+          secura_key: "6m1fcduh0lm3h757ofun4194jn",
+          secura_url: inputUrlVal || awsData.spec_url || specurl,
+          secura_sslEnabled: sslEnabled,
+        };
+
+        const { data: bestPractices } = await axios.post(
+          `${secura_URL}/APIBestPractices`,
+          payload
+        );
+
+        // Cache the best practices data
+        setBestPracticesCache(bestPractices);
+
+        navigate("/home/bestpractices", {
+          state: {
+            bestPracticesData: bestPractices,
+            temporary_spec: processedData,
+            contentType: detectedContentType,
+          },
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Something went wrong. Please try again later.");
+    } finally {
+      setbestpracLoading(false);
+    }
+  };
   //UPLOAD MISSING HOST NAME API CALL
   const verifyMissingSpecURL = () => {
+    clearCache();
     const payload = {
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
       secura_url: inputUrlVal,
@@ -189,6 +328,7 @@ const Scans = () => {
     setSpecModal(false);
     setSpecStatus("In Progress");
     setShow(false);
+
     axios
       .post(`${secura_URL}/UploadURLWithHost`, payload)
       .then(function (res) {
@@ -209,6 +349,45 @@ const Scans = () => {
       });
   };
 
+
+  const clearCache = () => {
+    sessionStorage.removeItem('specurl');
+    sessionStorage.removeItem('bestPracticesCache');
+    sessionStorage.removeItem('fetchedSpecData');
+    setBestPracticesCache(null);
+    setFetchedSpecData(null);
+    settemporary_spec("");
+    setContentType("");
+  };
+
+  // Clear cache when starting a new scan
+  const handleNewScan = () => {
+    const basePath = '/home/scans';
+    clearCache();
+    navigate(0)
+
+    navigate(basePath, { 
+      replace: true, // This replaces the current entry in the history stack
+      state: {} // Clear any state
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      // Optional: Clear session storage when component unmounts
+      // clearCache();
+    };
+  }, []);
+
+
+  const isCacheStale = () => {
+    if (!fetchedSpecData?.timestamp) return true;
+    const cacheAge = Date.now() - fetchedSpecData.timestamp;
+    const maxAge = 1000 * 60 * 60; // 1 hour
+    return cacheAge > maxAge;
+  };
+
+  
   //SCAN API CALL
   const scanAPI = () => {
     const scanParams = {
@@ -216,7 +395,6 @@ const Scans = () => {
       secura_key: "6m1fcduh0lm3h757ofun4194jn",
       secura_targetHost: scanDetails.targetHost,
       secura_environment: securaEnvironmentStatus ? "PRD" : "DEV",
-
       ...(submittedScriptRes.scanId && {
         secura_scanId: submittedScriptRes.scanId,
       }),
@@ -226,7 +404,6 @@ const Scans = () => {
       ...(submittedScriptRes.auth && { secura_auth: submittedScriptRes.auth }),
     };
 
-    // console.log("scanparms", scanParams);
     setScanStatus("In Progress");
     axios
       .post(`${secura_URL}/ScanAPI`, scanParams)
@@ -249,6 +426,13 @@ const Scans = () => {
       });
   };
 
+  const handleButtonClick = () => {
+    setShowModal(true);
+  };
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
   return (
     <>
       <Loader show={loading} />
@@ -261,6 +445,7 @@ const Scans = () => {
           },
         }}
       />
+
       <div className="d-flex justify-content-end mb-1">
         <button
           style={{
@@ -284,17 +469,17 @@ const Scans = () => {
       </div>
 
       <div className="scan-parent-container">
-        <div class="scan-container">
+        <div className="scan-container">
           <form>
-            <div class="form-group">
-              <div class="form-row">
+            <div className="form-group">
+              <div className="form-row">
                 {Object.keys(awsData).length === 0 || awsData.error !== null ? (
                   <>
-                    <div class="col">
+                    <div className="col">
                       <div>
                         <label>
                           Enter API spec:{" "}
-                          <i class="fa fa-question-circle questionMark"></i>
+                          <i className="fa fa-question-circle questionMark"></i>
                           <button
                             style={{ textDecoration: "none" }}
                             className="btn btn-link"
@@ -313,7 +498,7 @@ const Scans = () => {
                         </label>
                       </div>
                     </div>
-                    <div class="col d-flex justify-content-end">
+                    <div className="col d-flex justify-content-end">
                       <div className="d-flex flex-column mt-2">
                         <Container>
                           <Form>
@@ -321,7 +506,6 @@ const Scans = () => {
                               type="switch"
                               id="custom-switch"
                               label="Production"
-                              // checked={isChecked}
                               onChange={() =>
                                 setSecuraEnvironmentStatus(
                                   !securaEnvironmentStatus
@@ -337,22 +521,11 @@ const Scans = () => {
                               type="switch"
                               id="custom-switch"
                               label="SSL Enabled"
-                              // checked={isChecked}
                               onChange={() => setSslEnabled(!sslEnabled)}
                               style={{ color: "grey", fontSize: "13px" }}
                             />
                           </Form>
                         </Container>
-                        {/* <button
-                      className="btn btn-link"
-                      onClick={(e) => {
-                        setFile("");
-                        setScanResutls(null);
-                        setScanningStart(false);
-                      }}
-                    >
-                      Reset
-                    </button> */}
                       </div>
                     </div>
                   </>
@@ -381,7 +554,6 @@ const Scans = () => {
                       padding: "5px 20px 5px 14px",
                       left: "93%",
                       bottom: "35px",
-                      // color: "rgb(191 191 191)",
                     }}
                     className="btn btn-info ms-n5"
                     type="submit"
@@ -399,23 +571,20 @@ const Scans = () => {
             {scanResults ? (
               <button
                 type="submit"
-                class="btn btn-md btn-info btn-block mb-2"
-                onClick={() => window.location.reload()}
+                className="btn btn-md btn-info btn-block mb-2"
+                onClick={handleNewScan}
                 style={{
                   color: "#fff",
                   fontWeight: "600",
                   letterSpacing: "1px",
                 }}
-                // disabled={
-                //   specStatus !== "Completed" || scanStatus === "In Progress"
-                // }
               >
                 Start a new Scan
               </button>
             ) : (
               <button
                 type="submit"
-                class="btn btn-md btn-info btn-block mb-2"
+                className="btn btn-md btn-info btn-block mb-2"
                 onClick={handleSubmit}
                 disabled={
                   specStatus !== "Completed" || scanStatus === "In Progress"
@@ -437,20 +606,74 @@ const Scans = () => {
               authStatus={authStatus}
               scanningStart={scanningStart}
             />
+
             {specStatus === "Completed" && (
               <p
                 className="fs-15 text-primary"
                 style={{
                   marginTop: "-35px",
                   marginLeft: "-2px",
-                  // color: "rgb(255 178 0)",
                   fontWeight: "600",
                 }}
               >
-                <span className="text-secondary">Scanning Host:</span> &nbsp;
-                {scanDetails.targetHost}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "5px",
+                  }}
+                >
+                  <i
+                    className="fas fa-server"
+                    style={{ color: "#6c757d", marginRight: "5px" }}
+                  ></i>
+                  <span className="text-secondary">Scanning Host:</span>&nbsp;
+                  <span className="text-info">{scanDetails.targetHost}</span>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: "5px",
+                  }}
+                >
+                  <i
+                    className="fas fa-book-open"
+                    style={{ color: "#6c757d", marginRight: "5px" }}
+                  ></i>
+                  <span className="text-secondary">Best Practices:</span>&nbsp;
+                  <a
+                    href="#"
+                    onClick={handleShowBestPractices}
+                    style={{ cursor: "pointer" }}
+                    className="text-info"
+                  >
+                    Show Best Practices
+                  </a>
+                  <div
+                    style={{
+                      marginLeft: "10px",
+                      width: 30,
+                      height: 30,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {bestpracLoading ? (
+                      <ReactLoading
+                        type={"spin"}
+                        color={"rgb(17 150 171)"}
+                        height={30}
+                        width={30}
+                      />
+                    ) : null}
+                  </div>
+                </div>
               </p>
             )}
+
             {scanningStart ? (
               <>
                 {scanStatus === "In Progress" ? (
@@ -472,7 +695,6 @@ const Scans = () => {
                     !
                     <br />
                     <span className="fs-13 text-secondary blinker-active">
-                      {" "}
                       <i className="fa-solid fa-triangle-exclamation mt-1 text-center"></i>
                       &nbsp; Please do not leave this page while scan is in
                       progress.
@@ -487,12 +709,25 @@ const Scans = () => {
                 )}
 
                 <br />
+                {scanStatus === "Completed" && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleButtonClick}
+                      className="custom-button"
+                    >
+                      Scan Code
+                    </button>
+                    {showModal && <ScanCode onClose={handleCloseModal} />}
+                  </>
+                )}
 
                 <iframe
                   src={`http://192.168.18.20:8081/Portal/Progress?reference_id=${scanDetails.referenceId}`}
                   title="scan progress"
                   width="100%"
-                  height="64px"
+                  style={{ backgroundColor: "black", borderRadius: "10px" }}
+                  height="80px"
                   className="mb-5"
                 ></iframe>
 
@@ -509,6 +744,7 @@ const Scans = () => {
             ) : null}
           </form>
         </div>
+
         <AddAuthModal open={open} setOpen={setOpen} />
 
         <SpecUploadModal
@@ -519,7 +755,7 @@ const Scans = () => {
           uploadFile={uploadFile}
         />
 
-        {/*Modal for missing connector spec*/}
+        {/* Modal for missing connector spec */}
         <Modal
           show={openSpecModal}
           onHide={() => {
@@ -537,9 +773,7 @@ const Scans = () => {
             }}
           >
             <label className="fs-13 mt-3 ml-3" htmlFor="missingSpecUrl">
-              <strong className="text-danger">
-                Server URL missing in spec
-              </strong>
+              <strong className="text-danger">Server URL missing in spec</strong>
             </label>
           </Modal.Header>
 

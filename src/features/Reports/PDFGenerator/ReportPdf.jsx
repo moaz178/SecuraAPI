@@ -450,19 +450,26 @@ const ReportPdf = ({ data, pdfMode, onChange }) => {
       </>
     );
   };
-  const printHandler = () => {
-    const printElement = ReactDOMServer.renderToString(pdfJSX());
-    // const printElement = pdfJSX();
-    const options = {
-      margin: 10,
-      filename: "report.pdf",
-      image: { type: "pdf", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: "mm", format: "a3", orientation: "landscape" },
-    };
 
-    html2pdf().from(printElement).set(options).save();
+const printHandler = () => {
+  // Ensure pdfJSX returns JSX
+  const printElement = ReactDOMServer.renderToString(pdfJSX());
+
+  const options = {
+    margin: 10,
+    filename: "report.pdf",
+    image: { type: "jpeg", quality: 0.98 }, // Adjusted type to 'jpeg'
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
   };
+
+  // html2pdf needs a DOM element or valid HTML string
+  html2pdf()
+    .from(printElement)
+    .set(options)
+    .save();
+};
+
 
   return (
     <>

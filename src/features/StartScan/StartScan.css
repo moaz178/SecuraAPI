@@ -1,0 +1,43 @@
+/* styles.css */
+
+
+
+
+.code-line {
+    display: flex;
+  }
+  
+  .code-line.underline {
+    border-bottom: 2px solid red;
+  }
+  .nav-tabs .nav-link:hover {
+    color: black !important;
+  }
+  
+  .line-number {
+    width: 30px;
+    color: #888;
+    text-align: right;
+    margin-right: 10px;
+    user-select: none;
+  }
+  .backgroundcolor{
+    background-color: #888;
+  }
+
+
+  .text-red {
+    color: #ff0000;
+  }
+  
+  
+
+  
+  .text-blue {
+    color: #0000ff;
+  }
+  
+  .text-gray {
+    color: #808080;
+  }
+  
